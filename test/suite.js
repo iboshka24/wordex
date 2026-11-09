@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 
-console.log('--- Starting Wordex Test Suite ---');
+console.log('--- Starting Wordzone Test Suite ---');
 
 // 1. Syntax check
 require('../api/ai.js');

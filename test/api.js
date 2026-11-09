@@ -209,7 +209,7 @@ function noSecrets(res) {
   r = await call(h, request({ headers: { origin: 'https://preview-123.vercel.app', host: 'internal' } }));
   assert.equal(r.statusCode, 200, 'the deployment URL is an allowed origin');
   assert.equal(lastCall.url, 'https://openrouter.ai/api/v1/chat/completions'); assert.equal(lastCall.body.model, 'my-model');
-  assert.equal(lastCall.options.headers['X-Title'], 'Wordex', 'OpenRouter gets its attribution header');
+  assert.equal(lastCall.options.headers['X-Title'], 'Wordzone', 'OpenRouter gets its attribution header');
   r = await call(h, request({ headers: { origin: [ORIGIN, 'https://other'] } }));
   assert.equal(r.statusCode, 200, 'repeated headers use the first value');
   r = await call(h, request({ body: { words: ['a'], source: 'en', target: 'ru', pad: 'x'.repeat(20000) } }));

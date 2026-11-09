@@ -69,7 +69,7 @@ assert.equal(f.nav.textContent, 'Study words');
 assert.equal(f.hero.innerHTML, 'Not just words.<br><em>Your new thoughts.</em>');
 assert.equal(f.swap.getAttribute('title'), 'Swap languages (Alt+X)'); assert.equal(f.swap.getAttribute('aria-label'), 'Swap languages');
 assert.equal(f.win.document.documentElement.lang, 'en');
-assert.equal(f.win.document.title, 'Wordex — words become knowledge');
+assert.equal(f.win.document.title, 'Wordzone — words become knowledge');
 assert.match(f.meta.getAttribute('content'), /Paste words/);
 inst.set('en'); inst.set('xx');
 assert.deepEqual(seen, ['en', 'second:en'], 'same or unknown language does nothing');

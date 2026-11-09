@@ -1,4 +1,4 @@
-/* Wordex (formerly Vocabulary Master AI, originally WordLoop). No build step. */
+/* Wordzone (formerly Wordex, Vocabulary Master AI, originally WordLoop). No build step. */
 (function () {
   'use strict';
 
@@ -2437,7 +2437,7 @@
     $('btnUndo').onclick = undoAnswer;
     $('btnShareClose').onclick = closeShare;
     $('btnShareCopy').onclick = copyShareLink;
-    $('btnShareNative').onclick = function () { navigator.share({ title: 'Wordex', text: shareState.title, url: shareState.link }).catch(function () {}); };
+    $('btnShareNative').onclick = function () { navigator.share({ title: 'Wordzone', text: shareState.title, url: shareState.link }).catch(function () {}); };
     $('btnShareFile').onclick = downloadShareFile;
     $('btnPreviewAdd').onclick = addPreviewDeck;
     $('btnPreviewCancel').onclick = closePreview;
@@ -2452,7 +2452,7 @@
     $('btnExportLibrary').onclick = function () {
       // Library exports never include API keys or provider configuration.
       var blob = new Blob([JSON.stringify(L.backupFile(library), null, 2)], { type: 'application/json' });
-      var link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'wordex-' + L.day() + '.json'; link.click();
+      var link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'wordzone-' + L.day() + '.json'; // the name is cosmetic: restore reads the content link.click();
       setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
     };
     $('importLibrary').onchange = async function () {

@@ -3,31 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Wordex — слова становятся знаниями</title>
+  <title>Wordzone — слова становятся знаниями</title>
   <meta name="description" content="Вставь слова или готовые пары — ИИ отфильтрует мусор, переведёт на 9 языков и соберёт бесконечный цикл повторений." />
   <meta name="theme-color" content="#f6f1e7" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%81%3C/text%3E%3C/svg%3E" />
   <!-- Self-hosted fonts (tools/fetch-fonts.js): no third-party requests, works offline and under a strict CSP. -->
-  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.20" />
-  <link rel="stylesheet" href="styles.css?v=2.20" />
-  <link rel="stylesheet" href="editorial.css?v=2.20" />
-  <link rel="stylesheet" href="shell.css?v=2.20" />
-  <link rel="stylesheet" href="motion.css?v=2.20" />
+  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.21" />
+  <link rel="stylesheet" href="styles.css?v=2.21" />
+  <link rel="stylesheet" href="editorial.css?v=2.21" />
+  <link rel="stylesheet" href="shell.css?v=2.21" />
+  <link rel="stylesheet" href="motion.css?v=2.21" />
   <script>try{var r=document.documentElement,s=JSON.parse(localStorage.getItem('vm.display')||'null')||{},t=/^(system|light|dark)$/.test(s.theme)?s.theme:localStorage.getItem('vm.theme');if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';r.dataset.theme=t==='dark'?'dark':'light';if(/^(s|l|xl)$/.test(s.size))r.dataset.size=s.size;if(s.contrast===true)r.dataset.contrast='high';if(s.spacing===true)r.dataset.spacing='wide'}catch(e){document.documentElement.dataset.theme='light'}</script>
 </head>
 <body>
   <div class="app-shell">
   <aside class="sidebar" id="sidebar" aria-label="Меню" data-i18n-attr="aria-label:side.aria">
-    <a class="logo" href="#" id="logoHome" title="Wordex — на главную" data-i18n-attr="title:nav.home">
+    <a class="logo" href="#" id="logoHome" title="Wordzone — на главную" data-i18n-attr="title:nav.home">
       <span class="logo-mark">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="m17 2 4 4-4 4" /><path d="M3 11v-1a4 4 0 0 1 4-4h14" />
           <path d="m7 22-4-4 4-4" /><path d="M21 13v1a4 4 0 0 1-4 4H3" />
         </svg>
       </span>
-      <span class="logo-text">Word<em>ex</em></span>
+      <span class="logo-text">Word<em>zone</em></span>
     </a>
     <p class="side-slogan" data-i18n="footer.tag">Меньше шума. Больше смысла.</p>
     <nav class="side-nav" aria-label="Основная навигация" data-i18n-attr="aria-label:nav.aria">
@@ -157,7 +157,7 @@
       </div>
 
       <p class="foot-note" data-i18n="setup.foot">Прогресс хранится на этом устройстве. Слова для перевода отправляются выбранному сервису.</p>
-      <div class="welcome-copy"><h2 data-i18n="welcome.h">Welcome to Wordex!</h2><p data-i18n="welcome.p">Master new vocabulary effortlessly! Add your own word lists, practice with smart flashcards or typing modes, and let built-in AI translation guide your learning. Our adaptive system automatically reshuffles tricky words back into your deck so you never forget them!</p></div>
+      <div class="welcome-copy"><h2 data-i18n="welcome.h">Welcome to Wordzone!</h2><p data-i18n="welcome.p">Master new vocabulary effortlessly! Add your own word lists, practice with smart flashcards or typing modes, and let built-in AI translation guide your learning. Our adaptive system automatically reshuffles tricky words back into your deck so you never forget them!</p></div>
     </section>
 
     <!-- ============ LOADING ============ -->
@@ -365,7 +365,7 @@
       </div>
     </section>
   </main>
-  <footer class="app-footer"><span>Wordex</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.15</span></footer>
+  <footer class="app-footer"><span>Wordzone</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.21</span></footer>
   </div>
   </div>
 
@@ -563,15 +563,15 @@
   <div class="goal-celebration" id="goalCelebration" hidden role="status"><div class="goal-motion" id="goalMotion" aria-hidden="true"></div><div><strong data-i18n="goal.title">Ещё один шаг вперёд.</strong><p data-i18n="goal.text">Дневная цель достигнута. Хорошая работа!</p></div><button id="closeGoalMotion" type="button" aria-label="Закрыть уведомление" data-i18n-attr="aria-label:goal.close">×</button></div>
 
   <!-- lottie + the achievement animation are loaded on demand by motion.js -->
-  <script defer src="display.js?v=2.20"></script>
-  <script defer src="i18n.js?v=2.20"></script>
-  <script defer src="motion.js?v=2.20"></script>
-  <script defer src="languages.js?v=2.20"></script>
-  <script defer src="learning.js?v=2.20"></script>
-  <script defer src="ai-core.js?v=2.20"></script>
-  <script defer src="share.js?v=2.20"></script>
-  <script defer src="games.js?v=2.20"></script>
-  <script defer src="account.js?v=2.20"></script>
-  <script defer src="app.js?v=2.20"></script>
+  <script defer src="display.js?v=2.21"></script>
+  <script defer src="i18n.js?v=2.21"></script>
+  <script defer src="motion.js?v=2.21"></script>
+  <script defer src="languages.js?v=2.21"></script>
+  <script defer src="learning.js?v=2.21"></script>
+  <script defer src="ai-core.js?v=2.21"></script>
+  <script defer src="share.js?v=2.21"></script>
+  <script defer src="games.js?v=2.21"></script>
+  <script defer src="account.js?v=2.21"></script>
+  <script defer src="app.js?v=2.21"></script>
 </body>
 </html>
