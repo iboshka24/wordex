@@ -7,7 +7,7 @@ const path = require('node:path');
 const os = require('node:os');
 const root = path.resolve(__dirname, '..');
 const vercelHeaders = require('../tools/vercel-headers.js');
-const output = process.env.VM_SCREENSHOTS || path.join(os.tmpdir(), 'opencode', 'wordex-screenshots');
+const output = process.env.VM_SCREENSHOTS || path.join(os.tmpdir(), 'opencode', 'wordzone-screenshots');
 fs.mkdirSync(output, { recursive: true });
 const mime = {'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.mp4':'video/mp4','.woff2':'font/woff2','.json':'application/json','.png':'image/png'};
 const server = http.createServer((req,res) => {
@@ -30,7 +30,7 @@ run.server(server);
   await page.addInitScript(()=>{try{localStorage.setItem('vm.onboarded','1')}catch(e){}});
   await page.goto('http://127.0.0.1:' + server.address().port);
   await page.locator('#sourceLang option').first().waitFor({state:'attached'});
-  assert.equal(await page.title(),'Wordex — слова становятся знаниями');
+  assert.equal(await page.title(),'Wordzone — слова становятся знаниями');
   assert.equal(await page.locator('.bg, canvas#fx, .spot').count(),0,'no ambient background layers');
   await page.screenshot({path:path.join(output,'01-desktop.png'),fullPage:true});
   await page.click('#btnDemo');

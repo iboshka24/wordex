@@ -7,7 +7,7 @@
 })(typeof window !== 'undefined' ? window : this, function () {
   'use strict';
 
-  function norm(s) { return String(s || '').toLocaleLowerCase().normalize('NFC').replace(/ё/g, 'е').replace(/\s+/g, ' ').trim(); }
+  function norm(s) { return String(s || '').toLocaleLowerCase().normalize('NFC').replace(/ё/g, 'е').replace(/[’‘ʻʼ`]/g, "'").replace(/\s+/g, ' ').trim(); }
   function shuffle(list, rand) {
     var r = rand || Math.random, a = list.slice();
     for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(r() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
@@ -73,6 +73,21 @@
     return out;
   }
 
+  // Letter tiles: user-perceived characters (Intl.Segmenter when available), with Uzbek oʻ / gʻ kept as one tile
+  // whatever apostrophe was typed. sh / ch / ng stay separate letters.
+  var SEGMENTER = typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
+  function tiles(word) {
+    var w = String(word || '');
+    var parts = SEGMENTER ? Array.from(SEGMENTER.segment(w), function (x) { return x.segment; }) : Array.from(w);
+    var out = [];
+    parts.forEach(function (p) {
+      var prev = out[out.length - 1];
+      if (prev && /^[oOgG]$/.test(prev) && /^['‘’`ʻʼ]$/.test(p)) out[out.length - 1] = prev + p;
+      else out.push(p);
+    });
+    return out;
+  }
+
   // Single words of 3-12 letters, letters shuffled so the word is not already spelled out.
   function scramble(cards, count, rand) {
     var out = [], seen = Object.create(null);
@@ -80,7 +95,7 @@
       var w = base(c.original);
       if (out.length >= (count || 8) || seen[norm(w)] || !/^[\p{L}'-]{3,12}$/u.test(w)) return;
       seen[norm(w)] = true;
-      var letters = Array.from(w), tries = 0, mixed = letters;
+      var letters = tiles(w), tries = 0, mixed = letters;
       while (tries++ < 12 && mixed.join('') === w) mixed = shuffle(letters, rand);
       if (mixed.join('').toLocaleLowerCase() === w.toLocaleLowerCase() && new Set(letters.map(function (x) { return x.toLocaleLowerCase(); })).size > 1) return;
       out.push({ card: c, word: w, letters: mixed });
@@ -690,7 +705,7 @@
     return { refresh: function () { if (!game) fillDecks(); }, leave: function () { if (game) leave(); }, active: function () { return Boolean(game); } };
   }
 
-  return { findWord: findWord, cloze: cloze, scramble: scramble, trueFalse: trueFalse, base: base, mount: mount,
+  return { tiles: tiles, findWord: findWord, cloze: cloze, scramble: scramble, trueFalse: trueFalse, base: base, mount: mount,
     questions: questions, chests: chests, CHESTS: CHESTS, heistPenalty: heistPenalty, HEIST: HEIST, BOSS: BOSS, bossHit: bossHit,
     FACTORY: FACTORY, factoryDefaults: factoryDefaults, factoryCost: factoryCost, factoryBuy: factoryBuy, factoryEarn: factoryEarn };
 });

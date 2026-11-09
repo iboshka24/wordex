@@ -1,9 +1,10 @@
 /**
- * /api/ai — translation endpoint of Wordex (Vercel Serverless Function).
+ * /api/ai — translation endpoint of Wordzone (Vercel Serverless Function).
  *
  * Contract: POST application/json
  *   { "action": "status" }                                  → { status, serverKeyConfigured, limits }
  *   { "words": [...], "source": "en", "target": "ru" }      → { items: [{ original, translation, hint, definition, examples }] }
+ *   { "mode": "grammar", "words": [...≤12], "source": "de", "target": "ru" } → { items: [{ original, rules: [...] }] } (see grammar.js)
  * The server builds the prompt itself; callers can no longer send arbitrary chat messages.
  *
  * Environment:
@@ -173,7 +174,7 @@ module.exports = async (req, res) => {
   }
 
   const headers = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (serverKey || clientKey) };
-  if (/openrouter\.ai/i.test(base)) headers['X-Title'] = 'Wordex';
+  if (/openrouter\.ai/i.test(base)) headers['X-Title'] = 'Wordzone';
 
   let upstream;
   try {

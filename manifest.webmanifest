@@ -1,6 +1,6 @@
 {
-  "name": "Wordex",
-  "short_name": "Wordex",
+  "name": "Wordzone",
+  "short_name": "Wordzone",
   "description": "Smart flashcards, typing, listening and a matching game for your own word lists.",
   "start_url": "./",
   "scope": "./",

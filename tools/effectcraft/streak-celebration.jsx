@@ -1,5 +1,5 @@
 // ============================================================================
-//  Wordex — "Streak Celebration" motion piece
+//  Wordzone — "Streak Celebration" motion piece
 //  Built headlessly for EffectCraft (https://github.com/iboshka24/effectcraft-mcp)
 //  Run:  effectcraft-cli script streak-celebration.jsx --empty --save-as streak.ecproj
 //

@@ -50,4 +50,4 @@ http.createServer((req, res) => {
     }
     res.end(data);
   });
-}).listen(port, () => console.log('Wordex → http://localhost:' + port));
+}).listen(port, () => console.log('Wordzone → http://localhost:' + port));

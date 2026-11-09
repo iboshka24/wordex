@@ -3,31 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Wordex — слова становятся знаниями</title>
-  <meta name="description" content="Вставь слова или готовые пары — ИИ отфильтрует мусор, переведёт на 20 языков и соберёт бесконечный цикл повторений." />
+  <title>Wordzone — слова становятся знаниями</title>
+  <meta name="description" content="Вставь слова или готовые пары — ИИ отфильтрует мусор, переведёт на 9 языков и соберёт бесконечный цикл повторений." />
   <meta name="theme-color" content="#f6f1e7" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%81%3C/text%3E%3C/svg%3E" />
   <!-- Self-hosted fonts (tools/fetch-fonts.js): no third-party requests, works offline and under a strict CSP. -->
-  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.20" />
-  <link rel="stylesheet" href="styles.css?v=2.20" />
-  <link rel="stylesheet" href="editorial.css?v=2.20" />
-  <link rel="stylesheet" href="shell.css?v=2.20" />
-  <link rel="stylesheet" href="motion.css?v=2.20" />
+  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.21" />
+  <link rel="stylesheet" href="styles.css?v=2.21" />
+  <link rel="stylesheet" href="editorial.css?v=2.21" />
+  <link rel="stylesheet" href="shell.css?v=2.21" />
+  <link rel="stylesheet" href="motion.css?v=2.21" />
   <script>try{var r=document.documentElement,s=JSON.parse(localStorage.getItem('vm.display')||'null')||{},t=/^(system|light|dark)$/.test(s.theme)?s.theme:localStorage.getItem('vm.theme');if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';r.dataset.theme=t==='dark'?'dark':'light';if(/^(s|l|xl)$/.test(s.size))r.dataset.size=s.size;if(s.contrast===true)r.dataset.contrast='high';if(s.spacing===true)r.dataset.spacing='wide'}catch(e){document.documentElement.dataset.theme='light'}</script>
 </head>
 <body>
   <div class="app-shell">
   <aside class="sidebar" id="sidebar" aria-label="Меню" data-i18n-attr="aria-label:side.aria">
-    <a class="logo" href="#" id="logoHome" title="Wordex — на главную" data-i18n-attr="title:nav.home">
+    <a class="logo" href="#" id="logoHome" title="Wordzone — на главную" data-i18n-attr="title:nav.home">
       <span class="logo-mark">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="m17 2 4 4-4 4" /><path d="M3 11v-1a4 4 0 0 1 4-4h14" />
           <path d="m7 22-4-4 4-4" /><path d="M21 13v1a4 4 0 0 1-4 4H3" />
         </svg>
       </span>
-      <span class="logo-text">Word<em>ex</em></span>
+      <span class="logo-text">Word<em>zone</em></span>
     </a>
     <p class="side-slogan" data-i18n="footer.tag">Меньше шума. Больше смысла.</p>
     <nav class="side-nav" aria-label="Основная навигация" data-i18n-attr="aria-label:nav.aria">
@@ -36,6 +36,7 @@
       <button type="button" class="nav-link" id="navLibrary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2"/><path d="M8 7h7"/></svg><span data-i18n="nav.library">Моя библиотека</span></button>
       <button type="button" class="nav-link" id="navTest"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 11 2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg><span data-i18n="nav.test">Лексический тест</span></button>
       <button type="button" class="nav-link" id="navGames"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="12" rx="4"/><path d="M7 11v4M5 13h4"/><circle cx="15.5" cy="12" r="1"/><circle cx="18" cy="14.5" r="1"/></svg><span data-i18n="nav.games">Игры</span></button>
+      <button type="button" class="nav-link" id="navGrammar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 18 5-13 5 13M5 13.5h6"/><path d="M15 12.5a3 3 0 0 1 6 0V18m0-3.5c-.8-.6-1.8-1-3-1-1.7 0-3 1-3 2.2 0 1.3 1.1 2.3 2.6 2.3 1.4 0 2.6-.8 3.4-2"/></svg><span data-i18n="nav.grammar">Грамматика</span></button>
       <button type="button" class="nav-link" id="navProgress"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i18n="nav.progress">Прогресс</span></button>
       <p class="side-group" data-i18n="side.tools">Инструменты</p>
       <button class="side-link" id="btnSettings" type="button" title="Настройки API" data-i18n-attr="title:top.settings">
@@ -78,11 +79,16 @@
   <main>
     <!-- ============ SETUP ============ -->
     <section class="screen active" id="screen-setup">
+      <ol class="steps" id="howSteps" aria-label="Как это работает" data-i18n-attr="aria-label:steps.aria">
+        <li data-step="1"><span class="step-n" aria-hidden="true">1</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg><span data-i18n="steps.1">Вставь слова или текст</span></li>
+        <li data-step="2"><span class="step-n" aria-hidden="true">2</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 17v4M17 19h4"/></svg><span data-i18n="steps.2">ИИ делает карточки и правила</span></li>
+        <li data-step="3"><span class="step-n" aria-hidden="true">3</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span data-i18n="steps.3">Повторяй с интервалами</span></li>
+      </ol>
       <div class="hero hero-banner">
         <div class="hero-copy">
           <span class="eyebrow"><span class="edition-dot"></span><span data-i18n="hero.eyebrow">МАЛЕНЬКАЯ ПРИВЫЧКА. БОЛЬШОЙ СЛОВАРЬ.</span></span>
           <h1 data-i18n-html="hero.h1">Не просто слова.<br><em>Твои новые мысли.</em></h1>
-          <p class="sub" data-i18n="hero.sub">Собирай слова, которые нужны именно тебе. Вспоминай, ошибайся и пробуй снова — мы вернём сложное в нужный момент.</p>
+          <p class="sub" data-i18n="hero.sub">Вставь слова или текст — ИИ сделает карточки, объяснит грамматику и напомнит повторить вовремя.</p>
           <div class="hero-note"><span data-i18n="hero.n1">Твой темп</span><span data-i18n="hero.n2">Умные повторения</span><span data-i18n="hero.n3">Без регистрации</span></div>
           <div class="hero-actions"><button class="btn hero-cta" id="btnHeroDemo" type="button" data-i18n="hero.demo">Попробовать демо-колоду</button><button class="btn hero-ghost" id="btnHeroOwn" type="button" data-i18n="hero.own">Добавить свои слова ↓</button></div>
         </div>
@@ -116,7 +122,7 @@
             <button class="preset-chip" type="button" data-preset="advanced" data-i18n="preset.advanced">Продвинутые</button>
           </div>
 
-          <textarea id="input" spellcheck="false" data-i18n-attr="placeholder:words.placeholder" placeholder="serendipity&#10;resilience&#10;to achieve&#10;apple - яблоко&#10;house : дом&#10;..."></textarea>
+          <textarea id="input" spellcheck="false" data-i18n-attr="placeholder:words.placeholder" placeholder="Введи или вставь слова (например: resilient, give up, depend on)…&#10;или готовые пары: apple — яблоко"></textarea>
 
           <div class="input-meta">
             <span class="count-chip" id="inputStat">0 слов</span>
@@ -150,6 +156,7 @@
               <span data-i18n="setup.start">Создать тренировку</span>
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></svg>
             </button>
+            <button class="btn block quick-start" id="btnQuick5" type="button" title="Пять слов с переводом — тренировка начнётся сразу, даже без интернета" data-i18n="quick.btn" data-i18n-attr="title:quick.title">⚡ Попробовать на 5 словах</button>
             <button class="btn ghost block" id="btnDemo" type="button" data-i18n="setup.demo">Попробовать демо-колоду (14 слов)</button>
           </div>
           <p class="mini resume" id="resumeBox" hidden><span data-i18n="setup.resume">Продолжить прошлую сессию — </span><button class="link" id="btnResume" type="button" data-i18n="setup.resumeLink">открыть сохранённую колоду</button></p>
@@ -157,7 +164,7 @@
       </div>
 
       <p class="foot-note" data-i18n="setup.foot">Прогресс хранится на этом устройстве. Слова для перевода отправляются выбранному сервису.</p>
-      <div class="welcome-copy"><h2 data-i18n="welcome.h">Welcome to Wordex!</h2><p data-i18n="welcome.p">Master new vocabulary effortlessly! Add your own word lists, practice with smart flashcards or typing modes, and let built-in AI translation guide your learning. Our adaptive system automatically reshuffles tricky words back into your deck so you never forget them!</p></div>
+      <div class="welcome-copy"><h2 data-i18n="welcome.h">Welcome to Wordzone!</h2><p data-i18n="welcome.p">Paste your words — AI turns them into flashcards and explains the grammar, and smart reviews bring tricky words back at the right time.</p></div>
     </section>
 
     <!-- ============ LOADING ============ -->
@@ -204,6 +211,7 @@
                 </button>
               </div>
               <div class="card-word" id="cardWord">—</div>
+              <div class="card-reading" id="cardReading" hidden></div>
               <div class="card-foot">
                 <span class="card-sub" id="cardSub">вспомни перевод, потом переверни</span>
                 <span class="flip-hint" data-i18n="train.space">пробел</span>
@@ -219,6 +227,7 @@
                 </button>
               </div>
               <div class="card-word" id="cardTrans">—</div>
+              <div class="card-reading" id="cardReadingBack" hidden></div>
               <div class="card-hint" id="cardHint"></div>
               <div class="context-block" id="cardContext"></div>
               <span class="swipe-hint" aria-hidden="true" data-i18n-html="card.swipe">← повторить <span>свайп</span> знаю →</span>
@@ -305,6 +314,7 @@
       <div class="lib-tabs" role="tablist" aria-label="Библиотека" data-i18n-attr="aria-label:nav.library"><button type="button" role="tab" id="tabDecks" aria-selected="true" aria-controls="decksPanel" data-i18n="lib.tabDecks">Колоды</button><button type="button" role="tab" id="tabVault" aria-selected="false" aria-controls="vaultPanel" tabindex="-1" data-i18n="lib.tabVault">Все слова</button></div>
       <div id="decksPanel" role="tabpanel" aria-labelledby="tabDecks">
       <div class="grid-head"><h2 data-i18n="lib.explore">Твои колоды</h2><span id="deckCount"></span></div>
+      <p class="archived-note" id="archivedNote" role="note" hidden><span data-i18n="lang.archivedNote">Некоторые твои колоды на языках, которые больше не предлагаются.</span> <button type="button" class="link" id="btnArchivedOk" data-i18n="lang.archivedOk">Понятно</button></p>
       <div class="library-grid" id="libraryGrid"></div>
       <p class="quiz-empty" id="filterEmpty" hidden data-i18n="filter.none">Под фильтры не подошла ни одна колода.</p>
       </div>
@@ -338,6 +348,37 @@
         <button class="btn primary" type="button" id="gameNext" hidden data-i18n="btn.next">Дальше →</button>
       </div>
     </section>
+    <section class="screen" id="screen-grammar">
+      <div class="library-intro"><div><span class="eyebrow" data-i18n="gram.eyebrow">ПРАВИЛА ИЗ ТВОИХ СЛОВ</span><h1 data-i18n="gram.h1">Грамматика</h1><p data-i18n="gram.sub">Каждое правило — из слов, которые ты учишь. С примерами и типичными ошибками.</p></div></div>
+      <div class="panel gram-build" id="gramBuild">
+        <div class="gram-build-row">
+          <label class="filter-field"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramBuildDeck"></select></span></label>
+          <button class="btn primary" id="btnGramBuild" type="button" data-i18n="gram.build">Собрать грамматику для колоды</button>
+          <label class="freeze-control gram-auto"><input type="checkbox" id="gramAuto" checked> <span data-i18n="gram.auto">Разбирать новые слова автоматически</span></label>
+        </div>
+        <p class="gram-status" id="gramStatus" role="status" aria-live="polite"></p>
+        <p class="gram-privacy" data-i18n="gram.privacy">Для разбора слова отправляются только выбранному ИИ-провайдеру.</p>
+      </div>
+      <div class="quiz-empty gram-empty" id="gramEmpty" hidden><span id="gramEmptyText"></span> <button class="link" type="button" id="btnGramEmpty"></button></div>
+      <div class="filter-row gram-filters" id="gramFilters">
+        <label class="filter-field"><span data-i18n="filter.lang">Язык</span><span class="select-wrap"><select id="gramLang"><option value="" data-i18n="filter.any">Все</option></select></span></label>
+        <label class="filter-field"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramDeck"></select></span></label>
+        <label class="filter-field"><span data-i18n="gram.category">Тема</span><span class="select-wrap"><select id="gramCategory"><option value="" data-i18n="filter.any">Все</option></select></span></label>
+        <label class="filter-field"><span data-i18n="gram.level">Уровень</span><span class="select-wrap"><select id="gramLevel"><option value="" data-i18n="filter.any">Все</option></select></span></label>
+        <label class="filter-field"><span data-i18n="gram.sort">Порядок</span><span class="select-wrap"><select id="gramSort"><option value="new" data-i18n="gram.sortNew">Сначала новые</option><option value="category" data-i18n="gram.sortCat">По темам</option></select></span></label>
+        <label class="search-box gram-search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg><input id="gramSearch" type="search" placeholder="Найти правило или слово…" autocomplete="off" aria-label="Поиск по правилам" data-i18n-attr="placeholder:gram.search,aria-label:gram.searchAria"></label>
+      </div>
+      <section class="panel gram-drill" id="gramDrill" hidden aria-labelledby="gramDrillTitle">
+        <div class="gram-drill-head"><h2 id="gramDrillTitle" data-i18n="drill.title">Найди ошибку</h2><span class="gram-drill-score" id="gramDrillScore"></span></div>
+        <p class="gram-drill-intro" id="gramDrillIntro" data-i18n="drill.intro">Какое предложение правильное? Вопросы — из типичных ошибок в твоих правилах.</p>
+        <div id="gramDrillBody"></div>
+        <div class="actions"><button class="btn primary" id="btnDrillStart" type="button" data-i18n="drill.start">Начать</button></div>
+      </section>
+      <div class="grid-head"><h2 data-i18n="gram.listH">Твоя карта грамматики</h2><span id="gramCount"></span></div>
+      <div class="gram-list" id="gramList"></div>
+      <p class="quiz-empty" id="gramNone" hidden data-i18n="gram.none">Под фильтры не подошло ни одно правило.</p>
+    </section>
+
     <section class="screen" id="screen-progress">
       <div class="library-intro"><div><span class="eyebrow" data-i18n="prog.eyebrow">ПРОГРЕСС</span><h1 data-i18n="prog.h1">Как идёт обучение</h1><p data-i18n="prog.sub">Что ждёт впереди, насколько прочно держатся слова и где нужна помощь.</p></div><label class="filter-field prog-deck"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="progDeck"></select></span></label></div>
       <p class="quiz-empty" id="progEmpty" hidden><span data-i18n="prog.empty">Статистика появится после первых ответов.</span> <button class="link" type="button" id="btnProgEmpty" data-i18n="lib.emptyBtn">Добавить слова →</button></p>
@@ -362,7 +403,7 @@
       </div>
     </section>
   </main>
-  <footer class="app-footer"><span>Wordex</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.15</span></footer>
+  <footer class="app-footer"><span>Wordzone</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.21</span></footer>
   </div>
   </div>
 
@@ -520,6 +561,11 @@
       </fieldset>
       <label class="disp-check"><input type="checkbox" id="dispContrast" /> <span data-i18n="disp.contrast">Повышенная контрастность</span></label>
       <label class="disp-check"><input type="checkbox" id="dispSpacing" /> <span data-i18n="disp.spacing">Увеличенные интервалы между буквами и строками</span></label>
+      <fieldset class="disp-group voice-check">
+        <legend data-i18n="voice.title">Голоса для озвучки</legend>
+        <ul class="voice-list" id="voiceList"></ul>
+        <p class="mini" data-i18n="voice.hint">Нет голоса? Его можно добавить в настройках системы: «Язык и регион» или «Преобразование текста в речь».</p>
+      </fieldset>
       <p class="mini disp-preview" data-i18n="disp.preview">Так выглядит обычный текст: вспомни перевод, потом переверни карточку.</p>
       <div class="actions"><button class="btn" type="button" id="btnDisplayReset" data-i18n="disp.reset">Сбросить</button><button class="btn primary" type="button" id="btnDisplayClose" data-i18n="disp.done">Готово</button></div>
     </div>
@@ -560,14 +606,16 @@
   <div class="goal-celebration" id="goalCelebration" hidden role="status"><div class="goal-motion" id="goalMotion" aria-hidden="true"></div><div><strong data-i18n="goal.title">Ещё один шаг вперёд.</strong><p data-i18n="goal.text">Дневная цель достигнута. Хорошая работа!</p></div><button id="closeGoalMotion" type="button" aria-label="Закрыть уведомление" data-i18n-attr="aria-label:goal.close">×</button></div>
 
   <!-- lottie + the achievement animation are loaded on demand by motion.js -->
-  <script defer src="display.js?v=2.20"></script>
-  <script defer src="i18n.js?v=2.20"></script>
-  <script defer src="motion.js?v=2.20"></script>
-  <script defer src="learning.js?v=2.20"></script>
-  <script defer src="ai-core.js?v=2.20"></script>
-  <script defer src="share.js?v=2.20"></script>
-  <script defer src="games.js?v=2.20"></script>
-  <script defer src="account.js?v=2.20"></script>
-  <script defer src="app.js?v=2.20"></script>
+  <script defer src="display.js?v=2.21"></script>
+  <script defer src="i18n.js?v=2.21"></script>
+  <script defer src="motion.js?v=2.21"></script>
+  <script defer src="languages.js?v=2.21"></script>
+  <script defer src="grammar.js?v=2.21"></script>
+  <script defer src="learning.js?v=2.21"></script>
+  <script defer src="ai-core.js?v=2.21"></script>
+  <script defer src="share.js?v=2.21"></script>
+  <script defer src="games.js?v=2.21"></script>
+  <script defer src="account.js?v=2.21"></script>
+  <script defer src="app.js?v=2.21"></script>
 </body>
 </html>

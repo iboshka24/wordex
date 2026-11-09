@@ -219,7 +219,7 @@ run.server(server);
   await context.setOffline(true); serverDown = true; api.mode = 'down';
   await reload();
   await page.locator('#screen-setup.active').waitFor();
-  assert.match(await page.title(), /Wordex/);
+  assert.match(await page.title(), /Wordzone/);
   await page.fill('#input', 'to whisper\npebble');
   await page.click('#btnStart');
   await waitToast(page, 'Нет сети');

@@ -346,3 +346,101 @@
 .arc-hitflash { animation:arcHit .3s; } @keyframes arcHit { 0% { box-shadow:0 0 0 0 #ffd16699; } 100% { box-shadow:0 0 0 14px transparent; } }
 @media (max-width:720px) { .arc-chests { gap:8px; } .arc-chest { height:88px; font-size:22px; } .arc-stat strong { font-size:22px; } .arc-upgrade { grid-template-columns:1fr; grid-template-areas:"name" "sub" "lvl" "buy"; } }
 @media (prefers-reduced-motion:reduce) { .arc-particle, .arc-shake, .arc-crit, .arc-hitflash, .arc-combo strong.bump { animation:none; } .arc-chest-lid, .arc-track i { transition:none; } }
+
+/* v2.21 — languages: archived decks, reading line (Pinyin) */
+.archived-badge { display:inline-block; margin-left:6px; padding:1px 7px; border:1px solid var(--stroke); border-radius:999px; font-size:10px; letter-spacing:.06em; text-transform:none; color:var(--muted); vertical-align:1px; }
+.archived-note { margin:0 0 18px; padding:10px 14px; border:1px dashed var(--stroke); border-radius:12px; font-size:13px; color:var(--muted); background:var(--surface); }
+.archived-note .link { margin-left:6px; }
+.card-reading { margin-top:6px; font:15px/1.3 var(--font-ui); letter-spacing:.02em; color:var(--muted); }
+.card-reading[hidden] { display:none !important; }
+.swap-btn:disabled { opacity:.4; cursor:not-allowed; }
+
+/* v2.21 — speaker buttons: focus, speaking, unavailable; example lines */
+.speak-btn { width:38px; height:38px; cursor:pointer; }
+.speak-btn:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+.speak-btn:disabled { opacity:.38; cursor:not-allowed; transform:none; }
+.speak-btn.is-speaking { color:var(--amber); border-color:var(--amber); animation:speak-pulse 1.1s ease-in-out infinite; }
+@keyframes speak-pulse { 0%,100% { box-shadow:0 0 0 0 rgba(201,162,77,.45); } 50% { box-shadow:0 0 0 7px rgba(201,162,77,0); } }
+@media (prefers-reduced-motion: reduce) { .speak-btn.is-speaking { animation:none; box-shadow:0 0 0 3px rgba(201,162,77,.35); } }
+.context-def, .context-example { display:block; }
+.context-example { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px; }
+.speak-btn.speak-mini { width:28px; height:28px; }
+
+/* v2.21 — Grammar Lab */
+.gram-build { margin:0 0 22px; }
+.gram-build-row { display:flex; flex-wrap:wrap; align-items:end; gap:12px 18px; }
+.gram-build-row .filter-field { min-width:220px; }
+.gram-auto { align-self:center; }
+.gram-status { margin:12px 0 0; min-height:1.2em; font-size:13px; color:var(--text); }
+.gram-status:empty { display:none; }
+.gram-privacy { margin:10px 0 0; font-size:12px; color:var(--muted); line-height:1.5; }
+.gram-search { flex:1 1 220px; }
+.gram-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; margin-bottom:28px; }
+.gram-card { display:flex; flex-direction:column; gap:10px; border:1px solid var(--stroke); }
+.gram-head { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+.gram-lang { margin-right:auto; letter-spacing:.04em; }
+.gram-badge { padding:2px 9px; border:1px solid var(--stroke); border-radius:999px; font-size:11px; color:var(--text); }
+.gram-level { font-family:var(--font-mono); letter-spacing:.06em; }
+.gram-title { margin:2px 0 0; font:500 21px/1.25 var(--font-display); }
+.gram-expl { margin:0; font-size:14px; line-height:1.55; }
+.gram-label { margin:4px 0 0; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.gram-patterns { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.gram-patterns li { display:grid; gap:3px; padding-left:12px; border-left:2px solid var(--stroke); }
+.gram-pattern { font:13px var(--font-mono); color:var(--amber); background:none; padding:0; }
+.gram-example { display:flex; align-items:center; gap:8px; font-size:14px; }
+.gram-trans { font-size:12.5px; color:var(--muted); }
+.gram-pitfall { padding:10px 12px; border-radius:10px; background:var(--bg); }
+.gram-fix { margin:4px 0 0; display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:14px; }
+.gram-wrong { color:var(--rose); text-decoration-thickness:1.5px; }
+.gram-right { background:none; color:var(--emerald); font-weight:600; }
+.gram-arrow { color:var(--muted); }
+.gram-note { margin:6px 0 0; font-size:12.5px; color:var(--muted); }
+.gram-words { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.gram-words .gram-label { margin:0 6px 0 0; }
+.gram-word { padding:4px 10px; font-size:12px; }
+.gram-card .actions { margin-top:auto; }
+.gram-card :focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+@media (max-width:600px) {
+  .gram-list { grid-template-columns:1fr; }
+  .gram-build-row .filter-field { min-width:0; flex:1 1 100%; }
+  .gram-build-row .btn { width:100%; }
+}
+
+/* v2.21 — landing: 3-step tracker and 5-word quick start */
+.steps { list-style:none; display:flex; gap:10px; margin:0 0 22px; padding:0; counter-reset:none; }
+.steps li { flex:1 1 0; display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--stroke); border-radius:14px; background:var(--surface); color:var(--muted); font-size:13px; transition:border-color .25s, color .25s, background .25s; }
+.steps .step-n { flex:none; width:24px; height:24px; display:grid; place-items:center; border-radius:50%; border:1px solid var(--stroke); font:12px var(--font-mono); }
+.steps svg { flex:none; }
+.steps li.done { color:var(--text); }
+.steps li.done .step-n { background:var(--emerald); border-color:var(--emerald); color:var(--surface); }
+.steps li[aria-current="step"] { color:var(--text); border-color:var(--amber); box-shadow:inset 0 0 0 1px var(--amber); }
+.steps li[aria-current="step"] .step-n { border-color:var(--amber); color:var(--amber); }
+.steps.is-slim { gap:6px; margin-bottom:14px; }
+.steps.is-slim li { padding:4px 0; border:0; box-shadow:none; background:none; font-size:11.5px; flex:0 0 auto; }
+.steps.is-slim li + li::before { content:'→'; color:var(--muted); margin-right:6px; }
+.steps.is-slim svg, .steps.is-slim .step-n { display:none; }
+@media (max-width:600px) { .steps:not(.is-slim) { flex-direction:column; } }
+@media (prefers-reduced-motion: reduce) { .steps li { transition:none; } }
+.quick-start { border-color:var(--amber); color:var(--text); }
+.quick-start:hover { background:var(--surface); border-color:var(--amber); }
+
+/* v2.21 — Grammar Lab: find the mistake */
+.gram-drill { margin:0 0 24px; display:flex; flex-direction:column; gap:10px; }
+.gram-drill-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+.gram-drill-head h2 { margin:0; font:500 20px var(--font-display); }
+.gram-drill-score { font:12px var(--font-mono); color:var(--muted); }
+.gram-drill-intro { margin:0; font-size:13px; color:var(--muted); }
+.gram-drill-options { display:grid; gap:10px; }
+.gram-drill-opt { justify-content:flex-start; text-align:left; white-space:normal; min-height:48px; font-size:15px; }
+.gram-drill-opt.is-right { border-color:var(--emerald); color:var(--emerald); }
+.gram-drill-opt.is-wrong { border-color:var(--rose); color:var(--rose); text-decoration:line-through; }
+.gram-drill-opt:disabled { opacity:1; cursor:default; }
+.gram-drill-feedback { margin:0; min-height:1.2em; font-size:14px; }
+
+/* v2.21 — Display: voice check */
+.voice-list { list-style:none; margin:0 0 6px; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:4px 16px; }
+.voice-item { display:flex; justify-content:space-between; gap:8px; padding:5px 0; border-bottom:1px solid var(--stroke-soft, var(--stroke)); font-size:13px; }
+.voice-state { font-size:12px; }
+.voice-item.is-ok .voice-state { color:var(--emerald); }
+.voice-item.is-none .voice-state { color:var(--rose); }
+.voice-item.is-unknown .voice-state { color:var(--muted); }

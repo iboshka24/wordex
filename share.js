@@ -8,7 +8,7 @@
 })(typeof window !== 'undefined' ? window : this, function () {
   'use strict';
   var VERSION = 1;
-  var LIMITS = { linkChars: 8000, qrChars: 1200, cards: 1000, original: 200, translation: 300, example: 300, examples: 2, inflatedBytes: 512 * 1024 };
+  var LIMITS = { linkChars: 8000, qrChars: 1200, cards: 1000, original: 200, translation: 300, example: 300, examples: 2, reading: 200, inflatedBytes: 512 * 1024 };
   var CONTROL = new RegExp('[\\u0000-\\u001f\\u007f-\\u009f\\u2028\\u2029]+', 'g');
 
   function fail(code) { var e = new Error(code); e.code = code; return e; }
@@ -41,17 +41,20 @@
     return out;
   }
 
-  // Compact wire format: { v, s, t, c: [[original, translation, example1?, example2?], …] }
+  // Compact wire format: { v, s, t, c: [[original, translation, example1?, example2?], …], r?: [reading, …] }
+  // r (Pinyin and the like) is optional and aligned with c; links without it decode exactly as before.
   function payloadOf(deck) {
-    var seen = Object.create(null), rows = [];
+    var seen = Object.create(null), rows = [], readings = [];
     (deck.cards || []).forEach(function (c) {
       if (!c || !c.original || !c.translation || c.translation === '—') return;
       var original = cut(c.original, LIMITS.original), translation = cut(c.translation, LIMITS.translation);
       if (!original || !translation || seen[original.toLowerCase()] || rows.length >= LIMITS.cards) return;
       seen[original.toLowerCase()] = true;
+      readings.push(typeof c.reading === 'string' ? cut(c.reading, LIMITS.reading) : '');
       rows.push([original, translation].concat((c.examples || []).filter(function (x) { return typeof x === 'string' && clean(x); }).slice(0, LIMITS.examples).map(function (x) { return cut(x, LIMITS.example); })));
     });
     var payload = { v: VERSION, s: deck.source, t: deck.target, c: rows };
+    if (readings.some(Boolean)) payload.r = readings;
     var name = typeof deck.name === 'string' ? clean(deck.name).slice(0, 60) : '';
     if (name) payload.n = name;
     return payload;
@@ -71,8 +74,9 @@
     if (!langs[data.s] || !langs[data.t] || data.s === data.t) throw fail('bad-deck');
     if (!Array.isArray(data.c) || !data.c.length) throw fail('bad-deck');
     if (data.c.length > LIMITS.cards) throw fail('too-large');
+    if (data.r !== undefined && (!Array.isArray(data.r) || data.r.length !== data.c.length || !data.r.every(function (x) { return typeof x === 'string' && x.length <= LIMITS.reading; }))) throw fail('bad-deck');
     var seen = Object.create(null), cards = [];
-    data.c.forEach(function (row) {
+    data.c.forEach(function (row, i) {
       if (!Array.isArray(row) || row.length < 2 || row.length > 2 + LIMITS.examples || !row.every(function (x) { return typeof x === 'string'; })) throw fail('bad-deck');
       var original = clean(row[0]), translation = clean(row[1]);
       if (!original || !translation || original.length > LIMITS.original || translation.length > LIMITS.translation) throw fail('bad-deck');
@@ -80,7 +84,10 @@
       if (examples.some(function (x) { return x.length > LIMITS.example; })) throw fail('bad-deck');
       if (seen[original.toLowerCase()]) return;
       seen[original.toLowerCase()] = true;
-      cards.push({ original: original, translation: translation, examples: examples });
+      var card = { original: original, translation: translation, examples: examples };
+      var reading = data.r ? clean(data.r[i]) : '';
+      if (reading) card.reading = reading;
+      cards.push(card);
     });
     var out = { source: data.s, target: data.t, cards: cards };
     if (data.n !== undefined) {

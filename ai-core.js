@@ -2,14 +2,14 @@
    request validation, the prompt (words travel as data, never as instructions)
    and strict parsing of the model's answer. */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.VMAICore = factory();
-})(typeof window !== 'undefined' ? window : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./languages.js'), require('./grammar.js'));
+  else root.VMAICore = factory(root.VMLanguages, root.VMGrammar);
+})(typeof window !== 'undefined' ? window : this, function (Langs, Grammar) {
   'use strict';
-  var LANGS = { ru: 'Russian', uz: 'Uzbek', en: 'English', tr: 'Turkish', de: 'German', es: 'Spanish', fr: 'French', it: 'Italian',
-    pt: 'Portuguese', kk: 'Kazakh', az: 'Azerbaijani', ka: 'Georgian', uk: 'Ukrainian', pl: 'Polish', ar: 'Arabic', fa: 'Persian',
-    hi: 'Hindi', zh: 'Chinese', ja: 'Japanese', ko: 'Korean' };
-  var LIMITS = { words: 40, wordLength: 120, totalChars: 4000, translation: 200, hint: 200, definition: 500, example: 300, examples: 2 };
+  // Every known code (legacy ones too, so existing decks can still be translated); English names for the prompt.
+  var LANGS = {};
+  Langs.LIST.forEach(function (l) { LANGS[l.code] = l.name; });
+  var LIMITS = { words: 40, wordLength: 120, totalChars: 4000, translation: 200, hint: 200, definition: 500, example: 300, examples: 2, reading: 200 };
 
   function fail(code, message) { var e = new Error(message); e.code = code; return e; }
   // Control characters (incl. U+2028/U+2029 line separators) are never meaningful inside a word.
@@ -22,6 +22,9 @@
   // Throws an Error with .code = 'bad-request' on anything outside the contract.
   function validateRequest(body) {
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw fail('bad-request', 'Body must be a JSON object.');
+    // mode "grammar": the Grammar Lab contract (grammar.js) — same endpoint, validation, rate limit and key handling.
+    if (body.mode === 'grammar') return Grammar.validateRequest(body);
+    if (body.mode !== undefined && body.mode !== 'translate') throw fail('bad-request', 'Unknown mode.');
     if (!Object.prototype.hasOwnProperty.call(LANGS, body.source) || !Object.prototype.hasOwnProperty.call(LANGS, body.target))
       throw fail('bad-request', 'Unsupported language. Allowed: ' + Object.keys(LANGS).join(', ') + '.');
     if (body.source === body.target) throw fail('bad-request', 'Source and target languages must differ.');
@@ -49,7 +52,17 @@
     ru: 'Use correct Russian spelling with the letter ё only where it is standard.'
   };
 
+  // Pronunciation line under the word: Pinyin for Chinese, kana for Japanese (when the registry asks for it).
+  function readingRule(code) {
+    var l = Langs.get(code), kind = l && l.reading;
+    if (kind === 'pinyin') return '- "reading": the Hanyu Pinyin of the original word with tone marks (e.g. "nǐ hǎo"),';
+    if (kind === 'kana') return '- "reading": the hiragana reading of the original word if it contains kanji, otherwise an empty string,';
+    return '';
+  }
+  function wantsReading(code) { var l = Langs.get(code); return Boolean(l && l.reading); }
+
   function buildMessages(req) {
+    if (req.mode === 'grammar') return Grammar.buildMessages(req);
     var src = LANGS[req.source], tgt = LANGS[req.target];
     var system = [
       'You are the translation engine of a vocabulary trainer, working like a careful bilingual lexicographer.',
@@ -64,10 +77,11 @@
       '- "hint": a short memory hook in ' + tgt + ' (3-8 words),',
       '- "definition": a concise definition in ' + src + ',',
       '- "examples": 1-2 natural ' + src + ' sentences containing the original word in the meaning you translated, without the translation.',
+      readingRule(req.source),
       STYLE[req.target] || '',
       'Before answering, double-check that each translation is correct and natural for a native ' + tgt + ' speaker.',
       'Skip junk (numbers, urls, single letters). Answer with STRICT JSON only, no prose and no code fences:',
-      '{"items":[{"original":"...","translation":"...","hint":"...","definition":"...","examples":["..."]}]}'
+      '{"items":[{"original":"...","translation":"...","hint":"...","definition":"...","examples":["..."]' + (wantsReading(req.source) ? ',"reading":"..."' : '') + '}]}'
     ].filter(Boolean).join('\n');
     return [{ role: 'system', content: system }, { role: 'user', content: JSON.stringify({ words: req.words }) }];
   }
@@ -95,6 +109,7 @@
   // Keeps only well-formed items for words that were actually asked for.
   // Throws .code = 'bad-model-response' when nothing usable is left.
   function parseResponse(text, req) {
+    if (req.mode === 'grammar') return Grammar.parseResponse(text, req);
     var data = extractJSON(text);
     var list = data && (Array.isArray(data) ? data : data.items);
     if (!Array.isArray(list)) throw fail('bad-model-response', 'The model did not return the expected JSON.');
@@ -107,17 +122,22 @@
       var translation = cut(it.translation, LIMITS.translation);
       if (!original || used[k] || !translation) return; // invented or duplicate items are dropped
       used[k] = true;
-      out.push({
+      var item = {
         original: original,
-        translation: translation,
+        translation: req.target === 'uz' ? Langs.normalizeUz(translation) : translation,
         hint: typeof it.hint === 'string' ? cut(it.hint, LIMITS.hint) : '',
         definition: typeof it.definition === 'string' ? cut(it.definition, LIMITS.definition) : '',
         examples: Array.isArray(it.examples) ? it.examples.filter(function (x) { return typeof x === 'string' && clean(x); }).slice(0, LIMITS.examples).map(function (x) { return cut(x, LIMITS.example); }) : []
-      });
+      };
+      // Uzbek in the model's answer gets the canonical Latin spelling (oʻ, gʻ), whichever side it is on.
+      if (req.target === 'uz') item.hint = Langs.normalizeUz(item.hint);
+      if (req.source === 'uz') { item.definition = Langs.normalizeUz(item.definition); item.examples = item.examples.map(Langs.normalizeUz); }
+      if (wantsReading(req.source) && typeof it.reading === 'string' && clean(it.reading)) item.reading = cut(it.reading, LIMITS.reading);
+      out.push(item);
     });
     if (!out.length) throw fail('bad-model-response', 'The model answer contained no usable translations.');
     return out;
   }
 
-  return { LANGS: LANGS, LIMITS: LIMITS, GEMINI: GEMINI, isGemini: isGemini, validateRequest: validateRequest, buildMessages: buildMessages, buildPayload: buildPayload, parseResponse: parseResponse };
+  return { LANGS: LANGS, LIMITS: LIMITS, wantsReading: wantsReading, GEMINI: GEMINI, isGemini: isGemini, validateRequest: validateRequest, buildMessages: buildMessages, buildPayload: buildPayload, parseResponse: parseResponse };
 });
