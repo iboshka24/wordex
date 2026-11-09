@@ -9,7 +9,7 @@
   var KEY = 'vm.ui-lang';
   var D = {
     'meta.title': ['Wordex — слова становятся знаниями', 'Wordex — words become knowledge', "Wordex — so'zlar bilimga aylanadi"],
-    'meta.desc': ['Вставь слова или готовые пары — ИИ отфильтрует мусор, переведёт на 20 языков и соберёт бесконечный цикл повторений.', 'Paste words or ready pairs — AI filters the junk, translates into 20 languages and builds an endless review loop.', "So'zlar yoki tayyor juftliklarni joylang — sun'iy intellekt keraksizini olib tashlaydi, 20 tilga tarjima qiladi va cheksiz takrorlash siklini tuzadi."],
+    'meta.desc': ['Вставь слова или готовые пары — ИИ отфильтрует мусор, переведёт на 9 языков и соберёт бесконечный цикл повторений.', 'Paste words or ready pairs — AI filters the junk, translates into 9 languages and builds an endless review loop.', "So'zlar yoki tayyor juftliklarni joylang — sun'iy intellekt keraksizini olib tashlaydi, 9 tilga tarjima qiladi va cheksiz takrorlash siklini tuzadi."],
 
     'nav.aria': ['Основная навигация', 'Main navigation', 'Asosiy navigatsiya'],
     'nav.home': ['Wordex — на главную', 'Wordex — home', 'Wordex — bosh sahifa'],
@@ -271,6 +271,12 @@
     'lang.native': ['Мой родной язык', 'My native language', 'Ona tilim'],
     'lang.swap': ['Поменять языки местами (Alt+X)', 'Swap languages (Alt+X)', 'Tillarni almashtirish (Alt+X)'],
     'lang.swapAria': ['Поменять языки местами', 'Swap languages', 'Tillarni almashtirish'],
+    'lang.swapOff': ['Поменять нельзя: {l} — только родной язык, его нельзя выбрать для изучения', "Can't swap: {l} is a native-only language and can't be learned here", "Almashtirib bo'lmaydi: {l} faqat ona tili sifatida tanlanadi"],
+    'lang.archived': ['архив', 'archived', 'arxiv'],
+    'lang.archivedTitle': ['Этот язык больше не предлагается для новых колод. Колоду можно повторять, пополнять, экспортировать и делиться ею.', 'This language is no longer offered for new decks. You can still review, extend, export and share this deck.', "Bu til yangi kolodalar uchun taklif qilinmaydi. Kolodani takrorlash, to'ldirish, eksport qilish va ulashish mumkin."],
+    'lang.archivedNew': ['Для новых колод доступны 9 языков изучения. Выбери язык из списка «Я изучаю».', 'New decks use one of the 9 learning languages. Pick one under "I\'m learning".', "Yangi kolodalar uchun 9 ta o'rganish tili mavjud. «O'rganayapman» ro'yxatidan tanlang."],
+    'lang.archivedNote': ['Некоторые твои колоды на языках, которые больше не предлагаются. Они никуда не делись: их можно повторять, пополнять и экспортировать.', 'Some of your decks use languages that are no longer offered. Nothing is lost: you can still review, extend and export them.', "Ba'zi kolodalaringiz endi taklif qilinmaydigan tillarda. Hech narsa yo'qolmadi: ularni takrorlash, to'ldirish va eksport qilish mumkin."],
+    'lang.archivedOk': ['Понятно', 'Got it', 'Tushunarli'],
     'dir.label': ['Направление карточек', 'Card direction', "Karta yo'nalishi"],
     'dir.mixed': ['Смешанное', 'Mixed', 'Aralash'],
     'dir.fwd': ['Слово → перевод', 'Word → translation', "So'z → tarjima"],

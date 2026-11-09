@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Wordex — слова становятся знаниями</title>
-  <meta name="description" content="Вставь слова или готовые пары — ИИ отфильтрует мусор, переведёт на 20 языков и соберёт бесконечный цикл повторений." />
+  <meta name="description" content="Вставь слова или готовые пары — ИИ отфильтрует мусор, переведёт на 9 языков и соберёт бесконечный цикл повторений." />
   <meta name="theme-color" content="#f6f1e7" />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
@@ -204,6 +204,7 @@
                 </button>
               </div>
               <div class="card-word" id="cardWord">—</div>
+              <div class="card-reading" id="cardReading" hidden></div>
               <div class="card-foot">
                 <span class="card-sub" id="cardSub">вспомни перевод, потом переверни</span>
                 <span class="flip-hint" data-i18n="train.space">пробел</span>
@@ -219,6 +220,7 @@
                 </button>
               </div>
               <div class="card-word" id="cardTrans">—</div>
+              <div class="card-reading" id="cardReadingBack" hidden></div>
               <div class="card-hint" id="cardHint"></div>
               <div class="context-block" id="cardContext"></div>
               <span class="swipe-hint" aria-hidden="true" data-i18n-html="card.swipe">← повторить <span>свайп</span> знаю →</span>
@@ -305,6 +307,7 @@
       <div class="lib-tabs" role="tablist" aria-label="Библиотека" data-i18n-attr="aria-label:nav.library"><button type="button" role="tab" id="tabDecks" aria-selected="true" aria-controls="decksPanel" data-i18n="lib.tabDecks">Колоды</button><button type="button" role="tab" id="tabVault" aria-selected="false" aria-controls="vaultPanel" tabindex="-1" data-i18n="lib.tabVault">Все слова</button></div>
       <div id="decksPanel" role="tabpanel" aria-labelledby="tabDecks">
       <div class="grid-head"><h2 data-i18n="lib.explore">Твои колоды</h2><span id="deckCount"></span></div>
+      <p class="archived-note" id="archivedNote" role="note" hidden><span data-i18n="lang.archivedNote">Некоторые твои колоды на языках, которые больше не предлагаются.</span> <button type="button" class="link" id="btnArchivedOk" data-i18n="lang.archivedOk">Понятно</button></p>
       <div class="library-grid" id="libraryGrid"></div>
       <p class="quiz-empty" id="filterEmpty" hidden data-i18n="filter.none">Под фильтры не подошла ни одна колода.</p>
       </div>
@@ -563,6 +566,7 @@
   <script defer src="display.js?v=2.20"></script>
   <script defer src="i18n.js?v=2.20"></script>
   <script defer src="motion.js?v=2.20"></script>
+  <script defer src="languages.js?v=2.20"></script>
   <script defer src="learning.js?v=2.20"></script>
   <script defer src="ai-core.js?v=2.20"></script>
   <script defer src="share.js?v=2.20"></script>

@@ -35,7 +35,7 @@
     return true;
   }
   function normalize(s) {
-    return String(s || '').toLocaleLowerCase().normalize('NFC').replace(/ё/g, 'е').replace(/[’‘]/g, "'").replace(/\s+/g, ' ').trim();
+    return String(s || '').toLocaleLowerCase().normalize('NFC').replace(/ё/g, 'е').replace(/[’‘ʻʼ`]/g, "'").replace(/\s+/g, ' ').trim();
   }
   function distance(a, b) {
     var row = Array.from({ length: b.length + 1 }, function (_, i) { return i; });
@@ -295,6 +295,11 @@
   // file is trusted: unknown fields are dropped, numbers are clamped, and fields
   // that are absent stay absent so a backup restores exactly.
   // Throws an Error whose .code is 'not-backup', 'bad-deck' or 'bad-word'.
+  // Optional card fields added after v2.20: kept when well-formed, absent otherwise (older files have none).
+  function withOptional(src, card) {
+    if (typeof src.reading === 'string' && src.reading.trim()) card.reading = src.reading.slice(0, 200);
+    return card;
+  }
   function restoreBackup(data, langCodes) {
     function fail(code) { var e = new Error(code); e.code = code; return e; }
     function opt(v, min, max) { return v == null || v === '' || isNaN(Number(v)) ? undefined : Math.max(min, Math.min(max, Number(v))); }
@@ -309,10 +314,10 @@
       if (!d || !langs[d.source] || !langs[d.target] || d.source === d.target || !Array.isArray(d.cards) || d.cards.length > 5000) throw fail('bad-deck');
       var cards = d.cards.map(function (c) {
         if (!c || typeof c.original !== 'string' || typeof c.translation !== 'string' || !c.original.trim() || c.original.length > 500 || c.translation.length > 1000) throw fail('bad-word');
-        return { original: c.original, translation: c.translation, hint: String(c.hint || '').slice(0, 1000), definition: String(c.definition || '').slice(0, 2000),
+        return withOptional(c, { original: c.original, translation: c.translation, hint: String(c.hint || '').slice(0, 1000), definition: String(c.definition || '').slice(0, 2000),
           examples: Array.isArray(c.examples) ? c.examples.filter(function (x) { return typeof x === 'string'; }).slice(0, 2).map(function (x) { return x.slice(0, 1000); }) : [],
           streak: count(c.streak), fails: count(c.fails), box: opt(c.box, 0, 5), due: opt(c.due, 0, 1e14), ease: opt(c.ease, 1.3, 5),
-          interval: opt(c.interval, 0, 3650), reps: opt(c.reps, 0, 1e6), lapses: opt(c.lapses, 0, 1e6), added: opt(c.added, 0, 1e14) };
+          interval: opt(c.interval, 0, 3650), reps: opt(c.reps, 0, 1e6), lapses: opt(c.lapses, 0, 1e6), added: opt(c.added, 0, 1e14) });
       });
       var deck = { source: d.source, target: d.target, cards: cards, created: opt(d.created, 0, 1e14) || Date.now() };
       var name = cleanName(d.name);

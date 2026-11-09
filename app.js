@@ -8,28 +8,9 @@
   function tr(key, vars) { return I18N ? I18N.t(key, vars) : key; }
   function trn(key, n, vars) { return I18N ? I18N.tn(key, n, vars) : String(n); }
 
-  var LANGS = [
-    { code: 'ru', label: 'Русский', en: 'Russian', voice: 'ru-RU' },
-    { code: 'uz', label: "O'zbekcha", en: 'Uzbek', voice: 'uz-UZ' },
-    { code: 'en', label: 'English', en: 'English', voice: 'en-US' },
-    { code: 'tr', label: 'Türkçe', en: 'Turkish', voice: 'tr-TR' },
-    { code: 'de', label: 'Deutsch', en: 'German', voice: 'de-DE' },
-    { code: 'es', label: 'Español', en: 'Spanish', voice: 'es-ES' },
-    { code: 'fr', label: 'Français', en: 'French', voice: 'fr-FR' },
-    { code: 'it', label: 'Italiano', en: 'Italian', voice: 'it-IT' },
-    { code: 'pt', label: 'Português', en: 'Portuguese', voice: 'pt-BR' },
-    { code: 'kk', label: 'Қазақша', en: 'Kazakh', voice: 'kk-KZ' },
-    { code: 'az', label: 'Azərbaycanca', en: 'Azerbaijani', voice: 'az-AZ' },
-    { code: 'ka', label: 'ქართული', en: 'Georgian', voice: 'ka-GE' },
-    { code: 'uk', label: 'Українська', en: 'Ukrainian', voice: 'uk-UA' },
-    { code: 'pl', label: 'Polski', en: 'Polish', voice: 'pl-PL' },
-    { code: 'ar', label: 'العربية', en: 'Arabic', voice: 'ar-SA' },
-    { code: 'fa', label: 'فارسی', en: 'Persian', voice: 'fa-IR' },
-    { code: 'hi', label: 'हिन्दी', en: 'Hindi', voice: 'hi-IN' },
-    { code: 'zh', label: '中文', en: 'Chinese', voice: 'zh-CN' },
-    { code: 'ja', label: '日本語', en: 'Japanese', voice: 'ja-JP' },
-    { code: 'ko', label: '한국어', en: 'Korean', voice: 'ko-KR' }
-  ];
+  // Languages come from languages.js (one list for the app, the AI contract, the server and the tests).
+  var LANGUAGES = window.VMLanguages;
+  var LANGS = LANGUAGES.LIST;
 
   var PRESETS = {
     verbs: [
@@ -276,9 +257,30 @@
     return a;
   }
 
-  function langByCode(code) {
-    for (var i = 0; i < LANGS.length; i++) if (LANGS[i].code === code) return LANGS[i];
-    return LANGS[0];
+  function langByCode(code) { return LANGUAGES.get(code) || LANGS[0]; }
+  // A learnable language other than `code`, for "the two sides must differ" fixes.
+  function otherLearnable(code) { return code === 'en' ? 'es' : 'en'; }
+  // Fills a language <select> with the allowed codes; a current value outside them (a legacy deck,
+  // learning Russian) stays visible as one extra "archived" option so an existing deck keeps working.
+  function fillLangSelect(sel, codes, current) {
+    if (!sel) return;
+    sel.innerHTML = '';
+    codes.forEach(function (code) { var o = document.createElement('option'); o.value = code; o.textContent = langByCode(code).label; sel.appendChild(o); });
+    if (current && codes.indexOf(current) < 0 && LANGUAGES.isKnown(current)) {
+      var o = document.createElement('option'); o.value = current; o.textContent = langByCode(current).label + ' · ' + tr('lang.archived'); sel.appendChild(o);
+    }
+    if (current) sel.value = current;
+  }
+  function canSwapPair(source, target) { return LANGUAGES.canLearn(target) && LANGUAGES.canBeNative(source); }
+  function syncLangSelects() {
+    fillLangSelect($('sourceLang'), LANGUAGES.LEARN_CODES, state.cfg.source);
+    fillLangSelect($('targetLang'), LANGUAGES.NATIVE_CODES, state.cfg.target);
+    var b = $('btnSwapLang');
+    if (b && b.setAttribute) {
+      var ok = canSwapPair(state.cfg.source, state.cfg.target);
+      b.disabled = !ok;
+      b.setAttribute('title', ok ? tr('lang.swap') : tr('lang.swapOff', { l: langByCode(state.cfg.target).label }));
+    }
   }
 
   function saveCfg() {
@@ -584,6 +586,15 @@
     $('loadCount').textContent = count || '';
   }
 
+  // Uzbek side only: Cyrillic → Latin and canonical oʻ / gʻ. The other side (e.g. Russian) is never touched.
+  function normalizeUzCards(cards, source, target) {
+    (cards || []).forEach(function (c) {
+      if (source === 'uz' && c.original) c.original = LANGUAGES.normalizeUz(c.original);
+      if (target === 'uz' && c.translation && c.translation !== '—') c.translation = LANGUAGES.normalizeUz(c.translation);
+    });
+    return cards;
+  }
+
   async function buildCards(parsedItems) {
     var readyCards = [];
     var needTranslation = [];
@@ -630,6 +641,7 @@
                 translation: translated || '—',
                 hint: pItem.hint || '', definition: pItem.definition || '', examples: pItem.examples || []
               });
+              if (pItem.reading) aiCards[aiCards.length - 1].reading = pItem.reading;
             }
           } else {
             // Fallback for this chunk if AI returned empty
@@ -773,6 +785,9 @@
 
     $('cardWord').textContent = fwd ? c.original : c.translation;
     $('cardTrans').textContent = fwd ? c.translation : c.original;
+    // Pinyin (or another reading) sits under the word in the learning language, only when the card has one.
+    setReading('cardReading', fwd && !isListen() ? c.reading : '');
+    setReading('cardReadingBack', !fwd || isListen() ? c.reading : '');
     $('cardSub').textContent = tr(fwd ? 'card.subFwd' : 'card.subRev');
     $('cardHint').textContent = state.cfg.simple ? '' : (c.hint || '');
     if (L) {
@@ -804,6 +819,14 @@
     if (cardEl.style) cardEl.style.transform = ''; /* сброс наклона за курсором */
     updateRows();
     if (window.VMMotion) { cardEl.dataset.revealed = 'false'; cardEl.dataset.swipe = String(state.cfg.mode === 'flashcard'); updateNextPreview(); window.VMMotion.card(); }
+  }
+
+  function setReading(id, text) {
+    var el = $(id);
+    if (!el) return;
+    el.textContent = text || '';
+    el.hidden = !text;
+    if (text) el.lang = state.cfg.source;
   }
 
   function updateNextPreview() {
@@ -1323,6 +1346,8 @@
 
   async function start() {
     if (L && state.cfg.source === state.cfg.target) { toast(tr('toast.diffLangs'), 'err'); return; }
+    // An archived pair can still grow an existing deck, but never start a new one.
+    if (L && LANGUAGES.isArchivedPair(state.cfg.source, state.cfg.target) && !library.decks[activeDeckKey()]) { toast(tr('lang.archivedNew'), 'err', 5000); return; }
     var raw = $('input').value;
     var parsed = parseInput(raw);
     if (!parsed.items.length) {
@@ -1341,6 +1366,7 @@
       var cards = await buildCards(parsed.items);
       if (state.cancelled) { show('screen-setup'); return; }
       if (!cards || !cards.length) throw new Error(tr('err.noCards'));
+      normalizeUzCards(cards, state.cfg.source, state.cfg.target);
       var ready = cards.filter(function (c) { return c.translation && c.translation !== '—'; });
       var missing = cards.filter(function (c) { return ready.indexOf(c) < 0; });
       // Untranslated words go to the library and are retried when the network is back.
@@ -1415,9 +1441,10 @@
   }
 
   function swapLanguages() {
+    if (!canSwapPair(state.cfg.source, state.cfg.target)) { toast(tr('lang.swapOff', { l: langByCode(state.cfg.target).label }), 'err'); return; }
     releaseDeck();
     var s = state.cfg.source; state.cfg.source = state.cfg.target; state.cfg.target = s;
-    $('sourceLang').value = state.cfg.source; $('targetLang').value = state.cfg.target; saveCfg();
+    syncLangSelects(); saveCfg();
     var input = $('input'), before = input.value, after = L.swapPairs(before);
     if (after !== before) { input.value = after; updateInputStat(true); }
     var b = $('btnSwapLang'); b.classList.remove('spin'); void b.offsetWidth; b.classList.add('spin');
@@ -1440,6 +1467,7 @@
     startTraining(cards);
   }
   function reverseDeck(d) {
+    if (!canSwapPair(d.source, d.target)) { toast(tr('lang.swapOff', { l: langByCode(d.target).label }), 'err'); return; }
     var key = d.name ? Object.keys(library.decks).find(function (k) { var x = library.decks[k]; return x.source === d.target && x.target === d.source && x.name === d.name + ' ⇄'; }) || L.deckKey(d.target, d.source, L.deckId()) : L.deckKey(d.target, d.source);
     var rev = library.decks[key] || { source: d.target, target: d.source, cards: [], created: Date.now() };
     if (d.name) rev.name = d.name + ' ⇄';
@@ -1722,7 +1750,7 @@
 
   /* ---------------- Sharing a deck by link (#deck=…, never sent to a server) ---------------- */
   var shareState = { deck: null, link: '', title: '', opener: null }, previewDeck = null, qrLoading = null;
-  function langCodes() { return LANGS.map(function (l) { return l.code; }); }
+  function langCodes() { return LANGUAGES.KNOWN_CODES; } // legacy codes too: old links keep opening
   function pairLabel(d) { return langByCode(d.source).label + ' → ' + langByCode(d.target).label; }
   /* ---------------- named decks: several per language pair, one of them "active" on the home screen ---------------- */
   function deckLabel(d) { return d.name || pairLabel(d); }
@@ -1741,7 +1769,7 @@
   function setActiveDeck(key) {
     var d = key && library.decks[key];
     state.cfg.deck = d ? key : '';
-    if (d) { state.cfg.source = d.source; state.cfg.target = d.target; $('sourceLang').value = d.source; $('targetLang').value = d.target; }
+    if (d) { state.cfg.source = d.source; state.cfg.target = d.target; syncLangSelects(); }
     saveCfg(); renderHomeDeck();
   }
   // Changing a language by hand means "not that deck any more": the pair's plain deck takes over.
@@ -1779,8 +1807,10 @@
   function openDeckDialog() {
     deckOpener = document.activeElement;
     var src = $('deckSource'), tgt = $('deckTarget');
-    if (!src.children.length) LANGS.forEach(function (l) { src.appendChild(h('option', { value: l.code, text: l.label })); tgt.appendChild(h('option', { value: l.code, text: l.label })); });
-    src.value = state.cfg.source; tgt.value = state.cfg.target;
+    // New decks: only learnable languages on the left, native languages on the right (never an archived pair).
+    var s0 = LANGUAGES.canLearn(state.cfg.source) ? state.cfg.source : 'en';
+    var t0 = LANGUAGES.canBeNative(state.cfg.target) && state.cfg.target !== s0 ? state.cfg.target : (s0 === 'ru' ? 'en' : 'ru');
+    fillLangSelect(src, LANGUAGES.LEARN_CODES, s0); fillLangSelect(tgt, LANGUAGES.NATIVE_CODES, t0);
     $('deckName').value = ''; $('deckWords').value = ''; $('deckError').textContent = '';
     $('deckDialog').hidden = false;
     $('deckName').focus();
@@ -1790,6 +1820,7 @@
     e.preventDefault();
     var source = $('deckSource').value, target = $('deckTarget').value, name = L.cleanName($('deckName').value), words = $('deckWords').value.trim();
     if (source === target) { $('deckError').textContent = tr('deck.sameLang'); $('deckSource').focus(); return; }
+    if (LANGUAGES.isArchivedPair(source, target)) { $('deckError').textContent = tr('lang.archivedNew'); $('deckSource').focus(); return; }
     var key = createDeck(name, source, target);
     closeDeckDialog();
     navigateLearning('screen-setup');
@@ -1897,7 +1928,7 @@
     deck.cards.forEach(function (c) {
       if (known[c.original.toLowerCase()]) return;
       known[c.original.toLowerCase()] = true; added++;
-      d.cards.push({ original: c.original, translation: c.translation, hint: '', definition: '', examples: c.examples.slice(), streak: 0, fails: 0, added: Date.now() });
+      d.cards.push(Object.assign({ original: c.original, translation: c.translation, hint: '', definition: '', examples: c.examples.slice(), streak: 0, fails: 0, added: Date.now() }, c.reading ? { reading: c.reading } : {}));
     });
     library.decks[key] = d;
     persistLibrary();
@@ -2111,6 +2142,11 @@
     renderActivity(); renderSearch();
     var allKeys = Object.keys(library.decks);
     fillLangFilter(allKeys);
+    // A quiet, one-time note when some decks use a language that is no longer offered.
+    var noteSeen = false;
+    try { noteSeen = localStorage.getItem('vm.legacy-notice') === '1'; } catch (e) {}
+    $('archivedNote').hidden = noteSeen || !allKeys.some(function (k) { return LANGUAGES.isArchivedPair(library.decks[k].source, library.decks[k].target); });
+    $('btnArchivedOk').onclick = function () { try { localStorage.setItem('vm.legacy-notice', '1'); } catch (e) {} $('archivedNote').hidden = true; };
     var lang = $('filterLang').value, status = $('filterStatus').value;
     var keys = allKeys.filter(function (k) { return deckMatches(library.decks[k], lang, status); });
     $('libraryFilters').hidden = !allKeys.length;
@@ -2137,9 +2173,9 @@
         h('button', { className: 'cover-play', type: 'button', 'aria-label': tr('deck.play') + ': ' + deckLabel(d) }),
         h('span', { className: 'cover-badge', text: tr('deck.minutes', { n: Math.max(1, Math.round(Math.max(due, Math.min(d.cards.length, 20)) * 0.25)) }) })
       ]);
-      panel.innerHTML = '<span class="deck-kicker">' + escapeHTML(d.name ? pairLabel(d) : '→ ' + langByCode(d.target).label) + ' / ' + trn('words.count', d.cards.length) + '</span><h2 class="deck-name">' + escapeHTML(d.name || langByCode(d.source).label) + '</h2><p>' + tr('deck.stats', { m: mastered, d: due, h: trn('deck.hard', hard) }) + '</p><div class="daily-track deck-progress"><i></i></div>' +
+      panel.innerHTML = '<span class="deck-kicker">' + escapeHTML(d.name ? pairLabel(d) : '→ ' + langByCode(d.target).label) + ' / ' + trn('words.count', d.cards.length) + (LANGUAGES.isArchivedPair(d.source, d.target) ? ' <span class="archived-badge" title="' + escapeHTML(tr('lang.archivedTitle')) + '">' + tr('lang.archived') + '</span>' : '') + '</span><h2 class="deck-name">' + escapeHTML(d.name || langByCode(d.source).label) + '</h2><p>' + tr('deck.stats', { m: mastered, d: due, h: trn('deck.hard', hard) }) + '</p><div class="daily-track deck-progress"><i></i></div>' +
         '<div class="actions"><button class="btn primary" type="button" data-act="practice" title="' + tr('deck.practiceTitle') + '">' + (due ? tr('deck.practiceDue', { n: due }) : tr('deck.practiceAll')) + '</button><button class="btn" type="button" data-act="hard"' + (hard ? '' : ' disabled') + ' title="' + tr('deck.hardTitle') + '">' + tr('deck.hardBtn', { n: hard }) + '</button><button class="btn" type="button" data-act="add">' + tr('deck.add') + '</button></div>' +
-        '<div class="deck-tools"><button class="link" type="button" data-act="reverse" title="' + escapeHTML(tr('deck.reverseTitle', { p: langByCode(d.target).label + ' → ' + langByCode(d.source).label })) + '">' + tr('deck.reverse') + '</button><button class="link" type="button" data-act="rename">' + tr('deck.rename') + '</button><button class="link" type="button" data-act="copy">' + tr('deck.copy') + '</button><button class="link" type="button" data-act="share">' + tr('share.button') + '</button></div>' +
+        '<div class="deck-tools"><button class="link" type="button" data-act="reverse"' + (canSwapPair(d.source, d.target) ? '' : ' disabled') + ' title="' + escapeHTML(canSwapPair(d.source, d.target) ? tr('deck.reverseTitle', { p: langByCode(d.target).label + ' → ' + langByCode(d.source).label }) : tr('lang.swapOff', { l: langByCode(d.target).label })) + '">' + tr('deck.reverse') + '</button><button class="link" type="button" data-act="rename">' + tr('deck.rename') + '</button><button class="link" type="button" data-act="copy">' + tr('deck.copy') + '</button><button class="link" type="button" data-act="share">' + tr('share.button') + '</button></div>' +
         '<details><summary>' + tr('deck.all') + '</summary><div class="word-list"></div><button class="link link-danger" type="button" data-act="delete">' + tr('deck.delete') + '</button></details>';
       panel.insertBefore(cover, panel.firstChild);
       cover.querySelector('.cover-play').onclick = function () {
@@ -2262,14 +2298,13 @@
     // The daily aggregate stays compact: two years are plenty for the progress screen.
     library.history = L.trimHistory(library.history, 730, L.day());
     L.reconcile(library.streak, L.day()); persistLibrary(); renderDaily();
-    LANGS.forEach(function (l) { var opt = document.createElement('option'); opt.value = l.code; opt.textContent = l.label; $('sourceLang').appendChild(opt); });
-    $('sourceLang').value = state.cfg.source;
+    syncLangSelects();
     $('sourceLang').onchange = function () {
       releaseDeck();
       var prev = state.cfg.source; state.cfg.source = this.value;
-      // Picking the same language on both sides means "swap them".
-      if (state.cfg.target === this.value) { state.cfg.target = prev; $('targetLang').value = prev; }
-      saveCfg();
+      // Picking the same language on both sides means "swap them" (when the old one can be a native language).
+      if (state.cfg.target === this.value) state.cfg.target = LANGUAGES.canBeNative(prev) ? prev : (this.value === 'ru' ? 'en' : 'ru');
+      syncLangSelects(); saveCfg();
     };
     $('btnSwapLang').onclick = swapLanguages;
     $('simpleMode').checked = state.cfg.simple;
@@ -2363,7 +2398,7 @@
           return;
         }
         var restored;
-        try { restored = L.restoreBackup(data, LANGS.map(function (l) { return l.code; })); }
+        try { restored = L.restoreBackup(data, LANGUAGES.KNOWN_CODES); }
         catch (e) { throw new Error(tr({ 'not-backup': 'err.notBackup', 'bad-deck': 'err.badDeck', 'bad-word': 'err.badWord' }[e.code] || 'err.readFile')); }
         var now = L.librarySize(library), next = L.librarySize(restored);
         // Nothing to lose in an empty library; otherwise say exactly what is replaced.
@@ -2448,19 +2483,16 @@
     if (seen) return;
     if (Object.keys(library.decks).length || localStorage.getItem(SESSION_KEY)) { onboardingDone(); return; } // existing learners
     var nat = $('onbNative'), learn = $('onbLearn');
-    LANGS.forEach(function (l) {
-      nat.appendChild(h('option', { value: l.code, text: l.label }));
-      learn.appendChild(h('option', { value: l.code, text: l.label }));
-    });
     var ui = I18N ? I18N.lang() : 'ru';
-    nat.value = ui; learn.value = ui === 'en' ? 'ru' : 'en';
+    fillLangSelect(nat, LANGUAGES.NATIVE_CODES, ui);
+    fillLangSelect(learn, LANGUAGES.LEARN_CODES, otherLearnable(ui));
     var note = function () {
       var supported = ['ru', 'en', 'uz'].indexOf(nat.value) >= 0;
       $('onbUiNote').hidden = supported;
       if (!supported) $('onbUiNote').textContent = tr('onb.uiNote');
     };
     nat.onchange = function () {
-      if (learn.value === nat.value) learn.value = nat.value === 'en' ? 'ru' : 'en';
+      if (learn.value === nat.value) learn.value = otherLearnable(nat.value);
       if (I18N && ['ru', 'en', 'uz'].indexOf(nat.value) >= 0) I18N.set(nat.value);
       note();
     };
@@ -2469,7 +2501,7 @@
     $('onboardForm').onsubmit = function (e) {
       e.preventDefault();
       state.cfg.target = nat.value; state.cfg.source = learn.value; saveCfg();
-      $('targetLang').value = nat.value; $('sourceLang').value = learn.value;
+      syncLangSelects();
       onboardingDone();
       $('onboarding').hidden = true;
       toast(tr('onb.done', { l: langByCode(learn.value).label }), 'ok', 3000);
@@ -2480,7 +2512,7 @@
   }
 
   /* ---------------- account: the library and language choice follow the learner across devices ---------------- */
-  var CODES = LANGS.map(function (l) { return l.code; });
+  var CODES = LANGUAGES.KNOWN_CODES; // every known code, so archived decks survive cloud sync
   function syncData() {
     var c = state.cfg;
     return { v: 1, library: library, cfg: { source: c.source, target: c.target, dir: c.dir, mode: c.mode, simple: c.simple, deck: c.deck } }; // never the API key
@@ -2494,7 +2526,7 @@
     var c = data.cfg || {};
     if (CODES.indexOf(c.source) >= 0 && CODES.indexOf(c.target) >= 0 && c.source !== c.target) {
       state.cfg.source = c.source; state.cfg.target = c.target;
-      $('sourceLang').value = c.source; $('targetLang').value = c.target;
+      syncLangSelects();
     }
     if (typeof c.deck === 'string') state.cfg.deck = library.decks[c.deck] ? c.deck : '';
     if (/^(mixed|fwd|rev)$/.test(c.dir)) setDir(c.dir);
@@ -2521,7 +2553,7 @@
   }
 
   function refreshLanguage() {
-    updateSoundUI(); updateApiStatus(); updateInputStat(true);
+    updateSoundUI(); updateApiStatus(); updateInputStat(true); syncLangSelects();
     var active = document.querySelector('.screen.active');
     if (active) updateShell(active.id);
     if (!L) return;
@@ -2574,12 +2606,7 @@
     if (L) maybeOnboard();
 
     var sel = $('targetLang');
-    LANGS.forEach(function (l) {
-      var o = document.createElement('option');
-      o.value = l.code; o.textContent = l.label;
-      sel.appendChild(o);
-    });
-    sel.value = state.cfg.target;
+    syncLangSelects();
     $('cfgBaseUrl').value = state.cfg.baseUrl;
     $('cfgModel').value = state.cfg.model;
     $('cfgKey').value = state.cfg.apiKey;
@@ -2666,8 +2693,8 @@
     sel.addEventListener('change', function () {
       if (L) releaseDeck();
       var prev = state.cfg.target; state.cfg.target = sel.value;
-      if (L && state.cfg.source === sel.value) { state.cfg.source = prev; $('sourceLang').value = prev; }
-      saveCfg();
+      if (L && state.cfg.source === sel.value) state.cfg.source = LANGUAGES.canLearn(prev) ? prev : otherLearnable(sel.value);
+      syncLangSelects(); saveCfg();
     });
     $('dirSeg').addEventListener('click', function (e) {
       var b = e.target.closest('button[data-dir]');
@@ -2695,7 +2722,7 @@
 
     $('btnStart').addEventListener('click', start);
     $('btnDemo').addEventListener('click', function () {
-      state.cfg.target = 'ru'; state.cfg.source = 'en'; $('targetLang').value = 'ru'; if (L) $('sourceLang').value = 'en'; saveCfg();
+      state.cfg.target = 'ru'; state.cfg.source = 'en'; syncLangSelects(); saveCfg();
       toast(tr('toast.demo'), 'ok');
       startTraining(demoCards());
     });
@@ -2705,7 +2732,8 @@
         var s = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
         if (s && s.cards && s.cards.length) {
           if (s.source) state.cfg.source = s.source;
-          if (s.target) { state.cfg.target = s.target; $('targetLang').value = s.target; }
+          if (s.target) state.cfg.target = s.target;
+          syncLangSelects();
           if (s.dir) setDir(s.dir);
           startTraining(s.cards, s);
         }

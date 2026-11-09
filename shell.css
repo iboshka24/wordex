@@ -346,3 +346,11 @@
 .arc-hitflash { animation:arcHit .3s; } @keyframes arcHit { 0% { box-shadow:0 0 0 0 #ffd16699; } 100% { box-shadow:0 0 0 14px transparent; } }
 @media (max-width:720px) { .arc-chests { gap:8px; } .arc-chest { height:88px; font-size:22px; } .arc-stat strong { font-size:22px; } .arc-upgrade { grid-template-columns:1fr; grid-template-areas:"name" "sub" "lvl" "buy"; } }
 @media (prefers-reduced-motion:reduce) { .arc-particle, .arc-shake, .arc-crit, .arc-hitflash, .arc-combo strong.bump { animation:none; } .arc-chest-lid, .arc-track i { transition:none; } }
+
+/* v2.21 — languages: archived decks, reading line (Pinyin) */
+.archived-badge { display:inline-block; margin-left:6px; padding:1px 7px; border:1px solid var(--stroke); border-radius:999px; font-size:10px; letter-spacing:.06em; text-transform:none; color:var(--muted); vertical-align:1px; }
+.archived-note { margin:0 0 18px; padding:10px 14px; border:1px dashed var(--stroke); border-radius:12px; font-size:13px; color:var(--muted); background:var(--surface); }
+.archived-note .link { margin-left:6px; }
+.card-reading { margin-top:6px; font:15px/1.3 var(--font-ui); letter-spacing:.02em; color:var(--muted); }
+.card-reading[hidden] { display:none !important; }
+.swap-btn:disabled { opacity:.4; cursor:not-allowed; }
