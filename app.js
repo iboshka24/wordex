@@ -177,6 +177,7 @@
     try { voiceList = window.speechSynthesis.getVoices() || []; } catch (e) { voiceList = []; }
     voicesKnown = voiceList.length > 0; // an empty list may only mean "not loaded yet"
     updateSpeakButtons();
+    if ($('displayDialog') && !$('displayDialog').hidden) renderVoiceCheck();
   }
   function voiceTag(langCode) { var l = LANGUAGES.get(langCode); return (l && l.voice) || 'en-US'; }
   // false = this device certainly has no voice for the language (unknown counts as available).
@@ -1792,7 +1793,22 @@
     var pick = function (name) { var c = document.querySelector('input[name="' + name + '"]:checked'); return c ? c.value : null; };
     return { theme: pick('dispTheme'), size: pick('dispSize'), contrast: $('dispContrast').checked, spacing: $('dispSpacing').checked };
   }
+  // Which of the 9 learning languages this device can actually pronounce.
+  function renderVoiceCheck() {
+    var list = $('voiceList');
+    if (!list) return;
+    list.textContent = '';
+    LANGUAGES.LEARN_CODES.forEach(function (code) {
+      var l = langByCode(code), ok = canSpeak(code), known = voicesKnown || !hasSpeech();
+      var li = h('li', { className: 'voice-item ' + (!known ? 'is-unknown' : ok ? 'is-ok' : 'is-none') }, [
+        h('span', { text: l.flag + ' ' + l.label }),
+        h('span', { className: 'voice-state', text: !known ? tr('voice.unknown') : ok ? '✓ ' + tr('voice.ok') : tr('voice.none') })
+      ]);
+      list.appendChild(li);
+    });
+  }
   function openDisplay() {
+    renderVoiceCheck();
     displayOpener = document.activeElement;
     syncDisplayForm();
     $('displayDialog').hidden = false;

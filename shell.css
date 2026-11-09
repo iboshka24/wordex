@@ -436,3 +436,11 @@
 .gram-drill-opt.is-wrong { border-color:var(--rose); color:var(--rose); text-decoration:line-through; }
 .gram-drill-opt:disabled { opacity:1; cursor:default; }
 .gram-drill-feedback { margin:0; min-height:1.2em; font-size:14px; }
+
+/* v2.21 — Display: voice check */
+.voice-list { list-style:none; margin:0 0 6px; padding:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:4px 16px; }
+.voice-item { display:flex; justify-content:space-between; gap:8px; padding:5px 0; border-bottom:1px solid var(--stroke-soft, var(--stroke)); font-size:13px; }
+.voice-state { font-size:12px; }
+.voice-item.is-ok .voice-state { color:var(--emerald); }
+.voice-item.is-none .voice-state { color:var(--rose); }
+.voice-item.is-unknown .voice-state { color:var(--muted); }
