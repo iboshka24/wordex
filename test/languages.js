@@ -120,6 +120,16 @@ assert.equal(AI.parseResponse(JSON.stringify({ items: [{ original: 'son', transl
 assert.equal(AI.parseResponse(JSON.stringify({ items: [{ original: 'son', translation: 'ўғил' }] }), uzReq)[0].translation, 'o' + OK + 'g' + OK + 'il', 'and Latin script');
 console.log('✓ AI contract: legacy codes accepted, unknown rejected, Pinyin only for zh, Uzbek normalised');
 
+// --- voice choice ---
+const voices = [{ lang: 'en-GB', name: 'Daniel' }, { lang: 'en-US', name: 'Samantha', localService: true }, { lang: 'ru_RU', name: 'Milena' }, { lang: 'zh-TW', name: 'Mei-Jia' }];
+assert.equal(Lg.pickVoice(voices, 'en-US').name, 'Samantha', 'exact tag first');
+assert.equal(Lg.pickVoice(voices, 'ru-RU').name, 'Milena', 'underscore tags match');
+assert.equal(Lg.pickVoice(voices, 'zh-CN').name, 'Mei-Jia', 'same language, other region');
+assert.equal(Lg.pickVoice(voices, 'uz-UZ'), null, 'no Uzbek voice → null, not a wrong-language voice');
+assert.equal(Lg.pickVoice([], 'en-US'), null);
+assert.equal(Lg.pickVoice(null, 'en-US'), null);
+console.log('✓ voices: exact tag, then language prefix, else none');
+
 // --- share links ---
 (async () => {
   const kk = await S.encodeDeck({ source: 'kk', target: 'ru', cards: [{ original: 'алма', translation: 'яблоко' }] });

@@ -169,17 +169,66 @@
     }
   }
 
-  function speakText(text, langCode) {
-    if (!state.soundEnabled) return;
-    if (!('speechSynthesis' in window) || !text) return;
+  /* ---------------- speech: one voice picker for the card buttons, S, listening mode and examples ---------------- */
+  var voiceList = [], voicesKnown = false;
+  function hasSpeech() { return 'speechSynthesis' in window && typeof window.SpeechSynthesisUtterance === 'function'; }
+  function loadVoices() {
+    if (!hasSpeech() || typeof window.speechSynthesis.getVoices !== 'function') return;
+    try { voiceList = window.speechSynthesis.getVoices() || []; } catch (e) { voiceList = []; }
+    voicesKnown = voiceList.length > 0; // an empty list may only mean "not loaded yet"
+    updateSpeakButtons();
+  }
+  function voiceTag(langCode) { var l = LANGUAGES.get(langCode); return (l && l.voice) || 'en-US'; }
+  // false = this device certainly has no voice for the language (unknown counts as available).
+  function canSpeak(langCode) {
+    if (!hasSpeech()) return false;
+    return !voicesKnown || Boolean(LANGUAGES.pickVoice(voiceList, voiceTag(langCode)));
+  }
+  function speakUnavailableText(langCode) {
+    return hasSpeech() ? tr('speak.noVoice', { l: langByCode(langCode).label }) : tr('speak.noSpeech');
+  }
+  var speakingBtn = null;
+  function markSpeaking(btn, on) {
+    if (!btn || !btn.classList) return;
+    btn.classList.toggle('is-speaking', on);
+    if (btn.setAttribute) btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  // Speaks `text` in the language's voice. Returns false (and says why when `btn` was pressed) if it cannot.
+  function speakText(text, langCode, btn) {
+    if (!text) return false;
+    if (!state.soundEnabled) { if (btn) toast(tr('speak.muted'), 'err', 2600); return false; }
+    if (!canSpeak(langCode)) { if (btn) toast(speakUnavailableText(langCode), 'err', 4000); return false; }
     try {
       window.speechSynthesis.cancel();
+      if (speakingBtn) { markSpeaking(speakingBtn, false); speakingBtn = null; }
       var ut = new SpeechSynthesisUtterance(text);
-      var targetLang = langByCode(langCode);
-      ut.lang = (targetLang && targetLang.voice) || 'en-US';
-      ut.rate = 0.95;
+      ut.lang = voiceTag(langCode);
+      var v = LANGUAGES.pickVoice(voiceList, ut.lang);
+      if (v) ut.voice = v;
+      ut.rate = 0.9;
+      if (btn) {
+        speakingBtn = btn; markSpeaking(btn, true);
+        ut.onend = ut.onerror = function () { markSpeaking(btn, false); if (speakingBtn === btn) speakingBtn = null; };
+      }
       window.speechSynthesis.speak(ut);
-    } catch (e) {}
+      return true;
+    } catch (e) { if (btn) markSpeaking(btn, false); return false; }
+  }
+  // Language of what each card button would read right now.
+  function frontLang() { return isListen() || state.curSide === 'fwd' ? state.cfg.source : state.cfg.target; }
+  function backLang() { return isListen() || state.curSide !== 'fwd' ? state.cfg.source : state.cfg.target; }
+  function setSpeakBtn(btn, langCode, titleKey) {
+    if (!btn || !btn.setAttribute) return;
+    var ok = canSpeak(langCode), label = ok ? tr(titleKey) : speakUnavailableText(langCode);
+    btn.disabled = !ok;
+    btn.setAttribute('title', label);
+    btn.setAttribute('aria-label', ok ? tr('card.listen') : label);
+  }
+  function updateSpeakButtons() {
+    if (!state.current) return;
+    setSpeakBtn($('btnSpeakFront'), frontLang(), 'card.speakWord');
+    setSpeakBtn($('btnSpeakBack'), backLang(), 'card.speakTrans');
+    document.querySelectorAll('#cardContext .speak-btn').forEach(function (b) { setSpeakBtn(b, state.cfg.source, 'card.speakExample'); });
   }
 
   /* ---------------- utils ---------------- */
@@ -736,6 +785,7 @@
     saveSession();
     updateUndo();
     if (isListen() && (!state.soundEnabled || !('speechSynthesis' in window))) toast(tr('listen.noSound'), 'err', 4000);
+    else if (isListen() && !canSpeak(state.cfg.source)) toast(speakUnavailableText(state.cfg.source), 'err', 5000);
     else if (!resume) toast(trn('toast.deckReady', state.cards.length), 'ok');
   }
 
@@ -791,7 +841,7 @@
     $('cardSub').textContent = tr(fwd ? 'card.subFwd' : 'card.subRev');
     $('cardHint').textContent = state.cfg.simple ? '' : (c.hint || '');
     if (L) {
-      $('cardContext').textContent = state.cfg.simple ? '' : [c.definition].concat(c.examples || []).filter(Boolean).join(' · ');
+      renderCardContext(c);
       $('sessionLanguage').textContent = langByCode(state.cfg.source).label + ' → ' + target.label;
       $('typedAnswer').value = '';
       $('answerFeedback').hidden = true;
@@ -812,6 +862,7 @@
     $('cardWord').lang = isListen() ? '' : (fwd ? state.cfg.source : state.cfg.target);
     $('cardTrans').lang = isListen() || !fwd ? state.cfg.source : state.cfg.target;
     if (L) { cardElLabel(); announce(''); }
+    updateSpeakButtons();
 
     var cardEl = $('card');
     cardEl.classList.remove('flipped');
@@ -819,6 +870,26 @@
     if (cardEl.style) cardEl.style.transform = ''; /* сброс наклона за курсором */
     updateRows();
     if (window.VMMotion) { cardEl.dataset.revealed = 'false'; cardEl.dataset.swipe = String(state.cfg.mode === 'flashcard'); updateNextPreview(); window.VMMotion.card(); }
+  }
+
+  // Definition, then each example with its own speaker button (examples are in the learning language).
+  var SPEAK_ICON = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/></svg>';
+  function renderCardContext(c) {
+    var box = $('cardContext');
+    if (!box) return;
+    box.textContent = '';
+    if (state.cfg.simple) return;
+    if (c.definition) box.appendChild(h('span', { className: 'context-def', text: c.definition }));
+    (c.examples || []).filter(Boolean).forEach(function (ex) {
+      var line = h('span', { className: 'context-example' });
+      line.lang = state.cfg.source;
+      var b = h('button', { className: 'speak-btn speak-mini', type: 'button' });
+      b.innerHTML = SPEAK_ICON;
+      b.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); speakText(ex, state.cfg.source, b); });
+      line.appendChild(h('span', { text: ex }));
+      line.appendChild(b);
+      box.appendChild(line);
+    });
   }
 
   function setReading(id, text) {
@@ -893,14 +964,15 @@
     }
   }
 
+  // S and the toolbar button: read whichever side is showing, with the same feedback as the card buttons.
   function speakCurrent() {
     if (!state.current) return;
-    if (isListen()) { speakText(state.current.original, state.cfg.source); return; }
+    if (isListen()) { speakText(state.current.original, state.cfg.source, $('btnSpeakFront')); return; }
     var fwd = state.curSide === 'fwd';
     if (!state.revealed) {
-      speakText(fwd ? state.current.original : state.current.translation, fwd ? state.cfg.source : state.cfg.target);
+      speakText(fwd ? state.current.original : state.current.translation, fwd ? state.cfg.source : state.cfg.target, $('btnSpeakFront'));
     } else {
-      speakText(fwd ? state.current.translation : state.current.original, fwd ? state.cfg.target : state.cfg.source);
+      speakText(fwd ? state.current.translation : state.current.original, fwd ? state.cfg.target : state.cfg.source, $('btnSpeakBack'));
     }
   }
 
@@ -2553,7 +2625,7 @@
   }
 
   function refreshLanguage() {
-    updateSoundUI(); updateApiStatus(); updateInputStat(true); syncLangSelects();
+    updateSoundUI(); updateApiStatus(); updateInputStat(true); syncLangSelects(); updateSpeakButtons();
     var active = document.querySelector('.screen.active');
     if (active) updateShell(active.id);
     if (!L) return;
@@ -2778,15 +2850,23 @@
     });
 
     /* Card face speak buttons */
+    // The speaker buttons sit on the card: they must never flip it.
     $('btnSpeakFront').addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (isListen()) speakCurrent();
-      else if (state.current) speakText($('cardWord').textContent, state.curSide === 'fwd' ? state.cfg.source : state.cfg.target);
+      e.stopPropagation(); e.preventDefault();
+      if (!state.current) return;
+      if (isListen()) speakText(state.current.original, state.cfg.source, this);
+      else speakText($('cardWord').textContent, frontLang(), this);
     });
     $('btnSpeakBack').addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (state.current) speakText($('cardTrans').textContent, state.curSide === 'fwd' ? state.cfg.target : state.cfg.source);
+      e.stopPropagation(); e.preventDefault();
+      if (state.current) speakText($('cardTrans').textContent, backLang(), this);
     });
+    if (hasSpeech()) {
+      loadVoices();
+      var synth = window.speechSynthesis;
+      if (typeof synth.addEventListener === 'function') synth.addEventListener('voiceschanged', loadVoices);
+      else if ('onvoiceschanged' in synth) synth.onvoiceschanged = loadVoices;
+    }
     $('btnSpeakCur').addEventListener('click', speakCurrent);
 
     /* Training buttons */
@@ -2861,6 +2941,8 @@
       if (games && games.active()) return;
       if (e.target.matches('input,textarea,select')) return;
       var k = e.key;
+      // Space / Enter on a focused speaker button presses that button, not the card.
+      if ((k === ' ' || k === 'Enter') && e.target.closest && e.target.closest('.speak-btn')) return;
       if (L && answerLocked) return;
       if (L && !$('answerFeedback').hidden && k === 'Enter') { e.preventDefault(); $('btnNextAnswer').click(); return; }
       if (isTyping() && $('screen-train').classList.contains('active') && $('summary').hidden) {

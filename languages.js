@@ -112,10 +112,25 @@
   }
   function normalizeUz(s) { return normalizeUzApostrophes(uzCyrToLat(s)); }
 
+  /* ---------- speech ---------- */
+  // Best installed voice for a BCP-47 tag: the exact tag first (uz-UZ), then any voice of the language (uz-*).
+  // Returns null when the device has none, so the UI can say so instead of speaking with a wrong-language voice.
+  function pickVoice(voices, tag) {
+    var want = String(tag || '').toLowerCase().replace(/_/g, '-'), base = want.split('-')[0];
+    if (!base || !voices || !voices.length) return null;
+    var list = Array.prototype.slice.call(voices).filter(function (v) { return v && v.lang; });
+    function lang(v) { return String(v.lang).toLowerCase().replace(/_/g, '-'); }
+    var exact = list.filter(function (v) { return lang(v) === want; });
+    var near = exact.length ? exact : list.filter(function (v) { return lang(v).split('-')[0] === base; });
+    if (!near.length) return null;
+    // Prefer a local voice (works offline), then the browser's default for that language.
+    return near.find(function (v) { return v.localService && v.default; }) || near.find(function (v) { return v.localService; }) || near[0];
+  }
+
   return {
     LIST: LIST, KNOWN_CODES: KNOWN_CODES, LEARN_CODES: LEARN_CODES, NATIVE_CODES: NATIVE_CODES,
     get: get, isKnown: isKnown, canLearn: canLearn, canBeNative: canBeNative, isLegacy: isLegacy, isArchivedPair: isArchivedPair,
     normalizeUzApostrophes: normalizeUzApostrophes, foldApostrophes: foldApostrophes, uzCyrToLat: uzCyrToLat, normalizeUz: normalizeUz,
-    OKINA: OKINA, TUTUQ: TUTUQ
+    pickVoice: pickVoice, OKINA: OKINA, TUTUQ: TUTUQ
   };
 });
