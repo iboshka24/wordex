@@ -365,3 +365,43 @@
 .context-def, .context-example { display:block; }
 .context-example { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px; }
 .speak-btn.speak-mini { width:28px; height:28px; }
+
+/* v2.21 — Grammar Lab */
+.gram-build { margin:0 0 22px; }
+.gram-build-row { display:flex; flex-wrap:wrap; align-items:end; gap:12px 18px; }
+.gram-build-row .filter-field { min-width:220px; }
+.gram-auto { align-self:center; }
+.gram-status { margin:12px 0 0; min-height:1.2em; font-size:13px; color:var(--text); }
+.gram-status:empty { display:none; }
+.gram-privacy { margin:10px 0 0; font-size:12px; color:var(--muted); line-height:1.5; }
+.gram-search { flex:1 1 220px; }
+.gram-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:18px; margin-bottom:28px; }
+.gram-card { display:flex; flex-direction:column; gap:10px; border:1px solid var(--stroke); }
+.gram-head { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+.gram-lang { margin-right:auto; letter-spacing:.04em; }
+.gram-badge { padding:2px 9px; border:1px solid var(--stroke); border-radius:999px; font-size:11px; color:var(--text); }
+.gram-level { font-family:var(--font-mono); letter-spacing:.06em; }
+.gram-title { margin:2px 0 0; font:500 21px/1.25 var(--font-display); }
+.gram-expl { margin:0; font-size:14px; line-height:1.55; }
+.gram-label { margin:4px 0 0; font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); }
+.gram-patterns { list-style:none; margin:0; padding:0; display:grid; gap:10px; }
+.gram-patterns li { display:grid; gap:3px; padding-left:12px; border-left:2px solid var(--stroke); }
+.gram-pattern { font:13px var(--font-mono); color:var(--amber); background:none; padding:0; }
+.gram-example { display:flex; align-items:center; gap:8px; font-size:14px; }
+.gram-trans { font-size:12.5px; color:var(--muted); }
+.gram-pitfall { padding:10px 12px; border-radius:10px; background:var(--bg); }
+.gram-fix { margin:4px 0 0; display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:14px; }
+.gram-wrong { color:var(--rose); text-decoration-thickness:1.5px; }
+.gram-right { background:none; color:var(--emerald); font-weight:600; }
+.gram-arrow { color:var(--muted); }
+.gram-note { margin:6px 0 0; font-size:12.5px; color:var(--muted); }
+.gram-words { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
+.gram-words .gram-label { margin:0 6px 0 0; }
+.gram-word { padding:4px 10px; font-size:12px; }
+.gram-card .actions { margin-top:auto; }
+.gram-card :focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+@media (max-width:600px) {
+  .gram-list { grid-template-columns:1fr; }
+  .gram-build-row .filter-field { min-width:0; flex:1 1 100%; }
+  .gram-build-row .btn { width:100%; }
+}

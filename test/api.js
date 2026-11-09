@@ -265,4 +265,21 @@ function noSecrets(res) {
   delete process.env.AI_RATE_WINDOW_MS;
   console.log('✓ /api/ai: env-driven endpoint/model, deployment origin, body shapes, legacy body key, limiter memory stays bounded');
 
+  // --- Grammar Lab mode: same route, key handling and validation; grammar prompt and parser
+  process.env.OPENAI_API_KEY = SERVER_KEY;
+  h = freshHandler();
+  provider = async () => modelReply(JSON.stringify({ items: [{ original: 'depend on', rules: [{ ruleId: 'en.preposition.depend-on', category: 'preposition', concept: 'depend + on', explanation: 'После depend нужен on.', patterns: [{ pattern: 'depend on + noun', example: 'It depends on you.', translation: 'Это зависит от тебя.' }], level: 'A2' }] }] }));
+  r = await call(h, request({ body: { mode: 'grammar', words: ['depend on'], source: 'en', target: 'ru' } }));
+  assert.equal(r.statusCode, 200);
+  assert.equal(r.body.items[0].rules[0].ruleId, 'en.preposition.depend-on');
+  assert.match(lastCall.body.messages[0].content, /grammar engine/);
+  r = await call(h, request({ body: { mode: 'grammar', words: ['elma'], source: 'tr', target: 'ru' } }));
+  assert.equal(r.statusCode, 400, 'no grammar for archived languages');
+  r = await call(h, request({ body: { mode: 'grammar', words: Array.from({ length: 13 }, (_, i) => 'w' + i), source: 'en', target: 'ru' } }));
+  assert.equal(r.statusCode, 400, 'grammar batches are capped at 12 words');
+  provider = async () => modelReply('not json');
+  r = await call(h, request({ body: { mode: 'grammar', words: ['depend on'], source: 'en', target: 'ru' } }));
+  assert.equal(r.statusCode, 502); assert.equal(r.body.code, 'bad-model-response');
+  console.log('✓ /api/ai: grammar mode — same route and limits, grammar prompt, strict parser, archived languages rejected');
+
 })().catch(err => { console.error(err); process.exitCode = 1; });

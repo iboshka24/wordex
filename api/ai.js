@@ -4,6 +4,7 @@
  * Contract: POST application/json
  *   { "action": "status" }                                  → { status, serverKeyConfigured, limits }
  *   { "words": [...], "source": "en", "target": "ru" }      → { items: [{ original, translation, hint, definition, examples }] }
+ *   { "mode": "grammar", "words": [...≤12], "source": "de", "target": "ru" } → { items: [{ original, rules: [...] }] } (see grammar.js)
  * The server builds the prompt itself; callers can no longer send arbitrary chat messages.
  *
  * Environment:

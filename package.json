@@ -4,10 +4,10 @@
   "private": true,
   "description": "Bilingual AI flashcard loop: paste words → AI filters & translates → infinite recall loop.",
   "scripts": {
-    "test": "node test/learning.js && node test/languages.js && node test/i18n.js && node test/api.js && node test/share.js && node test/games.js && node test/account.js && node test/display.js && node test/security.js && node test/suite.js",
+    "test": "node test/learning.js && node test/languages.js && node test/grammar.js && node test/i18n.js && node test/api.js && node test/share.js && node test/games.js && node test/account.js && node test/display.js && node test/security.js && node test/suite.js",
     "test:browser": "node test/browser.js",
     "test:e2e": "node test/e2e.js",
-    "coverage": "c8 --include learning.js --include languages.js --include i18n.js --include ai-core.js --include share.js --include display.js --include api/ai.js --check-coverage --lines 95 --branches 85 --functions 90 npm test",
+    "coverage": "c8 --include learning.js --include languages.js --include grammar.js --include i18n.js --include ai-core.js --include share.js --include display.js --include api/ai.js --check-coverage --lines 95 --branches 85 --functions 90 npm test",
     "coverage:e2e": "node test/e2e.js --coverage",
     "screens": "node test/screens.js",
     "dev": "node tools/dev-server.js",

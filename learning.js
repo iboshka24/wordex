@@ -274,6 +274,11 @@
           var prev = out.cards[i], win = Object.assign({}, better(prev, c));
           var added = [prev.added, c.added].filter(function (v) { return v > 0; });
           if (added.length) win.added = Math.min.apply(null, added);
+          // Grammar found on either device is kept; a reading too.
+          if (Array.isArray(prev.grammarIds) || Array.isArray(c.grammarIds)) {
+            win.grammarIds = (prev.grammarIds || []).concat(c.grammarIds || []).filter(function (id, n, all) { return all.indexOf(id) === n; }).slice(0, 6);
+          }
+          if (!win.reading && (prev.reading || c.reading)) win.reading = prev.reading || c.reading;
           out.cards[i] = win;
         });
       });
@@ -288,6 +293,11 @@
     var streak = Object.assign({}, (sb.count || 0) > (sa.count || 0) || ((sb.count || 0) === (sa.count || 0) && String(sb.last || '') > String(sa.last || '')) ? sb : sa);
     var out = { decks: decks, history: history, goal: a.goal || b.goal || 10, streak: streak };
     if (a.batch != null || b.batch != null) out.batch = a.batch != null ? a.batch : b.batch;
+    if (a.grammar || b.grammar) {
+      var grammar = {};
+      [a.grammar || {}, b.grammar || {}].forEach(function (g) { Object.keys(g).forEach(function (id) { if (!Object.prototype.hasOwnProperty.call(grammar, id)) grammar[id] = g[id]; }); });
+      out.grammar = grammar;
+    }
     return out;
   }
   function backupFile(library) { return { version: 2, library: library }; }
@@ -296,11 +306,15 @@
   // that are absent stay absent so a backup restores exactly.
   // Throws an Error whose .code is 'not-backup', 'bad-deck' or 'bad-word'.
   // Optional card fields added after v2.20: kept when well-formed, absent otherwise (older files have none).
+  var GRAMMAR_ID = /^[a-z]{2}\.[a-z-]{2,20}\.[a-z0-9-]{2,60}$/;
   function withOptional(src, card) {
     if (typeof src.reading === 'string' && src.reading.trim()) card.reading = src.reading.slice(0, 200);
+    // grammarIds: [] means "analysed, no rules"; absent means "not analysed yet".
+    if (Array.isArray(src.grammarIds)) card.grammarIds = src.grammarIds.filter(function (id, i, all) { return typeof id === 'string' && GRAMMAR_ID.test(id) && all.indexOf(id) === i; }).slice(0, 6);
     return card;
   }
-  function restoreBackup(data, langCodes) {
+  // cleanGrammar (optional): validates library.grammar (grammar.js cleanStore). Without it, rules are not restored.
+  function restoreBackup(data, langCodes, cleanGrammar) {
     function fail(code) { var e = new Error(code); e.code = code; return e; }
     function opt(v, min, max) { return v == null || v === '' || isNaN(Number(v)) ? undefined : Math.max(min, Math.min(max, Number(v))); }
     function count(v) { return Math.max(0, Number(v) || 0); }
@@ -334,7 +348,12 @@
     var streak = { count: count(s.count), last: DATE.test(s.last || '') ? s.last : null, freezes: Math.min(2, count(s.freezes)), enabled: s.enabled !== false };
     ['checked', 'protectedThrough'].forEach(function (k) { if (DATE.test(s[k] || '')) streak[k] = s[k]; });
     var batch = Number(incoming.batch);
-    return { decks: decks, history: history, goal: Math.max(1, Math.min(200, Number(incoming.goal) || 10)), batch: [10, 20, 30].indexOf(batch) >= 0 ? batch : 0, streak: streak };
+    var out = { decks: decks, history: history, goal: Math.max(1, Math.min(200, Number(incoming.goal) || 10)), batch: [10, 20, 30].indexOf(batch) >= 0 ? batch : 0, streak: streak };
+    if (typeof cleanGrammar === 'function' && incoming.grammar) {
+      var grammar = cleanGrammar(incoming.grammar);
+      if (Object.keys(grammar).length) out.grammar = grammar;
+    }
+    return out;
   }
   function librarySize(library) {
     var keys = Object.keys((library && library.decks) || {});

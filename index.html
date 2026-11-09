@@ -36,6 +36,7 @@
       <button type="button" class="nav-link" id="navLibrary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2"/><path d="M8 7h7"/></svg><span data-i18n="nav.library">Моя библиотека</span></button>
       <button type="button" class="nav-link" id="navTest"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 11 2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg><span data-i18n="nav.test">Лексический тест</span></button>
       <button type="button" class="nav-link" id="navGames"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="12" rx="4"/><path d="M7 11v4M5 13h4"/><circle cx="15.5" cy="12" r="1"/><circle cx="18" cy="14.5" r="1"/></svg><span data-i18n="nav.games">Игры</span></button>
+      <button type="button" class="nav-link" id="navGrammar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 18 5-13 5 13M5 13.5h6"/><path d="M15 12.5a3 3 0 0 1 6 0V18m0-3.5c-.8-.6-1.8-1-3-1-1.7 0-3 1-3 2.2 0 1.3 1.1 2.3 2.6 2.3 1.4 0 2.6-.8 3.4-2"/></svg><span data-i18n="nav.grammar">Грамматика</span></button>
       <button type="button" class="nav-link" id="navProgress"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i18n="nav.progress">Прогресс</span></button>
       <p class="side-group" data-i18n="side.tools">Инструменты</p>
       <button class="side-link" id="btnSettings" type="button" title="Настройки API" data-i18n-attr="title:top.settings">
@@ -341,6 +342,31 @@
         <button class="btn primary" type="button" id="gameNext" hidden data-i18n="btn.next">Дальше →</button>
       </div>
     </section>
+    <section class="screen" id="screen-grammar">
+      <div class="library-intro"><div><span class="eyebrow" data-i18n="gram.eyebrow">ПРАВИЛА ИЗ ТВОИХ СЛОВ</span><h1 data-i18n="gram.h1">Грамматика</h1><p data-i18n="gram.sub">Каждое правило — из слов, которые ты учишь. С примерами и типичными ошибками.</p></div></div>
+      <div class="panel gram-build" id="gramBuild">
+        <div class="gram-build-row">
+          <label class="filter-field"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramBuildDeck"></select></span></label>
+          <button class="btn primary" id="btnGramBuild" type="button" data-i18n="gram.build">Собрать грамматику для колоды</button>
+          <label class="freeze-control gram-auto"><input type="checkbox" id="gramAuto" checked> <span data-i18n="gram.auto">Разбирать новые слова автоматически</span></label>
+        </div>
+        <p class="gram-status" id="gramStatus" role="status" aria-live="polite"></p>
+        <p class="gram-privacy" data-i18n="gram.privacy">Для разбора слова отправляются только выбранному ИИ-провайдеру.</p>
+      </div>
+      <div class="quiz-empty gram-empty" id="gramEmpty" hidden><span id="gramEmptyText"></span> <button class="link" type="button" id="btnGramEmpty"></button></div>
+      <div class="filter-row gram-filters" id="gramFilters">
+        <label class="filter-field"><span data-i18n="filter.lang">Язык</span><span class="select-wrap"><select id="gramLang"><option value="" data-i18n="filter.any">Все</option></select></span></label>
+        <label class="filter-field"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramDeck"></select></span></label>
+        <label class="filter-field"><span data-i18n="gram.category">Тема</span><span class="select-wrap"><select id="gramCategory"><option value="" data-i18n="filter.any">Все</option></select></span></label>
+        <label class="filter-field"><span data-i18n="gram.level">Уровень</span><span class="select-wrap"><select id="gramLevel"><option value="" data-i18n="filter.any">Все</option></select></span></label>
+        <label class="filter-field"><span data-i18n="gram.sort">Порядок</span><span class="select-wrap"><select id="gramSort"><option value="new" data-i18n="gram.sortNew">Сначала новые</option><option value="category" data-i18n="gram.sortCat">По темам</option></select></span></label>
+        <label class="search-box gram-search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg><input id="gramSearch" type="search" placeholder="Найти правило или слово…" autocomplete="off" aria-label="Поиск по правилам" data-i18n-attr="placeholder:gram.search,aria-label:gram.searchAria"></label>
+      </div>
+      <div class="grid-head"><h2 data-i18n="gram.listH">Твоя карта грамматики</h2><span id="gramCount"></span></div>
+      <div class="gram-list" id="gramList"></div>
+      <p class="quiz-empty" id="gramNone" hidden data-i18n="gram.none">Под фильтры не подошло ни одно правило.</p>
+    </section>
+
     <section class="screen" id="screen-progress">
       <div class="library-intro"><div><span class="eyebrow" data-i18n="prog.eyebrow">ПРОГРЕСС</span><h1 data-i18n="prog.h1">Как идёт обучение</h1><p data-i18n="prog.sub">Что ждёт впереди, насколько прочно держатся слова и где нужна помощь.</p></div><label class="filter-field prog-deck"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="progDeck"></select></span></label></div>
       <p class="quiz-empty" id="progEmpty" hidden><span data-i18n="prog.empty">Статистика появится после первых ответов.</span> <button class="link" type="button" id="btnProgEmpty" data-i18n="lib.emptyBtn">Добавить слова →</button></p>
@@ -567,6 +593,7 @@
   <script defer src="i18n.js?v=2.21"></script>
   <script defer src="motion.js?v=2.21"></script>
   <script defer src="languages.js?v=2.21"></script>
+  <script defer src="grammar.js?v=2.21"></script>
   <script defer src="learning.js?v=2.21"></script>
   <script defer src="ai-core.js?v=2.21"></script>
   <script defer src="share.js?v=2.21"></script>
