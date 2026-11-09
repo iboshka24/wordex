@@ -2156,7 +2156,7 @@
     if (id === 'screen-library') renderLibrary();
     if (id === 'screen-test') fillQuizDecks();
     if (id === 'screen-progress') renderProgress();
-    if (id === 'screen-grammar') renderGrammar();
+    if (id === 'screen-grammar') { drill = null; renderGrammar(); }
   }
   function deckMatches(d, lang, status) {
     if (lang && d.source !== lang && d.target !== lang) return false;
@@ -2727,10 +2727,12 @@
     $('gramCount').textContent = total ? tr('gram.count', { n: rows.length }) : '';
     $('gramNone').hidden = !total || rows.length > 0;
     if (!total) {
+      renderDrillPanel([]);
       if (Object.keys(library.decks).length && aiAvailable()) host.appendChild(h('p', { className: 'quiz-empty', text: tr('gram.empty') }));
       return;
     }
     rows.forEach(function (row) { host.appendChild(ruleCard(row)); });
+    renderDrillPanel(rows);
   }
   function ruleCard(row) {
     var r = row.rule, lang = langByCode(r.lang);
@@ -2786,6 +2788,59 @@
     card.appendChild(h('div', { className: 'actions' }, [practice]));
     return card;
   }
+
+  // "Find the mistake": up to 8 pitfalls from the rules on screen; pick the correct sentence.
+  var drill = null;
+  function renderDrillPanel(rows) {
+    var panel = $('gramDrill');
+    if (!panel) return;
+    var withPitfall = rows.filter(function (r) { return r.rule.pitfall; });
+    panel.hidden = !withPitfall.length && !drill;
+    if (!drill) { $('gramDrillBody').textContent = ''; $('gramDrillScore').textContent = ''; $('btnDrillStart').textContent = tr('drill.start'); $('btnDrillStart').hidden = false; }
+  }
+  function startDrill() {
+    var rows = GR.aggregate(library, grammarFilters());
+    var qs = shuffle(GR.pitfallDrill(rows.map(function (r) { return r.rule; }))).slice(0, 8);
+    if (!qs.length) return;
+    drill = { qs: qs, i: 0, right: 0, answered: false };
+    $('btnDrillStart').hidden = true;
+    renderDrillQuestion();
+  }
+  function renderDrillQuestion() {
+    var body = $('gramDrillBody'), q = drill.qs[drill.i];
+    body.textContent = '';
+    $('gramDrillScore').textContent = tr('drill.score', { a: drill.right, n: drill.qs.length });
+    body.appendChild(h('p', { className: 'gram-label', text: tr('drill.q', { i: drill.i + 1, n: drill.qs.length }) + ' · ' + q.rule.concept }));
+    var opts = h('div', { className: 'gram-drill-options', role: 'group', 'aria-label': tr('drill.title') });
+    var feedback = h('p', { className: 'gram-drill-feedback', role: 'status', 'aria-live': 'polite' });
+    q.options.forEach(function (o) {
+      var b = h('button', { className: 'btn gram-drill-opt', type: 'button', text: o.text });
+      b.lang = q.rule.lang;
+      b.onclick = function () {
+        if (drill.answered) return;
+        drill.answered = true;
+        if (o.correct) drill.right++;
+        opts.querySelectorAll('button').forEach(function (x, idx) { x.disabled = true; x.classList.add(q.options[idx].correct ? 'is-right' : 'is-wrong'); });
+        feedback.textContent = o.correct ? tr('drill.right') : tr('drill.wrong', { c: q.rule.pitfall.correction });
+        if (q.rule.pitfall.note) feedback.appendChild(h('span', { className: 'gram-note', text: ' ' + q.rule.pitfall.note }));
+        $('gramDrillScore').textContent = tr('drill.score', { a: drill.right, n: drill.qs.length });
+        var last = drill.i >= drill.qs.length - 1;
+        var next = h('button', { className: 'btn primary', type: 'button', text: last ? tr('drill.again') : tr('drill.next') });
+        next.onclick = function () {
+          if (last) { drill = null; startDrill(); return; }
+          drill.i++; drill.answered = false; renderDrillQuestion();
+        };
+        body.appendChild(h('div', { className: 'actions' }, [next]));
+        if (last) feedback.textContent = tr('drill.done', { a: drill.right, n: drill.qs.length }) + ' ' + feedback.textContent;
+        next.focus();
+      };
+      opts.appendChild(b);
+    });
+    body.appendChild(opts);
+    body.appendChild(feedback);
+    var first = opts.querySelector('button'); if (first) first.focus();
+  }
+
   function openWordInLibrary(word) {
     navigateLearning('screen-library');
     var s = $('librarySearch');
@@ -2813,6 +2868,7 @@
       renderGrammarList();
     };
     $('gramSearch').oninput = renderGrammarList;
+    $('btnDrillStart').onclick = function () { drill = null; startDrill(); };
   }
 
   /* ---------------- account: the library and language choice follow the learner across devices ---------------- */

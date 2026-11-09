@@ -368,6 +368,12 @@
         <label class="filter-field"><span data-i18n="gram.sort">Порядок</span><span class="select-wrap"><select id="gramSort"><option value="new" data-i18n="gram.sortNew">Сначала новые</option><option value="category" data-i18n="gram.sortCat">По темам</option></select></span></label>
         <label class="search-box gram-search"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg><input id="gramSearch" type="search" placeholder="Найти правило или слово…" autocomplete="off" aria-label="Поиск по правилам" data-i18n-attr="placeholder:gram.search,aria-label:gram.searchAria"></label>
       </div>
+      <section class="panel gram-drill" id="gramDrill" hidden aria-labelledby="gramDrillTitle">
+        <div class="gram-drill-head"><h2 id="gramDrillTitle" data-i18n="drill.title">Найди ошибку</h2><span class="gram-drill-score" id="gramDrillScore"></span></div>
+        <p class="gram-drill-intro" id="gramDrillIntro" data-i18n="drill.intro">Какое предложение правильное? Вопросы — из типичных ошибок в твоих правилах.</p>
+        <div id="gramDrillBody"></div>
+        <div class="actions"><button class="btn primary" id="btnDrillStart" type="button" data-i18n="drill.start">Начать</button></div>
+      </section>
       <div class="grid-head"><h2 data-i18n="gram.listH">Твоя карта грамматики</h2><span id="gramCount"></span></div>
       <div class="gram-list" id="gramList"></div>
       <p class="quiz-empty" id="gramNone" hidden data-i18n="gram.none">Под фильтры не подошло ни одно правило.</p>

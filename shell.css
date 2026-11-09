@@ -423,3 +423,16 @@
 @media (prefers-reduced-motion: reduce) { .steps li { transition:none; } }
 .quick-start { border-color:var(--amber); color:var(--text); }
 .quick-start:hover { background:var(--surface); border-color:var(--amber); }
+
+/* v2.21 — Grammar Lab: find the mistake */
+.gram-drill { margin:0 0 24px; display:flex; flex-direction:column; gap:10px; }
+.gram-drill-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+.gram-drill-head h2 { margin:0; font:500 20px var(--font-display); }
+.gram-drill-score { font:12px var(--font-mono); color:var(--muted); }
+.gram-drill-intro { margin:0; font-size:13px; color:var(--muted); }
+.gram-drill-options { display:grid; gap:10px; }
+.gram-drill-opt { justify-content:flex-start; text-align:left; white-space:normal; min-height:48px; font-size:15px; }
+.gram-drill-opt.is-right { border-color:var(--emerald); color:var(--emerald); }
+.gram-drill-opt.is-wrong { border-color:var(--rose); color:var(--rose); text-decoration:line-through; }
+.gram-drill-opt:disabled { opacity:1; cursor:default; }
+.gram-drill-feedback { margin:0; min-height:1.2em; font-size:14px; }
