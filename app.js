@@ -2131,6 +2131,7 @@
     persistLibrary(); renderDaily();
   }
   function renderDaily() {
+    renderSteps();
     var h = library.history[L.day()] || { answers: 0 };
     $('streakCount').textContent = trn('streak.days', library.streak.count);
     $('dailyTitle').textContent = tr(h.answers >= library.goal ? 'daily.done' : 'daily.almost');
@@ -2591,6 +2592,41 @@
   }
 
 
+
+  /* ---------------- landing: 5-word quick start and the 3-step tracker ---------------- */
+  // One English deck with built-in translations: starts at once, offline and without AI.
+  var QUICK5 = {
+    ru: ['depend on — зависеть от', 'give up — бросать, сдаваться', 'although — хотя', 'children — дети', 'resilient — стойкий, жизнестойкий'],
+    uz: ['depend on — bogʻliq boʻlmoq', 'give up — voz kechmoq', 'although — garchi', 'children — bolalar', 'resilient — chidamli']
+  };
+  function quickStart() {
+    var ui = I18N ? I18N.lang() : 'ru';
+    var target = QUICK5[ui] ? ui : (QUICK5[state.cfg.target] ? state.cfg.target : 'ru');
+    releaseDeck();
+    state.cfg.source = 'en'; state.cfg.target = target;
+    syncLangSelects(); saveCfg();
+    $('input').value = QUICK5[target].join('\n');
+    updateInputStat(true);
+    start();
+  }
+  // ① paste → ② cards made → ③ practising. Collapses to a slim line once a first session is done.
+  function renderSteps() {
+    var list = $('howSteps');
+    if (!list || !list.querySelectorAll || !list.classList) return;
+    var decks = Object.keys(library.decks).filter(function (k) { return library.decks[k].cards.length; });
+    var practised = Object.keys(library.history || {}).some(function (d) { return (library.history[d].answers || 0) > 0; });
+    var step = practised || $('screen-train').classList.contains('active') ? 3 : decks.length ? 2 : 1;
+    var slim = false;
+    try { slim = localStorage.getItem('vm.onboard-steps') === 'done'; } catch (e) {}
+    if (practised && !slim) { try { localStorage.setItem('vm.onboard-steps', 'done'); } catch (e) {} slim = true; }
+    list.classList.toggle('is-slim', slim);
+    list.querySelectorAll('li').forEach(function (li) {
+      var n = Number(li.getAttribute('data-step'));
+      li.classList.toggle('done', n < step);
+      if (n === step) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    });
+  }
+
   /* ---------------- Grammar Lab: rules extracted from the learner's own words (grammar.js) ---------------- */
   var GR = window.VMGrammar, grammarBusy = false, GRAM_AUTO_KEY = 'vm.grammar-auto';
   function aiAvailable() { return Boolean(state.serverHasKey || state.cfg.apiKey); }
@@ -2991,6 +3027,7 @@
     });
 
     $('btnStart').addEventListener('click', start);
+    $('btnQuick5').addEventListener('click', quickStart);
     $('btnDemo').addEventListener('click', function () {
       state.cfg.target = 'ru'; state.cfg.source = 'en'; syncLangSelects(); saveCfg();
       toast(tr('toast.demo'), 'ok');

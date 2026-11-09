@@ -405,3 +405,21 @@
   .gram-build-row .filter-field { min-width:0; flex:1 1 100%; }
   .gram-build-row .btn { width:100%; }
 }
+
+/* v2.21 — landing: 3-step tracker and 5-word quick start */
+.steps { list-style:none; display:flex; gap:10px; margin:0 0 22px; padding:0; counter-reset:none; }
+.steps li { flex:1 1 0; display:flex; align-items:center; gap:10px; padding:11px 14px; border:1px solid var(--stroke); border-radius:14px; background:var(--surface); color:var(--muted); font-size:13px; transition:border-color .25s, color .25s, background .25s; }
+.steps .step-n { flex:none; width:24px; height:24px; display:grid; place-items:center; border-radius:50%; border:1px solid var(--stroke); font:12px var(--font-mono); }
+.steps svg { flex:none; }
+.steps li.done { color:var(--text); }
+.steps li.done .step-n { background:var(--emerald); border-color:var(--emerald); color:var(--surface); }
+.steps li[aria-current="step"] { color:var(--text); border-color:var(--amber); box-shadow:inset 0 0 0 1px var(--amber); }
+.steps li[aria-current="step"] .step-n { border-color:var(--amber); color:var(--amber); }
+.steps.is-slim { gap:6px; margin-bottom:14px; }
+.steps.is-slim li { padding:4px 0; border:0; box-shadow:none; background:none; font-size:11.5px; flex:0 0 auto; }
+.steps.is-slim li + li::before { content:'→'; color:var(--muted); margin-right:6px; }
+.steps.is-slim svg, .steps.is-slim .step-n { display:none; }
+@media (max-width:600px) { .steps:not(.is-slim) { flex-direction:column; } }
+@media (prefers-reduced-motion: reduce) { .steps li { transition:none; } }
+.quick-start { border-color:var(--amber); color:var(--text); }
+.quick-start:hover { background:var(--surface); border-color:var(--amber); }
