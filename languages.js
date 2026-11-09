@@ -18,7 +18,7 @@
       grammarFeatures: ['conjugation', 'gender and articles', 'prepositions after verbs', 'irregular plurals'] },
     { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪', voice: 'de-DE', script: 'latin', role: 'learn', reading: null,
       grammarFeatures: ['cases and case government', 'gender and articles', 'separable verbs', 'verb-second word order', 'plural forms'] },
-    { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵', voice: 'ja-JP', script: 'kana-kanji', role: 'learn', reading: null,
+    { code: 'ja', name: 'Japanese', nativeName: '日本語', flag: '🇯🇵', voice: 'ja-JP', script: 'kana-kanji', role: 'learn', reading: 'kana',
       grammarFeatures: ['particles', 'politeness levels', 'verb groups', 'counters'] },
     { code: 'ko', name: 'Korean', nativeName: '한국어', flag: '🇰🇷', voice: 'ko-KR', script: 'hangul', role: 'learn', reading: null,
       grammarFeatures: ['particles', 'speech levels', 'verb endings'] },

@@ -118,7 +118,12 @@ assert.equal('reading' in AI.parseResponse(JSON.stringify({ items: [{ original: 
 const uzReq = AI.validateRequest({ words: ['son'], source: 'en', target: 'uz' });
 assert.equal(AI.parseResponse(JSON.stringify({ items: [{ original: 'son', translation: "o'g'il" }] }), uzReq)[0].translation, 'o' + OK + 'g' + OK + 'il', 'Uzbek answers get canonical apostrophes');
 assert.equal(AI.parseResponse(JSON.stringify({ items: [{ original: 'son', translation: 'ўғил' }] }), uzReq)[0].translation, 'o' + OK + 'g' + OK + 'il', 'and Latin script');
-console.log('✓ AI contract: legacy codes accepted, unknown rejected, Pinyin only for zh, Uzbek normalised');
+const jaReq = AI.validateRequest({ words: ['日本'], source: 'ja', target: 'ru' });
+assert(/hiragana/.test(AI.buildMessages(jaReq)[0].content), 'kana reading is asked for Japanese');
+assert(!/Pinyin/.test(AI.buildMessages(jaReq)[0].content));
+assert.equal(AI.parseResponse(JSON.stringify({ items: [{ original: '日本', translation: 'Япония', reading: 'にほん' }] }), jaReq)[0].reading, 'にほん');
+assert.equal(Lg.get('ja').reading, 'kana');
+console.log('✓ AI contract: legacy codes accepted, unknown rejected, Pinyin for zh, kana for ja, Uzbek normalised');
 
 // --- voice choice ---
 const voices = [{ lang: 'en-GB', name: 'Daniel' }, { lang: 'en-US', name: 'Samantha', localService: true }, { lang: 'ru_RU', name: 'Milena' }, { lang: 'zh-TW', name: 'Mei-Jia' }];
