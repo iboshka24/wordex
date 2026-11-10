@@ -187,7 +187,8 @@
     var doc = document, $ = function (id) { return doc.getElementById(id); };
     var game = null, timer = null;
     function el(tag, cls, text) { var n = doc.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; }
-    function deck() { return api.decks()[$('gameDeck').value]; }
+    function deckKey() { return api.activeKey ? api.activeKey() : $('gameDeck').value; }
+    function deck() { return api.decks()[deckKey()]; }
     function best(kind) { try { return JSON.parse(localStorage.getItem('vm.game-best') || '{}')[kind] || 0; } catch (e) { return 0; } }
     function saveBest(kind, score) {
       try { var b = JSON.parse(localStorage.getItem('vm.game-best') || '{}'); if (score > (b[kind] || 0)) { b[kind] = score; localStorage.setItem('vm.game-best', JSON.stringify(b)); return true; } } catch (e) {}
@@ -195,15 +196,18 @@
     }
 
     function fillDecks() {
-      var sel = $('gameDeck'), keep = sel.value, decks = api.decks(), keys = Object.keys(decks);
+      var sel = $('gameDeck'), keep = api.activeKey ? api.activeKey() : sel.value, decks = api.decks(), keys = Object.keys(decks);
       sel.innerHTML = '';
       keys.sort(function (a, b) { return decks[b].cards.length - decks[a].cards.length; }).forEach(function (k) {
         var d = decks[k], o = el('option', null, api.deckLabel(d) + ' · ' + api.trn('words.count', d.cards.length));
         o.value = k; sel.appendChild(o);
       });
       if (keys.indexOf(keep) >= 0) sel.value = keep;
-      $('gamesEmpty').hidden = keys.length > 0;
-      $('gamesHub').hidden = !keys.length;
+      // With a working deck (v2.22) the games need at least 4 of its words; the empty state offers the demo deck.
+      var active = api.activeKey ? decks[api.activeKey()] : null;
+      var ready = api.activeKey ? !!(active && active.cards.length >= 4) : keys.length > 0;
+      $('gamesEmpty').hidden = ready;
+      $('gamesHub').hidden = !ready;
       document.querySelectorAll('#gamesHub [data-game]').forEach(function (b) {
         var k = b.dataset.game, rec = b.querySelector('.game-best');
         if (rec) rec.textContent = k === 'factory' ? api.tr('arc.tokensShort', { n: loadFactory().tokens }) : best(k) ? api.tr('game.best', { n: best(k) }) : '';
@@ -213,7 +217,7 @@
     function leave() { stop(); game = null; $('gameStage').className = 'panel game-stage'; $('gameStage').hidden = true; $('gamesHub').hidden = false; $('gamesPick').hidden = false; fillDecks(); }
 
     function start(kind) {
-      if (kind === 'match') { api.openMatch($('gameDeck').value); return; }
+      if (kind === 'match') { api.openMatch(deckKey()); return; }
       var d = deck();
       if (!d) { api.toast(api.tr('toast.createDeck'), 'err'); return; }
       if (ARCADE[kind]) { startArcade(kind, d); return; }

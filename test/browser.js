@@ -27,7 +27,7 @@ run.server(server);
   const errors = []; page.on('pageerror',e=>errors.push(e.message));
   const csp = []; const watchCsp = pg => pg.on('console', m => { if (/Content Security Policy|Refused to/i.test(m.text())) csp.push(m.text().slice(0,200)); });
   watchCsp(page);
-  await page.addInitScript(()=>{try{localStorage.setItem('vm.onboarded','1')}catch(e){}});
+  await page.addInitScript(()=>{try{localStorage.setItem('vm.onboarded','1');sessionStorage.setItem('vm.deck-picked','1')}catch(e){}});
   await page.goto('http://127.0.0.1:' + server.address().port);
   await page.locator('#sourceLang option').first().waitFor({state:'attached'});
   assert.equal(await page.title(),'Wordzone — слова становятся знаниями');
@@ -100,7 +100,7 @@ run.server(server);
   const motionPage = await browser.newPage({viewport:{width:1100,height:900},reducedMotion:'no-preference'});
   motionPage.on('pageerror',e=>errors.push(e.message));
   watchCsp(motionPage);
-  await motionPage.addInitScript(()=>{try{localStorage.setItem('vm.onboarded','1')}catch(e){}});
+  await motionPage.addInitScript(()=>{try{localStorage.setItem('vm.onboarded','1');sessionStorage.setItem('vm.deck-picked','1')}catch(e){}});
   await motionPage.goto('http://127.0.0.1:' + server.address().port);
   await motionPage.waitForFunction(()=>window.VMMotion);
   // lottie is lazy: not on the startup path, fetched once a session starts.

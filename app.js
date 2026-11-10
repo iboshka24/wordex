@@ -1419,6 +1419,11 @@
   /* ---------------- pipeline ---------------- */
 
   async function start() {
+    // Words always go into the working deck; without any deck the learner names one first (the typed words come along).
+    if (L && !activeDeck()) {
+      if (ensureActiveDeck()) onActiveDeckChange();
+      else if (parseInput($('input').value).items.length) { openDeckDialog($('input').value); return; }
+    }
     if (L && state.cfg.source === state.cfg.target) { toast(tr('toast.diffLangs'), 'err'); return; }
     // An archived pair can still grow an existing deck, but never start a new one.
     if (L && LANGUAGES.isArchivedPair(state.cfg.source, state.cfg.target) && !library.decks[activeDeckKey()]) { toast(tr('lang.archivedNew'), 'err', 5000); return; }
@@ -1512,12 +1517,17 @@
   }
   function snapshotLibrary() { return JSON.parse(JSON.stringify(library)); }
   function restoreLibrary(previous) {
-    return function () { library = previous; persistLibrary(); renderLibrary(); renderDaily(); };
+    return function () { library = previous; persistLibrary(); ensureActiveDeck(); renderLibrary(); renderDaily(); onActiveDeckChange(); };
   }
 
   function swapLanguages() {
+    if (activeDeck()) { // the deck keeps its languages: only ready-made pairs in the box are turned around
+      var box = $('input'), was = box.value, turned = L.swapPairs(was);
+      if (turned !== was) { box.value = turned; updateInputStat(true); saveDraftSoon(); toast(tr('toast.swapPairs').replace(/^\s*[·,—-]?\s*/, ''), 'ok', 1800); }
+      else toast(tr('decks.pairLocked') + ' ' + tr('decks.otherLangs'), 'ok', 3000);
+      return;
+    }
     if (!canSwapPair(state.cfg.source, state.cfg.target)) { toast(tr('lang.swapOff', { l: langByCode(state.cfg.target).label }), 'err'); return; }
-    releaseDeck();
     var s = state.cfg.source; state.cfg.source = state.cfg.target; state.cfg.target = s;
     syncLangSelects(); saveCfg();
     var input = $('input'), before = input.value, after = L.swapPairs(before);
@@ -1533,7 +1543,7 @@
     if (isTyping()) $('typedAnswer').focus();
   }
   function practiceDeck(d, mode) {
-    setActiveDeck(keyOf(d));
+    setActiveDeck(keyOf(d), true);
     var cards = L.pick(d.cards, mode), all = mode === 'all';
     if (mode === 'due' && !cards.length) { cards = L.pick(d.cards, 'all'); all = true; }
     // A capped session takes the most overdue / hardest words, or a random slice of the whole deck.
@@ -1544,14 +1554,15 @@
   function reverseDeck(d) {
     if (!canSwapPair(d.source, d.target)) { toast(tr('lang.swapOff', { l: langByCode(d.target).label }), 'err'); return; }
     var key = d.name ? Object.keys(library.decks).find(function (k) { var x = library.decks[k]; return x.source === d.target && x.target === d.source && x.name === d.name + ' ⇄'; }) || L.deckKey(d.target, d.source, L.deckId()) : L.deckKey(d.target, d.source);
-    var rev = library.decks[key] || { source: d.target, target: d.source, cards: [], created: Date.now() };
+    if (!library.decks[key] && !deckRoom()) { noRoom(); return; }
+    var rev = library.decks[key] || { source: d.target, target: d.source, name: pairLabel({ source: d.target, target: d.source }), cards: [], created: Date.now() };
     if (d.name) rev.name = d.name + ' ⇄';
     var added = 0;
     L.reverseCards(d.cards).forEach(function (c) {
       if (rev.cards.some(function (x) { return x.original.toLowerCase() === c.original.toLowerCase(); })) return;
       c.added = Date.now(); rev.cards.push(c); added++;
     });
-    library.decks[key] = rev; persistLibrary(); renderLibrary();
+    library.decks[key] = rev; persistLibrary(); renderLibrary(); renderSideDecks();
     toast(added ? tr('toast.reversed', { p: langByCode(rev.source).label + ' → ' + langByCode(rev.target).label, n: trn('words.count', added) }) : tr('toast.reverseSame'), 'ok');
   }
   async function copyDeck(d) {
@@ -1711,7 +1722,7 @@
     return h('div', { className: 'prog-tile' }, [h('span', { className: 'prog-tile-label', text: label }), h('strong', { text: value }), note ? h('span', { className: 'prog-tile-note', text: note }) : null]);
   }
   function renderProgress() {
-    fillDeckSelect($('progDeck'), tr('prog.allDecks'), $('progDeck').value);
+    fillDeckSelect($('progDeck'), tr('prog.allDecks'), hasDeck(state.cfg.deck) ? state.cfg.deck : '');
     var cards = allCards(), today = L.day(), now = Date.now();
     var translated = cards.filter(function (c) { return c.translation && c.translation !== '—'; });
     $('progEmpty').hidden = translated.length > 0;
@@ -1845,31 +1856,250 @@
   /* ---------------- named decks: several per language pair, one of them "active" on the home screen ---------------- */
   function deckLabel(d) { return d.name || pairLabel(d); }
   function keyOf(d) { return Object.keys(library.decks).find(function (k) { return library.decks[k] === d; }) || null; }
-  // The deck the home screen adds words to: the chosen named deck when it fits the language pair, else the pair's plain deck.
-  function activeDeckKey() {
-    var k = state.cfg.deck, d = k && library.decks[k];
-    return d && d.source === state.cfg.source && d.target === state.cfg.target ? k : L.deckKey(state.cfg.source, state.cfg.target);
-  }
+  /* The working deck: the learner picks one (v2.22) and everything — new words, practice, test, games,
+     grammar, progress — follows it. state.cfg.deck always names an existing deck while there are decks. */
+  function hasDeck(key) { return !!(key && library.decks[key]); }
+  function activeDeck() { return hasDeck(state.cfg.deck) ? library.decks[state.cfg.deck] : null; }
+  function activeDeckKey() { return hasDeck(state.cfg.deck) ? state.cfg.deck : L.deckKey(state.cfg.source, state.cfg.target); }
   function targetDeck() {
-    var key = activeDeckKey();
-    var d = library.decks[key] || { source: state.cfg.source, target: state.cfg.target, cards: [], created: Date.now() };
-    library.decks[key] = d;
-    return d;
+    if (!activeDeck()) { // only reached without any deck: the words get a deck named after the pair
+      var key = L.deckKey(state.cfg.source, state.cfg.target);
+      library.decks[key] = library.decks[key] || { source: state.cfg.source, target: state.cfg.target, name: pairLabel(state.cfg), cards: [], created: Date.now() };
+      state.cfg.deck = key; saveCfg();
+      setTimeout(onActiveDeckChange, 0);
+    }
+    return library.decks[state.cfg.deck];
   }
-  function setActiveDeck(key) {
-    var d = key && library.decks[key];
-    state.cfg.deck = d ? key : '';
-    if (d) { state.cfg.source = d.source; state.cfg.target = d.target; syncLangSelects(); }
-    saveCfg(); renderHomeDeck();
+  // Newest first, the working deck on top.
+  function sortedDeckKeys() {
+    return Object.keys(library.decks).sort(function (a, b) {
+      if (a === state.cfg.deck) return -1; if (b === state.cfg.deck) return 1;
+      return (library.decks[b].created || 0) - (library.decks[a].created || 0);
+    });
   }
-  // Changing a language by hand means "not that deck any more": the pair's plain deck takes over.
-  function releaseDeck() { if (state.cfg.deck) { state.cfg.deck = ''; saveCfg(); renderHomeDeck(); } }
+  // Keeps the working deck valid after a delete, an import or an old config: the deck of the current pair, else the newest.
+  function ensureActiveDeck() {
+    if (hasDeck(state.cfg.deck) || !Object.keys(library.decks).length) { if (!Object.keys(library.decks).length && state.cfg.deck) { state.cfg.deck = ''; saveCfg(); } return false; }
+    var keys = Object.keys(library.decks);
+    var pair = keys.filter(function (k) { var d = library.decks[k]; return d.source === state.cfg.source && d.target === state.cfg.target; });
+    var plain = L.deckKey(state.cfg.source, state.cfg.target);
+    var pick = pair.indexOf(plain) >= 0 ? plain : (pair.length ? pair : keys).sort(function (a, b) { return (library.decks[b].created || 0) - (library.decks[a].created || 0); })[0];
+    var draft = '';
+    try { draft = localStorage.getItem(DRAFT_KEY) || ''; } catch (e) {}
+    state.cfg.deck = pick;
+    var d = library.decks[pick]; state.cfg.source = d.source; state.cfg.target = d.target;
+    saveCfg(); syncLangSelects();
+    // v2.21 kept one draft for everyone: it now belongs to the deck chosen for it.
+    if (draft) { try { localStorage.removeItem(DRAFT_KEY); if (!localStorage.getItem(draftKey(pick))) localStorage.setItem(draftKey(pick), draft); } catch (e) {} }
+    return true;
+  }
+  function setActiveDeck(key, quiet) {
+    if (!hasDeck(key)) return;
+    var changed = key !== state.cfg.deck, hadDeck = hasDeck(state.cfg.deck);
+    if (changed) saveDraft(); // the old deck keeps what was typed for it
+    if (changed && !hadDeck) { // words typed before there was any deck move into the first one
+      try { var loose = localStorage.getItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY); if (loose && !localStorage.getItem(draftKey(key))) localStorage.setItem(draftKey(key), loose); } catch (e) {}
+    }
+    state.cfg.deck = key;
+    var d = library.decks[key]; state.cfg.source = d.source; state.cfg.target = d.target;
+    saveCfg(); syncLangSelects();
+    markDeckPicked();
+    if (changed) loadDraft();
+    onActiveDeckChange();
+    if (changed && !quiet) toast(tr('deck.chosen', { n: deckLabel(d) }), 'ok', 1800);
+  }
+  // Languages follow the working deck; another pair means a new deck (kept for the very first, deck-less visit).
+  function releaseDeck() {}
+  /* Deck limit (learning.js MAX_DECKS). Every path that would add a new key asks first. */
+  function deckRoom() { return !L || L.canAddDeck(library); }
+  function deckFullText() { return tr(L.deckCount(library) > L.MAX_DECKS ? 'decks.over' : 'decks.full', { n: L.deckCount(library), m: L.MAX_DECKS, lib: '\u0001' }); }
+  function fillFullNote(el) {
+    var parts = deckFullText().split('\u0001');
+    el.textContent = '';
+    el.appendChild(document.createTextNode(parts[0]));
+    var a = h('button', { className: 'link', type: 'button', text: tr('decks.fullLib') });
+    a.onclick = function () { closeDeckPicker(true); setSidebar(false); navigateLearning('screen-library'); };
+    el.appendChild(a);
+    el.appendChild(document.createTextNode(parts[1] || ''));
+  }
+  function noRoom() { toast(deckFullText().replace('\u0001', tr('decks.fullLib')), 'err', 6000); renderSideDecks(); return false; }
   function createDeck(name, source, target) {
-    var key = L.deckKey(source, target, L.deckId());
+    if (!deckRoom()) { noRoom(); return null; }
+    // An unnamed first deck of a pair takes the pair's plain key (as before named decks); every other deck gets an id.
+    var key = L.cleanName(name) || library.decks[L.deckKey(source, target)] ? L.deckKey(source, target, L.deckId()) : L.deckKey(source, target);
     library.decks[key] = { source: source, target: target, name: L.cleanName(name) || pairLabel({ source: source, target: target }), cards: [], created: Date.now() };
     persistLibrary();
-    setActiveDeck(key);
+    setActiveDeck(key, true);
     return key;
+  }
+  // A deck found by its name and pair, or a new one with that name (null when there is no room).
+  function namedDeck(name, source, target) {
+    var key = Object.keys(library.decks).find(function (k) { var d = library.decks[k]; return d.source === source && d.target === target && d.name === name; });
+    return key || createDeck(name, source, target);
+  }
+  /* Drafts: what was typed but not added yet, one per deck. */
+  var DRAFT_KEY = 'vm.draft';
+  function draftKey(key) { return DRAFT_KEY + '.' + key; }
+  var draftTimer = null;
+  function saveDraft() {
+    clearTimeout(draftTimer); draftTimer = null;
+    if (!hasDeck(state.cfg.deck)) { try { if ($('input').value.trim()) localStorage.setItem(DRAFT_KEY, $('input').value); else localStorage.removeItem(DRAFT_KEY); } catch (e) {} return; }
+    try { if ($('input').value.trim()) localStorage.setItem(draftKey(state.cfg.deck), $('input').value); else localStorage.removeItem(draftKey(state.cfg.deck)); } catch (e) {}
+  }
+  function saveDraftSoon() { clearTimeout(draftTimer); draftTimer = setTimeout(saveDraft, 400); }
+  function clearDraft() { clearTimeout(draftTimer); draftTimer = null; try { localStorage.removeItem(hasDeck(state.cfg.deck) ? draftKey(state.cfg.deck) : DRAFT_KEY); } catch (e) {} }
+  function loadDraft() {
+    var v = '';
+    try { v = localStorage.getItem(hasDeck(state.cfg.deck) ? draftKey(state.cfg.deck) : DRAFT_KEY) || ''; } catch (e) {}
+    $('input').value = v; updateInputStat(true);
+  }
+  function restoreDraft() { if (!$('input').value.trim()) loadDraft(); }
+
+  /* One place that redraws everything bound to the working deck. */
+  function onActiveDeckChange() {
+    renderSideDecks();
+    renderHomeDeck();
+    renderDeckBars();
+    syncDeckSelects();
+    var screen = document.querySelector('.screen.active'), id = screen && screen.id;
+    if (id === 'screen-library') renderLibrary();
+    else if (id === 'screen-test') fillQuizDecks();
+    else if (id === 'screen-games') { if (games) games.refresh(); }
+    else if (id === 'screen-progress') renderProgress();
+    else if (id === 'screen-grammar') renderGrammar();
+  }
+  // The section selects stay in the page (hidden) and always hold the working deck.
+  function syncDeckSelects() {
+    var key = hasDeck(state.cfg.deck) ? state.cfg.deck : '';
+    ['quizDeck', 'gameDeck', 'gramBuildDeck', 'gramDeck', 'progDeck', 'homeDeck'].forEach(function (id) {
+      var sel = $(id); if (!sel) return;
+      if (key && !sel.querySelector('option[value="' + key.replace(/"/g, '') + '"]')) {
+        var d = library.decks[key]; sel.appendChild(h('option', { value: key, text: deckLabel(d) }));
+      }
+      sel.value = key;
+    });
+  }
+  function renderDeckBars() {
+    var d = activeDeck();
+    document.querySelectorAll('[data-deck-bar]').forEach(function (bar) {
+      bar.textContent = '';
+      var info = h('span', { className: 'deck-bar-info' }, [
+        h('span', { className: 'deck-bar-label', text: tr('decks.working') }),
+        h('strong', { className: 'deck-bar-name', text: d ? deckLabel(d) : tr('decks.noneYet') }),
+        h('span', { className: 'deck-bar-meta', text: d ? pairLabel(d) + ' · ' + trn('words.count', d.cards.length) : '' })
+      ]);
+      var b = h('button', { className: 'chip-btn deck-bar-btn', type: 'button', text: d ? tr('decks.change') : tr('decks.create') });
+      if (d) b.setAttribute('aria-label', tr('decks.changeAria', { n: deckLabel(d) }));
+      b.onclick = function () { if (d) openDeckPicker(this); else openDeckDialog(); };
+      bar.appendChild(info); bar.appendChild(b);
+    });
+    var locked = !!d;
+    ['sourceLang', 'targetLang'].forEach(function (id) { var s = $(id); if (s) s.disabled = locked; });
+    if ($('pairLocked')) $('pairLocked').hidden = !locked;
+  }
+  /* Sidebar: "My decks". */
+  function renderSideDecks() {
+    var list = $('sideDecks'); if (!list) return;
+    var keys = sortedDeckKeys(), n = keys.length, full = !deckRoom();
+    list.textContent = '';
+    keys.forEach(function (k) {
+      var d = library.decks[k], due = L.pick(d.cards, 'due').length, on = k === state.cfg.deck;
+      var b = h('button', { className: 'side-deck' + (on ? ' active' : ''), type: 'button' }, [
+        h('span', { className: 'side-deck-name', text: deckLabel(d) }),
+        h('span', { className: 'side-deck-meta', text: d.source.toUpperCase() + ' → ' + d.target.toUpperCase() + ' · ' + trn('words.count', d.cards.length) })
+      ]);
+      if (due) { var badge = h('span', { className: 'side-deck-due', text: String(due) }); badge.setAttribute('title', tr('decks.due', { n: due })); b.appendChild(badge); }
+      if (on) b.setAttribute('aria-current', 'true');
+      b.title = deckLabel(d) + ' — ' + pairLabel(d);
+      b.onclick = function () {
+        setSidebar(false);
+        if (k !== state.cfg.deck) {
+          if ($('screen-train').classList.contains('active') || $('screen-loading').classList.contains('active')) navigateLearning('screen-setup');
+          setActiveDeck(k);
+        }
+      };
+      list.appendChild(h('li', {}, [b]));
+    });
+    $('sideDecksEmpty').hidden = n > 0;
+    var count = $('sideDeckCount');
+    count.textContent = n + '/' + L.MAX_DECKS;
+    count.setAttribute('aria-label', tr('decks.count', { n: n, m: L.MAX_DECKS }));
+    count.classList.toggle('is-full', full);
+    var plus = $('btnNewDeck');
+    if (full) plus.setAttribute('aria-disabled', 'true'); else plus.removeAttribute('aria-disabled');
+    $('sideDeckFull').hidden = !full;
+    if (full) fillFullNote($('sideDeckFull'));
+  }
+  /* "Which deck are we working on?" — once per visit (per browser tab). */
+  var PICKED_KEY = 'vm.deck-picked', pickerOpener = null, pickerWaiting = false;
+  function markDeckPicked() { try { sessionStorage.setItem(PICKED_KEY, '1'); } catch (e) {} }
+  function deckPicked() { try { return sessionStorage.getItem(PICKED_KEY) === '1'; } catch (e) { return true; } }
+  function otherOverlayOpen() { return Array.prototype.some.call(document.querySelectorAll('.overlay'), function (o) { return !o.hidden && o.id !== 'deckPicker'; }); }
+  function maybePickDeck() {
+    if (deckPicked() || !Object.keys(library.decks).length) return;
+    if ((window.VMShare && window.VMShare.codeFromHash(location.hash) != null) || otherOverlayOpen()) { pickerWaiting = true; return; }
+    pickerWaiting = false;
+    openDeckPicker(null);
+  }
+  function openDeckPicker(opener) {
+    pickerOpener = opener || null;
+    var list = $('pickerList'), keys = sortedDeckKeys();
+    list.textContent = '';
+    keys.forEach(function (k) {
+      var d = library.decks[k], due = L.pick(d.cards, 'due').length, on = k === state.cfg.deck;
+      var b = h('button', { className: 'picker-deck' + (on ? ' selected' : ''), type: 'button', role: 'option', 'data-key': k }, [
+        h('span', { className: 'picker-deck-langs', text: d.source.toUpperCase() + ' → ' + d.target.toUpperCase() }),
+        h('strong', { className: 'picker-deck-name', text: deckLabel(d) }),
+        h('span', { className: 'picker-deck-meta', text: trn('words.count', d.cards.length) + (due ? ' · ' + tr('decks.due', { n: due }) : '') })
+      ]);
+      b.setAttribute('aria-selected', String(on));
+      b.onclick = function () { choosePickerDeck(k); };
+      list.appendChild(b);
+    });
+    var full = !deckRoom();
+    $('btnPickerNew').hidden = full;
+    $('pickerFull').hidden = !full;
+    if (full) fillFullNote($('pickerFull'));
+    $('deckPicker').hidden = false;
+    var sel = list.querySelector('.selected') || list.firstChild;
+    (sel || $('btnPickerNew')).focus();
+  }
+  function pickerMove(step) {
+    var items = Array.prototype.slice.call($('pickerList').querySelectorAll('.picker-deck'));
+    if (!items.length) return;
+    var i = items.indexOf(document.activeElement);
+    if (i < 0) i = items.findIndex(function (b) { return b.classList.contains('selected'); });
+    var next = items[(Math.max(0, i) + step + items.length) % items.length];
+    items.forEach(function (b) { var on = b === next; b.classList.toggle('selected', on); b.setAttribute('aria-selected', String(on)); });
+    next.focus();
+  }
+  function choosePickerDeck(key) {
+    closeDeckPicker(false);
+    if (hasDeck(key)) {
+      if (key !== state.cfg.deck && ($('screen-train').classList.contains('active') || $('screen-loading').classList.contains('active'))) navigateLearning('screen-setup');
+      setActiveDeck(key);
+    }
+    markDeckPicked();
+    onActiveDeckChange();
+  }
+  function confirmPicker() {
+    var sel = $('pickerList').querySelector('.picker-deck.selected') || $('pickerList').querySelector('.picker-deck');
+    choosePickerDeck(sel ? sel.dataset.key : state.cfg.deck);
+  }
+  function closeDeckPicker(keepFocus) {
+    if ($('deckPicker').hidden) return;
+    $('deckPicker').hidden = true;
+    markDeckPicked();
+    if (keepFocus) return;
+    var back = pickerOpener && document.contains(pickerOpener) ? pickerOpener : document.querySelector('.screen.active h1, .screen.active h2');
+    if (back) { if (!back.hasAttribute('tabindex') && !/^(BUTTON|A|INPUT|SELECT|TEXTAREA)$/.test(back.tagName)) back.setAttribute('tabindex', '-1'); back.focus({ preventScroll: true }); }
+  }
+  function trapIn(container, e) {
+    var f = Array.prototype.filter.call(container.querySelectorAll('button,select,input,textarea,a[href]'), function (el) { return !el.disabled && !el.closest('[hidden]') && el.getClientRects().length; });
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || !container.contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
   }
   function fillDeckSelect(sel, firstLabel, keep) {
     sel.innerHTML = '';
@@ -1883,9 +2113,10 @@
   function renderHomeDeck() {
     var sel = $('homeDeck'); if (!sel) return;
     var has = Object.keys(library.decks).length > 0;
-    var key = state.cfg.deck && library.decks[state.cfg.deck] ? state.cfg.deck : '';
-    fillDeckSelect(sel, tr('deck.anyPair'), key);
+    var key = hasDeck(state.cfg.deck) ? state.cfg.deck : '';
+    fillDeckSelect(sel, null, key);
     sel.disabled = !has;
+    renderSideDecks(); renderDeckBars();
     var d = key ? library.decks[key] : null;
     $('homeDeckNote').hidden = !d;
     if (d) $('homeDeckNote').textContent = tr('deck.homeNote', { n: deckLabel(d), p: pairLabel(d) });
@@ -1894,14 +2125,17 @@
     if (ready) $('btnHomePractice').textContent = due ? tr('deck.practiceDue', { n: due }) : tr('deck.practiceAll');
   }
   var deckOpener = null;
-  function openDeckDialog() {
+  function openDeckDialog(words) {
+    if (!deckRoom()) { noRoom(); return; }
+    closeDeckPicker(true);
+    setSidebar(false);
     deckOpener = document.activeElement;
     var src = $('deckSource'), tgt = $('deckTarget');
     // New decks: only learnable languages on the left, native languages on the right (never an archived pair).
     var s0 = LANGUAGES.canLearn(state.cfg.source) ? state.cfg.source : 'en';
     var t0 = LANGUAGES.canBeNative(state.cfg.target) && state.cfg.target !== s0 ? state.cfg.target : (s0 === 'ru' ? 'en' : 'ru');
     fillLangSelect(src, LANGUAGES.LEARN_CODES, s0); fillLangSelect(tgt, LANGUAGES.NATIVE_CODES, t0);
-    $('deckName').value = ''; $('deckWords').value = ''; $('deckError').textContent = '';
+    $('deckName').value = ''; $('deckWords').value = typeof words === 'string' ? words : ''; $('deckError').textContent = '';
     $('deckDialog').hidden = false;
     $('deckName').focus();
   }
@@ -1912,6 +2146,7 @@
     if (source === target) { $('deckError').textContent = tr('deck.sameLang'); $('deckSource').focus(); return; }
     if (LANGUAGES.isArchivedPair(source, target)) { $('deckError').textContent = tr('lang.archivedNew'); $('deckSource').focus(); return; }
     var key = createDeck(name, source, target);
+    if (!key) { closeDeckDialog(); return; }
     closeDeckDialog();
     navigateLearning('screen-setup');
     toast(tr('deck.created', { n: deckLabel(library.decks[key]) }), 'ok', 3000);
@@ -1981,7 +2216,7 @@
     try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {}
     var deck;
     try { deck = await window.VMShare.decodeDeck(code, langCodes()); }
-    catch (e) { toast(tr('shareErr.' + (e.code || 'bad-link')), 'err', 7000); return; }
+    catch (e) { toast(tr('shareErr.' + (e.code || 'bad-link')), 'err', 7000); if (onboardWaiting) maybeOnboard(); else if (pickerWaiting) maybePickDeck(); return; }
     showPreview(deck);
   }
   function showPreview(deck) {
@@ -2001,7 +2236,11 @@
     $('sharePreview').hidden = false;
     (fresh ? $('btnPreviewAdd') : $('btnPreviewCancel')).focus();
   }
-  function closePreview() { $('sharePreview').hidden = true; previewDeck = null; }
+  function closePreview() {
+    $('sharePreview').hidden = true; previewDeck = null;
+    if (onboardWaiting) setTimeout(maybeOnboard, 0); // a newcomer who only looked at a shared deck still gets the tour
+    else if (pickerWaiting) setTimeout(maybePickDeck, 0);
+  }
   // A named shared deck lands in a deck of the same name (or a new one); an unnamed one in the pair's plain deck.
   function previewTargetKey(deck) {
     if (!deck.name) return L.deckKey(deck.source, deck.target);
@@ -2011,7 +2250,8 @@
     var deck = previewDeck;
     if (!deck) return;
     var previous = snapshotLibrary(), key = previewTargetKey(deck);
-    var d = library.decks[key] || { source: deck.source, target: deck.target, cards: [], created: Date.now() };
+    if (!library.decks[key] && !deckRoom()) { noRoom(); return; }
+    var d = library.decks[key] || { source: deck.source, target: deck.target, name: deck.name || pairLabel(deck), cards: [], created: Date.now() };
     if (deck.name && !d.name) d.name = deck.name;
     var known = Object.create(null), added = 0;
     d.cards.forEach(function (c) { known[c.original.toLowerCase()] = true; });
@@ -2022,6 +2262,7 @@
     });
     library.decks[key] = d;
     persistLibrary();
+    pickerWaiting = false; setActiveDeck(key, true); // the shared deck becomes the working one
     closePreview();
     navigateLearning('screen-library');
     offerUndo(trn('share.added', added), restoreLibrary(previous));
@@ -2268,6 +2509,7 @@
         h('span', { className: 'cover-badge', text: tr('deck.minutes', { n: Math.max(1, Math.round(Math.max(due, Math.min(d.cards.length, 20)) * 0.25)) }) })
       ]);
       panel.innerHTML = '<span class="deck-kicker">' + escapeHTML(d.name ? pairLabel(d) : '→ ' + langByCode(d.target).label) + ' / ' + trn('words.count', d.cards.length) + (LANGUAGES.isArchivedPair(d.source, d.target) ? ' <span class="archived-badge" title="' + escapeHTML(tr('lang.archivedTitle')) + '">' + tr('lang.archived') + '</span>' : '') + '</span><h2 class="deck-name">' + escapeHTML(d.name || langByCode(d.source).label) + '</h2><p>' + tr('deck.stats', { m: mastered, d: due, h: trn('deck.hard', hard) }) + '</p><div class="daily-track deck-progress"><i></i></div>' +
+        '<p class="deck-working">' + (key === state.cfg.deck ? '<span class="deck-working-on">● ' + tr('decks.workingNow') + '</span>' : '<button class="link" type="button" data-act="work">' + tr('decks.workHere') + '</button>') + '</p>' +
         '<div class="actions"><button class="btn primary" type="button" data-act="practice" title="' + tr('deck.practiceTitle') + '">' + (due ? tr('deck.practiceDue', { n: due }) : tr('deck.practiceAll')) + '</button><button class="btn" type="button" data-act="hard"' + (hard ? '' : ' disabled') + ' title="' + tr('deck.hardTitle') + '">' + tr('deck.hardBtn', { n: hard }) + '</button><button class="btn" type="button" data-act="add">' + tr('deck.add') + '</button></div>' +
         '<div class="deck-tools"><button class="link" type="button" data-act="reverse"' + (canSwapPair(d.source, d.target) ? '' : ' disabled') + ' title="' + escapeHTML(canSwapPair(d.source, d.target) ? tr('deck.reverseTitle', { p: langByCode(d.target).label + ' → ' + langByCode(d.source).label }) : tr('lang.swapOff', { l: langByCode(d.target).label })) + '">' + tr('deck.reverse') + '</button><button class="link" type="button" data-act="rename">' + tr('deck.rename') + '</button><button class="link" type="button" data-act="copy">' + tr('deck.copy') + '</button><button class="link" type="button" data-act="share">' + tr('share.button') + '</button></div>' +
         '<details><summary>' + tr('deck.all') + '</summary><div class="word-list"></div><button class="link link-danger" type="button" data-act="delete">' + tr('deck.delete') + '</button></details>';
@@ -2304,6 +2546,9 @@
         practiceDeck(d, 'due');
       };
       panel.querySelector('[data-act="hard"]').onclick = function () { practiceDeck(d, 'hard'); };
+      var work = panel.querySelector('[data-act="work"]');
+      if (work) work.onclick = function () { setActiveDeck(key); };
+      if (key === state.cfg.deck) panel.classList.add('is-working');
       panel.querySelector('[data-act="reverse"]').onclick = function () { reverseDeck(d); };
       panel.querySelector('[data-act="copy"]').onclick = function () { copyDeck(d); };
       panel.querySelector('[data-act="rename"]').onclick = function () {
@@ -2315,15 +2560,20 @@
       };
       panel.querySelector('[data-act="share"]').onclick = function () { openShare(d, this); };
       panel.querySelector('[data-act="add"]').onclick = function () {
-        setActiveDeck(keyOf(d)); $('input').value = '';
+        setActiveDeck(keyOf(d), true);
         navigateLearning('screen-setup'); $('input').focus(); updateInputStat(true);
       };
       panel.querySelector('[data-act="delete"]').onclick = function () {
         var name = deckLabel(d);
         if (!window.confirm(tr('confirm.deleteDeckDetail', { name: name, w: d.cards.length }))) return;
         var previous = snapshotLibrary();
-        delete library.decks[key]; persistLibrary(); renderLibrary();
+        var wasWorking = key === state.cfg.deck;
+        try { localStorage.removeItem(draftKey(key)); } catch (e) {}
+        delete library.decks[key]; persistLibrary();
+        if (wasWorking) { ensureActiveDeck(); loadDraft(); }
+        renderLibrary(); onActiveDeckChange();
         offerUndo(tr('undo.deckDeleted', { name: name }), restoreLibrary(previous));
+        // The working deck is gone: the next one takes over (no dialog over the undo toast); the sidebar shows which.
       };
       host.appendChild(panel);
     });
@@ -2351,7 +2601,7 @@
   function fillQuizDecks() {
     lexical = null; $('quizBody').hidden = true; $('btnQuizStart').hidden = false;
     var sel = $('quizDeck'); sel.innerHTML = '';
-    var empty = !Object.keys(library.decks).length;
+    var d0 = activeDeck(), empty = !Object.keys(library.decks).length || !!(d0 && d0.cards.length < 4);
     $('quizEmpty').hidden = !empty;
     sel.disabled = $('btnQuizStart').disabled = $('btnMatchStart').disabled = empty;
     Object.keys(library.decks).forEach(function (key) {
@@ -2359,6 +2609,8 @@
       opt.value = key; opt.textContent = deckLabel(d) + ' · ' + d.cards.length;
       sel.appendChild(opt);
     });
+    if (hasDeck(state.cfg.deck)) sel.value = state.cfg.deck; // tests and games use the working deck
+    renderDeckBars();
   }
   function renderQuiz() {
     var q = lexical.questions[lexical.index];
@@ -2391,6 +2643,7 @@
     } catch(e) {}
     // The daily aggregate stays compact: two years are plenty for the progress screen.
     library.history = L.trimHistory(library.history, 730, L.day());
+    ensureActiveDeck();
     L.reconcile(library.streak, L.day()); persistLibrary(); renderDaily();
     syncLangSelects();
     $('sourceLang').onchange = function () {
@@ -2414,10 +2667,14 @@
     $('navGrammar').onclick = function () { navigateLearning('screen-grammar'); };
     initGrammar();
     $('navGames').onclick = function () { navigateLearning('screen-games'); };
-    $('homeDeck').onchange = function () { setActiveDeck(this.value); if (this.value) toast(tr('deck.chosen', { n: deckLabel(library.decks[this.value]) }), 'ok', 1800); };
+    $('homeDeck').onchange = function () { setActiveDeck(this.value); };
+    $('btnOtherLangs').onclick = function () { openDeckDialog(); };
+    $('btnPickerGo').onclick = confirmPicker;
+    $('btnPickerNew').onclick = function () { openDeckDialog(); };
+    $('deckPicker').addEventListener('click', function (e) { if (e.target === this) confirmPicker(); });
     $('btnHomePractice').onclick = function () { var d = library.decks[state.cfg.deck]; if (d) practiceDeck(d, 'due'); };
-    $('btnNewDeck').onclick = openDeckDialog;
-    $('btnHomeNewDeck').onclick = openDeckDialog;
+    $('btnNewDeck').onclick = function () { openDeckDialog(); };
+    $('btnHomeNewDeck').onclick = function () { openDeckDialog(); };
     $('deckCancel').onclick = closeDeckDialog;
     $('deckForm').onsubmit = submitDeckDialog;
     $('deckDialog').addEventListener('click', function (e) { if (e.target === this) closeDeckDialog(); });
@@ -2432,9 +2689,10 @@
     });
     $('vaultSort').onchange = renderVault;
     $('btnVaultMore').onclick = function () { vaultShown += VAULT_PAGE; renderVault(); };
-    $('btnGamesDemo').onclick = function () { $('gameDeck').value = addDemoDeck(); if (games) games.refresh(); $('gameDeck').value = 'en-ru'; toast(tr('toast.demoAdded'), 'ok'); };
+    $('btnGamesDemo').onclick = function () { if (!addDemoDeck()) return; if (games) games.refresh(); toast(tr('toast.demoAdded'), 'ok'); };
     if (window.VMGames) games = window.VMGames.mount({
       decks: function () { return library.decks; },
+      activeKey: function () { return hasDeck(state.cfg.deck) ? state.cfg.deck : ''; },
       langLabel: function (code) { return langByCode(code).label; }, deckLabel: deckLabel,
       tr: tr, trn: trn, toast: toast,
       answer: function (card, ok, grade) { if (grade) L.grade(card, ok); recordAnswer(ok); },
@@ -2476,7 +2734,8 @@
     $('btnExportLibrary').onclick = function () {
       // Library exports never include API keys or provider configuration.
       var blob = new Blob([JSON.stringify(L.backupFile(library), null, 2)], { type: 'application/json' });
-      var link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'wordzone-' + L.day() + '.json'; // the name is cosmetic: restore reads the content link.click();
+      var link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'wordzone-' + L.day() + '.json'; // the name is cosmetic: restore reads the content
+      link.click();
       setTimeout(function () { URL.revokeObjectURL(link.href); }, 1000);
     };
     $('importLibrary').onchange = async function () {
@@ -2501,7 +2760,7 @@
         if (now.words && !window.confirm(tr('confirm.replaceDetail', { d: now.decks, w: now.words, d2: next.decks, w2: next.words }))) return;
         var previous = snapshotLibrary();
         library = restored;
-        L.reconcile(library.streak, L.day()); persistLibrary(); renderLibrary(); renderDaily();
+        L.reconcile(library.streak, L.day()); persistLibrary(); ensureActiveDeck(); renderLibrary(); renderDaily(); onActiveDeckChange();
         offerUndo(tr('toast.restored'), restoreLibrary(previous));
       } catch(err) { toast(err.message || tr('err.readFile'), 'err'); }
     };
@@ -2534,12 +2793,6 @@
 
   /* ---------------- init ---------------- */
 
-  var DRAFT_KEY = 'vm.draft';
-  function saveDraft() { try { if ($('input').value.trim()) localStorage.setItem(DRAFT_KEY, $('input').value); else localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
-  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
-  function restoreDraft() {
-    try { var v = localStorage.getItem(DRAFT_KEY); if (v && !$('input').value.trim()) { $('input').value = v; updateInputStat(true); } } catch (e) {}
-  }
 
   // The demo words go straight into the library so games and tests can be tried at once.
   function addDemoDeck() {
@@ -2548,12 +2801,14 @@
     state.cfg.source = 'en'; state.cfg.target = 'ru';
     enrichLocalContext(cards);
     state.cfg.source = src; state.cfg.target = tgt;
-    var d = library.decks['en-ru'] || { source: 'en', target: 'ru', cards: [], created: Date.now() };
+    if (!library.decks['en-ru'] && !deckRoom()) { noRoom(); return null; }
+    var d = library.decks['en-ru'] || { source: 'en', target: 'ru', name: tr('decks.demoName'), cards: [], created: Date.now() };
     cards.forEach(function (c) {
       if (d.cards.some(function (x) { return x.original.toLowerCase() === c.original.toLowerCase(); })) return;
       d.cards.push({ original: c.original, translation: c.translation, hint: c.hint || '', definition: c.definition || '', examples: c.examples || [], streak: 0, fails: 0, added: Date.now() });
     });
     library.decks['en-ru'] = d; persistLibrary();
+    setActiveDeck('en-ru', true);
     return 'en-ru';
   }
 
@@ -2573,11 +2828,14 @@
   // First visit: ask which language the learner speaks and which one they learn. Asked once.
   var ONBOARD_KEY = 'vm.onboarded';
   function onboardingDone() { try { localStorage.setItem(ONBOARD_KEY, '1'); } catch (e) {} }
+  var onboardWaiting = false; // a shared-deck preview goes first; the tour starts when it closes
   function maybeOnboard() {
     var seen = null;
     try { seen = localStorage.getItem(ONBOARD_KEY); } catch (e) { return; }
     if (seen) return;
     if (Object.keys(library.decks).length || localStorage.getItem(SESSION_KEY)) { onboardingDone(); return; } // existing learners
+    if (window.VMShare && window.VMShare.codeFromHash(location.hash) != null || !$('sharePreview').hidden) { onboardWaiting = true; return; }
+    onboardWaiting = false;
     var nat = $('onbNative'), learn = $('onbLearn');
     var ui = I18N ? I18N.lang() : 'ru';
     fillLangSelect(nat, LANGUAGES.NATIVE_CODES, ui);
@@ -2592,20 +2850,156 @@
       if (I18N && ['ru', 'en', 'uz'].indexOf(nat.value) >= 0) I18N.set(nat.value);
       note();
     };
+    // "Try it with 5 words" exists only where the built-in 5-word deck fits: learning English, native ru/uz.
+    var try5 = function () {
+      var fits = learn.value === 'en' && !!QUICK5[nat.value];
+      $('btnTourTry5').hidden = !fits;
+      $('btnOnboardGo').classList.toggle('primary', !fits);
+      $('btnOnboardGo').classList.toggle('ghost', fits);
+    };
+    var note = function () {
+      var supported = ['ru', 'en', 'uz'].indexOf(nat.value) >= 0;
+      $('onbUiNote').hidden = supported;
+      if (!supported) $('onbUiNote').textContent = tr('onb.uiNote');
+      try5();
+    };
+    nat.onchange = function () {
+      if (learn.value === nat.value) learn.value = otherLearnable(nat.value);
+      if (I18N && ['ru', 'en', 'uz'].indexOf(nat.value) >= 0) I18N.set(nat.value);
+      note();
+    };
     learn.onchange = function () { if (learn.value === nat.value) nat.value = learn.value === 'en' ? 'ru' : 'en'; note(); };
     note();
-    $('onboardForm').onsubmit = function (e) {
-      e.preventDefault();
+    var finish = function () {
       state.cfg.target = nat.value; state.cfg.source = learn.value; saveCfg();
       syncLangSelects();
       onboardingDone();
-      $('onboarding').hidden = true;
+      tour.close();
+    };
+    $('onboardForm').onsubmit = function (e) {
+      e.preventDefault();
+      finish();
+      ensureFirstDeck();
       toast(tr('onb.done', { l: langByCode(learn.value).label }), 'ok', 3000);
       $('input').focus({ preventScroll: true });
     };
-    $('onboarding').hidden = false;
-    nat.focus();
+    $('btnTourTry5').onclick = function () {
+      if (!(learn.value === 'en' && QUICK5[nat.value])) { $('onboardForm').requestSubmit ? $('onboardForm').requestSubmit() : $('onboardForm').onsubmit(new Event('submit')); return; }
+      finish();
+      quickStart();
+    };
+    tour.open();
   }
+  // New learners always leave the first run with a deck to work in (named after the language pair).
+  function ensureFirstDeck() {
+    if (Object.keys(library.decks).length) return;
+    createDeck('', state.cfg.source, state.cfg.target);
+  }
+
+  /* First-run tour: three short screens, then the language questions. Moving on "flies through" the card:
+     the current screen comes towards the viewer and fades, the next one rises from the depth. */
+  var tour = (function () {
+    var TOTAL = 4, step = 1, running = [], swipeX = null, swipeY = null;
+    function card() { return $('tourCard'); }
+    function steps() { return Array.prototype.slice.call(card().querySelectorAll('.tour-step')); }
+    function stepEl(n) { return card().querySelector('.tour-step[data-step="' + n + '"]'); }
+    function still() { return document.documentElement.dataset.motion === 'off' || !Element.prototype.animate; }
+    function finishRunning() { running.splice(0).forEach(function (a) { try { a.finish(); } catch (e) {} }); }
+    function play(el, frames, opts) {
+      if (!el.animate) return null;
+      var a = el.animate(frames, Object.assign({ duration: 620, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'both' }, opts));
+      running.push(a);
+      a.finished.then(function () { a.cancel(); }, function () {});
+      return a;
+    }
+    function heading(n) { return stepEl(n).querySelector('.tour-h'); }
+    function sync() {
+      var c = card();
+      c.dataset.step = String(step);
+      $('tourCount').textContent = step + ' / ' + TOTAL;
+      $('btnTourBack').hidden = step === 1;
+      $('btnTourNext').hidden = step === TOTAL;
+      $('btnTourSkip').hidden = step === TOTAL;
+      c.querySelectorAll('.tour-dots i').forEach(function (d, i) { d.className = i + 1 === step ? 'on' : i + 1 < step ? 'done' : ''; });
+      $('onboarding').setAttribute('aria-labelledby', heading(step).id);
+      $('tourLive').textContent = tr('tour.stepOf', { n: step, t: TOTAL });
+    }
+    function show(n, dir) {
+      if (n < 1 || n > TOTAL || n === step) return;
+      finishRunning();
+      var from = stepEl(step), to = stepEl(n);
+      step = n;
+      to.hidden = false;
+      to.classList.add('is-current'); from.classList.remove('is-current');
+      from.inert = true; to.inert = false;
+      sync();
+      var done = function () { from.hidden = true; from.inert = false; heading(n).focus({ preventScroll: true }); };
+      if (still()) { done(); return; }
+      var fwd = dir > 0;
+      card().classList.remove('replay'); void card().offsetWidth; card().classList.add('replay'); // restarts the illustration
+      from.classList.add('is-leaving');
+      var out = play(from, fwd
+        ? [{ opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }, { opacity: 0, transform: 'scale(1.35)', filter: 'blur(6px)' }]
+        : [{ opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }, { opacity: 0, transform: 'scale(.72) translateY(18px)', filter: 'blur(4px)' }], { duration: 520 });
+      play(to, fwd
+        ? [{ opacity: 0, transform: 'scale(.72) translateY(18px)', filter: 'blur(4px)' }, { opacity: 1, transform: 'scale(1) translateY(0)', filter: 'blur(0)' }]
+        : [{ opacity: 0, transform: 'scale(1.35)', filter: 'blur(6px)' }, { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }], { delay: 120 });
+      play($('tourThread'), [{ strokeDashoffset: fwd ? 100 : -100 }, { strokeDashoffset: 0 }], { duration: 700, easing: 'cubic-bezier(.65,0,.35,1)' });
+      var clean = function () { from.classList.remove('is-leaving'); done(); };
+      if (out) out.finished.then(clean, clean); else clean();
+    }
+    function next() { show(step + 1, 1); }
+    function back() { show(step - 1, -1); }
+    function onKey(e) {
+      if ($('onboarding').hidden) return;
+      if (e.key === 'Escape') { e.preventDefault(); return; } // the first-run questions cannot be skipped
+      if (e.key === 'Tab') { trap(e); return; }
+      if (e.target.matches && e.target.matches('select,input,textarea')) return;
+      if (e.key === 'ArrowRight' || (e.key === 'Enter' && step < TOTAL && !(e.target.closest && e.target.closest('button,a')))) { e.preventDefault(); next(); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
+    }
+    function trap(e) {
+      var f = Array.prototype.filter.call(card().querySelectorAll('button,select,input,[tabindex="-1"].tour-h'), function (el) {
+        return !el.hidden && !el.disabled && !el.closest('[hidden]') && el.getClientRects().length && el.tabIndex >= 0;
+      });
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !card().contains(document.activeElement))) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+    function down(e) {
+      if (e.pointerType === 'mouse' || (e.target.closest && e.target.closest('select,input,button,.tour-illus'))) return;
+      swipeX = e.clientX; swipeY = e.clientY;
+    }
+    function up(e) {
+      if (swipeX === null) return;
+      var dx = e.clientX - swipeX, dy = e.clientY - swipeY;
+      swipeX = swipeY = null;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      if (dx < 0) next(); else back();
+    }
+    var wired = false;
+    function open() {
+      if (!wired) {
+        wired = true;
+        $('btnTourNext').onclick = next;
+        $('btnTourBack').onclick = back;
+        $('btnTourSkip').onclick = function () { show(TOTAL, 1); };
+        card().addEventListener('pointerdown', down);
+        card().addEventListener('pointerup', up);
+        card().addEventListener('pointercancel', function () { swipeX = swipeY = null; });
+      }
+      document.addEventListener('keydown', onKey, true);
+      step = 1;
+      steps().forEach(function (s) { var n = Number(s.dataset.step); s.hidden = n !== 1; s.classList.toggle('is-current', n === 1); s.inert = false; });
+      sync();
+      $('onboarding').hidden = false;
+      card().classList.add('replay');
+      heading(1).focus({ preventScroll: true });
+    }
+    function close() { finishRunning(); $('onboarding').hidden = true; document.removeEventListener('keydown', onKey, true); }
+    return { open: open, close: close, next: next, back: back, show: show };
+  })();
 
 
 
@@ -2618,9 +3012,9 @@
   function quickStart() {
     var ui = I18N ? I18N.lang() : 'ru';
     var target = QUICK5[ui] ? ui : (QUICK5[state.cfg.target] ? state.cfg.target : 'ru');
-    releaseDeck();
-    state.cfg.source = 'en'; state.cfg.target = target;
-    syncLangSelects(); saveCfg();
+    var key = namedDeck(tr('decks.quickName'), 'en', target);
+    if (!key) return;
+    setActiveDeck(key, true);
     $('input').value = QUICK5[target].join('\n');
     updateInputStat(true);
     start();
@@ -2706,7 +3100,7 @@
     if (!GR || !$('screen-grammar')) return;
     var keys = Object.keys(library.decks);
     // Build controls: decks in a learnable language.
-    var bsel = $('gramBuildDeck'), keepB = bsel.value || (library.decks[state.cfg.deck] ? state.cfg.deck : activeDeckKey());
+    var bsel = $('gramBuildDeck'), keepB = hasDeck(state.cfg.deck) ? state.cfg.deck : bsel.value;
     fillDeckSelect(bsel, null, keepB);
     if (!bsel.value && bsel.options.length) bsel.value = bsel.options[0].value;
     $('gramAuto').checked = gramAutoOn();
@@ -2723,7 +3117,7 @@
     LANGUAGES.LEARN_CODES.filter(function (c) { return seen[c]; }).forEach(function (c) { langSel.appendChild(h('option', { value: c, text: langByCode(c).flag + ' ' + langByCode(c).label })); });
     var libLang = $('filterLang') && $('filterLang').value; // the library's language filter carries over
     langSel.value = seen[keepL] ? keepL : (seen[libLang] ? libLang : '');
-    fillDeckSelect($('gramDeck'), tr('filter.any'), $('gramDeck').value);
+    fillDeckSelect($('gramDeck'), tr('filter.any'), hasDeck(state.cfg.deck) ? state.cfg.deck : '');
     var cat = $('gramCategory'), keepC = cat.value;
     while (cat.options.length > 1) cat.remove(1);
     GR.CATEGORIES.forEach(function (c) { cat.appendChild(h('option', { value: c, text: catLabel(c) })); });
@@ -2869,7 +3263,7 @@
     row.words.forEach(function (w) { (by[w.deckKey] = by[w.deckKey] || []).push(w.card); });
     var key = Object.keys(by).sort(function (a, b) { return by[b].length - by[a].length; })[0];
     if (!key) return;
-    setActiveDeck(key);
+    setActiveDeck(key, true);
     startTraining(by[key].filter(function (c) { return c.translation && c.translation !== '—'; }));
   }
   function initGrammar() {
@@ -2905,7 +3299,8 @@
       state.cfg.source = c.source; state.cfg.target = c.target;
       syncLangSelects();
     }
-    if (typeof c.deck === 'string') state.cfg.deck = library.decks[c.deck] ? c.deck : '';
+    if (typeof c.deck === 'string' && library.decks[c.deck]) state.cfg.deck = c.deck;
+    ensureActiveDeck(); setTimeout(onActiveDeckChange, 0);
     if (/^(mixed|fwd|rev)$/.test(c.dir)) setDir(c.dir);
     if (/^(flashcard|typing|listen)$/.test(c.mode)) { state.cfg.mode = c.mode; document.querySelectorAll('#modeSeg button').forEach(function (b) { b.classList.toggle('on', b.dataset.mode === c.mode); }); }
     if (typeof c.simple === 'boolean') { state.cfg.simple = c.simple; $('simpleMode').checked = c.simple; }
@@ -2982,6 +3377,7 @@
     checkServerStatus();
     if (L) initLearningUI();
     if (L) maybeOnboard();
+    if (L) { onActiveDeckChange(); maybePickDeck(); }
 
     var sel = $('targetLang');
     syncLangSelects();
@@ -3000,7 +3396,8 @@
 
     /* setup events */
     $('input').addEventListener('input', updateInputStat);
-    $('input').addEventListener('input', saveDraft);
+    $('input').addEventListener('input', saveDraftSoon);
+    window.addEventListener('pagehide', function () { if (draftTimer) saveDraft(); });
     if (L) restoreDraft();
     $('btnClear').addEventListener('click', function () {
       var previous = $('input').value;
@@ -3101,7 +3498,8 @@
     $('btnStart').addEventListener('click', start);
     $('btnQuick5').addEventListener('click', quickStart);
     $('btnDemo').addEventListener('click', function () {
-      state.cfg.target = 'ru'; state.cfg.source = 'en'; syncLangSelects(); saveCfg();
+      if (L && !addDemoDeck()) return; // the demo words get their own deck, which becomes the working one
+      if (!L) { state.cfg.target = 'ru'; state.cfg.source = 'en'; syncLangSelects(); saveCfg(); }
       toast(tr('toast.demo'), 'ok');
       startTraining(demoCards());
     });
@@ -3239,6 +3637,13 @@
       // Alt+X swaps languages on the setup screen, even while typing the word list.
       if (L && e.altKey && e.code === 'KeyX' && $('screen-setup').classList.contains('active')) { e.preventDefault(); swapLanguages(); return; }
       if (!$('onboarding').hidden || !$('accountDialog').hidden) return;
+      if (!$('deckPicker').hidden) {
+        if (e.key === 'Escape') { e.preventDefault(); confirmPicker(); }
+        else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); pickerMove(1); }
+        else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); pickerMove(-1); }
+        else if (e.key === 'Tab') trapIn($('deckPicker'), e);
+        return;
+      }
       if (!$('deckDialog').hidden) { if (e.key === 'Escape') { e.preventDefault(); closeDeckDialog(); } return; }
       if (!$('sessionDialog').hidden) { if (e.key === 'Escape') { e.preventDefault(); closeSessionSettings(); } return; }
       if (!$('shareDialog').hidden || !$('sharePreview').hidden || !$('displayDialog').hidden) {

@@ -226,4 +226,11 @@ console.log('✓ Backups: prototype keys are never accepted as languages');
     { decks: { 'en-ru:n1': { source: 'en', target: 'ru', name: 'Named', cards: [] } }, history: {}, streak: {} });
   assert.equal(m.decks['en-ru:n1'].name, 'Named', 'merging keeps the name whichever side has it');
   console.log('✓ Named decks: multiple decks per language pair, key repair, name clean-up, merge keeps names');
+  const many = n => ({ decks: Object.fromEntries(Array.from({ length: n }, (_, i) => ['en-ru:d' + i, { source: 'en', target: 'ru', cards: [] }])) });
+  assert.equal(L.MAX_DECKS, 10);
+  assert.equal(L.deckCount(many(0)), 0); assert.equal(L.deckCount(null), 0);
+  assert.equal(L.canAddDeck(many(9)), true, 'a ninth deck leaves room for one more');
+  assert.equal(L.canAddDeck(many(10)), false, 'ten decks are the maximum');
+  assert.equal(L.canAddDeck(many(12)), false, 'a library above the limit (old backup) keeps its decks but cannot grow');
+  console.log('✓ Deck limit: at most 10 decks, libraries above it are kept as they are');
 }
