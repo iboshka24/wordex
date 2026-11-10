@@ -2700,7 +2700,7 @@
     setTimeout(function () { buildGrammarFor(key, true); }, 1500);
   }
   function grammarFilters() {
-    return { lang: $('gramLang').value, deck: $('gramDeck').value, category: $('gramCategory').value, level: $('gramLevel').value, q: $('gramSearch').value, sort: $('gramSort').value };
+    return { lang: $('gramLang').value, deck: $('gramDeck').value, category: $('gramCategory').value, level: $('gramLevel').value, q: $('gramSearch').value, sort: $('gramSort').value, ui: I18N ? I18N.lang() : 'en' };
   }
   function renderGrammar() {
     if (!GR || !$('screen-grammar')) return;
@@ -2719,6 +2719,7 @@
     // Filters: languages that have rules, every deck, categories and levels.
     var langSel = $('gramLang'), keepL = langSel.value, seen = Object.create(null);
     Object.keys(library.grammar || {}).forEach(function (id) { seen[library.grammar[id].lang] = true; });
+    GR.builtinLangs().forEach(function (c) { seen[c] = true; }); // built-in courses can be browsed without any word
     while (langSel.options.length > 1) langSel.remove(1);
     LANGUAGES.LEARN_CODES.filter(function (c) { return seen[c]; }).forEach(function (c) { langSel.appendChild(h('option', { value: c, text: langByCode(c).flag + ' ' + langByCode(c).label })); });
     var libLang = $('filterLang') && $('filterLang').value; // the library's language filter carries over
@@ -2737,14 +2738,17 @@
   function renderGrammarList() {
     var host = $('gramList');
     if (!host || !GR) return;
-    var total = GR.aggregate(library, {}).length, rows = GR.aggregate(library, grammarFilters());
+    var f = grammarFilters(), total = GR.aggregate(library, { ui: f.ui }).length, rows = GR.aggregate(library, f);
+    var browsable = GR.builtinLangs().length > 0, filtered = Boolean(f.lang || f.deck || f.category || f.level || f.q);
     host.textContent = '';
-    $('gramFilters').hidden = !total;
-    $('gramCount').textContent = total ? tr('gram.count', { n: rows.length }) : '';
-    $('gramNone').hidden = !total || rows.length > 0;
-    if (!total) {
+    $('gramFilters').hidden = !total && !browsable;
+    $('gramCount').textContent = rows.length ? tr('gram.count', { n: rows.length }) : '';
+    $('gramNone').hidden = true;
+    if (!rows.length) {
       renderDrillPanel([]);
-      if (Object.keys(library.decks).length && aiAvailable()) host.appendChild(h('p', { className: 'quiz-empty', text: tr('gram.empty') }));
+      if (total || filtered) $('gramNone').hidden = false;
+      else if (browsable) host.appendChild(h('p', { className: 'quiz-empty', text: tr('gram.emptyBuiltin') }));
+      else if (Object.keys(library.decks).length && aiAvailable()) host.appendChild(h('p', { className: 'quiz-empty', text: tr('gram.empty') }));
       return;
     }
     rows.forEach(function (row) { host.appendChild(ruleCard(row)); });
@@ -2756,7 +2760,8 @@
     var head = h('div', { className: 'gram-head' }, [
       h('span', { className: 'gram-lang', text: lang.flag + ' ' + lang.label }),
       h('span', { className: 'gram-badge', text: catLabel(r.category) }),
-      r.level ? h('span', { className: 'gram-badge gram-level', text: r.level }) : null
+      r.level ? h('span', { className: 'gram-badge gram-level', text: r.level }) : null,
+      r.builtin ? h('span', { className: 'gram-badge gram-builtin', title: tr('gram.builtinTitle'), text: tr('gram.builtin') }) : null
     ]);
     card.appendChild(head);
     card.appendChild(h('h3', { className: 'gram-title', text: r.concept }));
@@ -2777,6 +2782,7 @@
           b.onclick = function () { speakText(p.example, r.lang, b); };
           ex.appendChild(t); ex.appendChild(b);
           li.appendChild(ex);
+          if (p.reading) { var rd = h('span', { className: 'gram-reading', text: p.reading }); rd.lang = r.lang; li.appendChild(rd); }
         }
         if (p.translation) li.appendChild(h('span', { className: 'gram-trans', text: p.translation }));
         ul.appendChild(li);
@@ -2792,6 +2798,7 @@
       if (r.pitfall.note) pf.appendChild(h('p', { className: 'gram-note', text: r.pitfall.note }));
       card.appendChild(pf);
     }
+    if (!row.words.length) return card; // a built-in rule none of the learner's words points to yet
     var words = h('div', { className: 'gram-words' }, [h('span', { className: 'gram-label', text: tr('gram.words') })]);
     row.words.slice(0, 12).forEach(function (w) {
       var chip = h('button', { className: 'chip-btn gram-word', type: 'button', title: tr('gram.wordOpen', { w: w.card.original }), text: w.card.original });

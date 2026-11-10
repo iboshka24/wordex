@@ -389,6 +389,8 @@
 .gram-pattern { font:13px var(--font-mono); color:var(--amber); background:none; padding:0; }
 .gram-example { display:flex; align-items:center; gap:8px; font-size:14px; }
 .gram-trans { font-size:12.5px; color:var(--muted); }
+.gram-reading { font-size:12.5px; color:var(--muted); letter-spacing:.02em; }
+.gram-builtin { border-color:var(--amber); color:var(--amber); }
 .gram-pitfall { padding:10px 12px; border-radius:10px; background:var(--bg); }
 .gram-fix { margin:4px 0 0; display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:14px; }
 .gram-wrong { color:var(--rose); text-decoration-thickness:1.5px; }

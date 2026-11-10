@@ -19,6 +19,73 @@
   function fail(code, message) { var e = new Error(message); e.code = code; return e; }
   function own(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
 
+  /* ---------- built-in rule libraries ---------- */
+  // A built-in library is curated, offline and not stored in the learner's library (so backups and cloud rows stay small).
+  // Each language registers its rules once (grammar-ja.js, ...). Texts are written in all three interface languages
+  // as [ru, en, uz]; a rule is resolved to one of them when it is shown.
+  var UI_LANGS = ['ru', 'en', 'uz'];
+  var BUILTIN = Object.create(null);     // lang -> [definition]
+  var BUILTIN_BY_ID = Object.create(null); // ruleId -> definition
+  function trio(v, max) {
+    if (!Array.isArray(v) || v.length !== 3) return false;
+    return v.every(function (t) { return typeof t === 'string' && clean(t) && clean(t).length <= max; });
+  }
+  // Problems of one definition (an empty list means it is valid). `reading` is the kana/pinyin line under an example.
+  function checkBuiltin(lang, d) {
+    var bad = [];
+    if (!d || typeof d !== 'object') return ['not an object'];
+    var m = ID.exec(String(d.ruleId || ''));
+    if (!m || m[1] !== lang) bad.push('ruleId must be ' + lang + '.<category>.<slug>');
+    else if (m[2] !== d.category) bad.push('ruleId category differs from "category"');
+    if (CATEGORIES.indexOf(d.category) < 0) bad.push('unknown category');
+    if (LEVELS.indexOf(d.level) < 0) bad.push('unknown level');
+    if (!trio(d.concept, LIMITS.concept)) bad.push('concept needs ru/en/uz texts');
+    if (!trio(d.explanation, LIMITS.explanation)) bad.push('explanation needs ru/en/uz texts');
+    var pats = Array.isArray(d.patterns) ? d.patterns : [];
+    if (!pats.length || pats.length > LIMITS.patterns) bad.push('1-' + LIMITS.patterns + ' patterns');
+    pats.forEach(function (p, i) {
+      // a pattern is a neutral string, or [ru, en, uz] when it carries words such as "Noun を Verb"
+      if (!p || !(trio(p.pattern, LIMITS.patternField) || (typeof p.pattern === 'string' && clean(p.pattern) && clean(p.pattern).length <= LIMITS.patternField))) bad.push('pattern ' + i);
+      if (!p || typeof p.example !== 'string' || !clean(p.example) || clean(p.example).length > LIMITS.patternField) bad.push('example ' + i);
+      if (!p || typeof p.reading !== 'string' || !clean(p.reading) || clean(p.reading).length > LIMITS.patternField) bad.push('reading ' + i);
+      if (!p || !trio(p.translation, LIMITS.patternField)) bad.push('translation ' + i + ' needs ru/en/uz texts');
+    });
+    if (d.pitfall) {
+      var pf = d.pitfall;
+      if (typeof pf.mistake !== 'string' || typeof pf.correction !== 'string' || !clean(pf.mistake) || !clean(pf.correction) || key(pf.mistake) === key(pf.correction)) bad.push('pitfall sentences');
+      if (!trio(pf.note, LIMITS.pitfallField)) bad.push('pitfall note needs ru/en/uz texts');
+    }
+    return bad;
+  }
+  // Registers a language's rules. Invalid or repeated rules are skipped; returns the list of problems (tests expect none).
+  function registerBuiltin(lang, defs) {
+    var problems = [];
+    if (!Langs.canLearn(lang)) return ['"' + lang + '" is not a learnable language'];
+    var list = BUILTIN[lang] || (BUILTIN[lang] = []);
+    (defs || []).forEach(function (d, i) {
+      var bad = checkBuiltin(lang, d);
+      if (!bad.length && own(BUILTIN_BY_ID, d.ruleId)) bad = ['duplicate ruleId'];
+      if (bad.length) { problems.push((d && d.ruleId || '#' + i) + ': ' + bad.join('; ')); return; }
+      d.order = list.length;
+      list.push(d); BUILTIN_BY_ID[d.ruleId] = d;
+    });
+    return problems;
+  }
+  function builtinLangs() { return Object.keys(BUILTIN).filter(function (l) { return BUILTIN[l].length; }); }
+  function builtinIds(lang) { return (BUILTIN[lang] || []).map(function (d) { return d.ruleId; }); }
+  function hasBuiltin(id) { return own(BUILTIN_BY_ID, id); }
+  // One definition in one interface language (unknown codes fall back to English), in the shape the Grammar Lab shows.
+  function resolveBuiltin(d, ui) {
+    var i = UI_LANGS.indexOf(ui); if (i < 0) i = 1;
+    function pick(v) { var t = v[i]; return i === 2 ? Langs.normalizeUz(t) : t; }
+    var rule = { ruleId: d.ruleId, lang: d.ruleId.split('.')[0], category: d.category, concept: pick(d.concept), explanation: pick(d.explanation), level: d.level, builtin: true, order: d.order,
+      patterns: d.patterns.map(function (p) { return { pattern: Array.isArray(p.pattern) ? pick(p.pattern) : p.pattern, example: p.example, reading: p.reading, translation: pick(p.translation) }; }) };
+    if (d.pitfall) rule.pitfall = { mistake: d.pitfall.mistake, correction: d.pitfall.correction, note: pick(d.pitfall.note) };
+    return rule;
+  }
+  function builtinRules(lang, ui) { return (BUILTIN[lang] || []).map(function (d) { return resolveBuiltin(d, ui); }); }
+  function builtinRule(id, ui) { return hasBuiltin(id) ? resolveBuiltin(BUILTIN_BY_ID[id], ui) : null; }
+
   /* ---------- request ---------- */
   // Grammar is offered for the learnable languages only; explanations may be in any known native language.
   function validateRequest(body) {
@@ -55,6 +122,7 @@
       '- "patterns": 1-3 objects {"pattern": the structure in ' + src.name + ' with placeholders, "example": a natural ' + src.name + ' sentence, "translation": that sentence in ' + tgt.name + '}.',
       '- "pitfall" (only if learners really make this mistake): {"mistake": a typical wrong ' + src.name + ' sentence, "correction": the right sentence, "note": a short ' + tgt.name + ' explanation}.',
       '- "level": the CEFR level (A1, A2, B1, B2, C1, C2) or null.',
+      builtinIds(req.source).length ? 'Known ruleIds for ' + src.name + ' (reuse the exact id whenever the rule fits; invent a new id only for a rule not in this list): ' + builtinIds(req.source).join(', ') + '.' : '',
       req.source === 'uz' || req.target === 'uz' ? 'Write Uzbek in the official Latin alphabet with oʻ and gʻ, never in Cyrillic.' : '',
       'Answer with STRICT JSON only, no prose and no code fences:',
       '{"items":[{"original":"...","rules":[{"ruleId":"...","category":"...","concept":"...","explanation":"...","patterns":[{"pattern":"...","example":"...","translation":"..."}],"pitfall":{"mistake":"...","correction":"...","note":"..."},"level":"B1"}]}]}'
@@ -169,7 +237,7 @@
       if (!card) return;
       var ids = [];
       item.rules.forEach(function (rule) {
-        if (!own(store, rule.ruleId)) {
+        if (!own(store, rule.ruleId) && !hasBuiltin(rule.ruleId)) { // a built-in rule is shown from the built-in library, so only the link is saved
           if (size >= LIMITS.stored) return;
           store[rule.ruleId] = Object.assign({}, rule, { target: deck.target, added: now || Date.now() });
           size++; added++;
@@ -182,21 +250,32 @@
   }
 
   /* ---------- the Grammar Lab list ---------- */
-  // Rules that at least one saved word points to, with those words. Filters: lang, deck (key), category, level, q; sort: 'new' | 'category'.
+  // The rows of the Grammar Lab: rules that at least one saved word points to, plus the built-in rules of the languages
+  // the learner has decks in (or of the language chosen in the filter), each with its words.
+  // Filters: lang, deck (key), category, level, q; sort: 'new' | 'category'; ui: interface language for built-in texts.
   function aggregate(library, opts) {
-    var o = opts || {}, store = (library && library.grammar) || {}, rows = Object.create(null), list = [];
-    var q = key(o.q || '');
-    Object.keys((library && library.decks) || {}).forEach(function (dk) {
+    var o = opts || {}, ui = o.ui || 'en', store = (library && library.grammar) || {}, rows = Object.create(null), list = [];
+    var q = key(o.q || ''), decks = (library && library.decks) || {};
+    function ruleFor(id) { return builtinRule(id, ui) || store[id]; }
+    Object.keys(decks).forEach(function (dk) {
       if (o.deck && dk !== o.deck) return;
-      var d = library.decks[dk];
+      var d = decks[dk];
       (d.cards || []).forEach(function (c) {
         (c.grammarIds || []).forEach(function (id) {
-          var rule = store[id];
+          var rule = ruleFor(id);
           if (!rule) return;
           var row = rows[id] || (rows[id] = { rule: rule, words: [] });
           if (!row.words.some(function (w) { return w.card === c; })) row.words.push({ deckKey: dk, card: c });
         });
       });
+    });
+    // Built-in rules appear for a language the learner studies, or when that language is picked in the filter.
+    var wanted = Object.create(null);
+    if (o.lang) wanted[o.lang] = true;
+    else Object.keys(decks).forEach(function (dk) { if (!o.deck || dk === o.deck) wanted[decks[dk].source] = true; });
+    builtinLangs().forEach(function (lang) {
+      if (!wanted[lang] || (o.deck && decks[o.deck] && decks[o.deck].source !== lang)) return;
+      builtinRules(lang, ui).forEach(function (r) { if (!rows[r.ruleId]) rows[r.ruleId] = { rule: r, words: [] }; });
     });
     Object.keys(rows).forEach(function (id) {
       var row = rows[id], r = row.rule;
@@ -205,15 +284,19 @@
       if (o.level && r.level !== o.level) return;
       if (q) {
         var hay = [r.concept, r.explanation, r.pitfall && r.pitfall.mistake, r.pitfall && r.pitfall.correction]
-          .concat(r.patterns.map(function (p) { return [p.pattern, p.example, p.translation].join(' '); }))
+          .concat(r.patterns.map(function (p) { return [p.pattern, p.example, p.reading, p.translation].join(' '); }))
           .concat(row.words.map(function (w) { return w.card.original + ' ' + w.card.translation; })).join(' ');
         if (key(hay).indexOf(q) < 0) return;
       }
       list.push(row);
     });
+    function course(a, b) { // built-in rules keep the order of the course; the rest by title
+      if (a.rule.builtin && b.rule.builtin) return a.rule.order - b.rule.order;
+      return a.rule.concept.localeCompare(b.rule.concept);
+    }
     list.sort(o.sort === 'category'
-      ? function (a, b) { return CATEGORIES.indexOf(a.rule.category) - CATEGORIES.indexOf(b.rule.category) || a.rule.concept.localeCompare(b.rule.concept); }
-      : function (a, b) { return (b.rule.added || 0) - (a.rule.added || 0) || a.rule.concept.localeCompare(b.rule.concept); });
+      ? function (a, b) { return CATEGORIES.indexOf(a.rule.category) - CATEGORIES.indexOf(b.rule.category) || course(a, b); }
+      : function (a, b) { return (b.rule.added || 0) - (a.rule.added || 0) || course(a, b); });
     return list;
   }
 
@@ -230,6 +313,8 @@
     CATEGORIES: CATEGORIES, LEVELS: LEVELS, LIMITS: LIMITS, ID: ID,
     validateRequest: validateRequest, buildMessages: buildMessages, parseResponse: parseResponse, validateRule: validateRule,
     cleanIds: cleanIds, cleanStore: cleanStore, mergeStores: mergeStores, isAnalysed: isAnalysed, pending: pending,
-    applyResults: applyResults, aggregate: aggregate, pitfallDrill: pitfallDrill
+    applyResults: applyResults, aggregate: aggregate, pitfallDrill: pitfallDrill,
+    registerBuiltin: registerBuiltin, checkBuiltin: checkBuiltin, builtinLangs: builtinLangs, builtinIds: builtinIds,
+    hasBuiltin: hasBuiltin, builtinRule: builtinRule, builtinRules: builtinRules, UI_LANGS: UI_LANGS
   };
 });
