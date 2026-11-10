@@ -45,7 +45,7 @@
 
   // Script and spelling rules for languages where models often slip (wrong alphabet, Russian-style spelling).
   var STYLE = {
-    uz: 'Write Uzbek in the official Latin alphabet (oʻ, gʻ, sh, ch, ng), never in Cyrillic.',
+    uz: 'Write Uzbek in the official Latin alphabet (oʻ, gʻ, sh, ch, ng), never in Cyrillic. Use natural modern Uzbek: prefer the common Uzbek word over a Russian loanword or a word-for-word calque.',
     kk: 'Write Kazakh in Cyrillic.',
     az: 'Write Azerbaijani in the Latin alphabet.',
     zh: 'Write Chinese in Simplified characters.',
