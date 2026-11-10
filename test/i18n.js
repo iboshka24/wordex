@@ -75,8 +75,25 @@ inst.set('en'); inst.set('xx');
 assert.deepEqual(seen, ['en', 'second:en'], 'same or unknown language does nothing');
 assert.equal(inst.tn('words.count', 1), '1 word'); assert.equal(inst.tn('words.count', 2), '2 words');
 inst.set('uz');
-assert.equal(inst.tn('words.count', 1), "1 ta so'z"); assert.equal(inst.tn('words.count', 7), "7 ta so'z");
+assert.equal(inst.tn('words.count', 1), '1 ta so\u02BBz'); assert.equal(inst.tn('words.count', 7), '7 ta so\u02BBz');
 assert.equal(inst.t('nope.missing'), 'nope.missing', 'a missing key shows the key, not "undefined"');
-assert.equal(inst.t('load.free', { i: 1 }), 'API siz tarjima (1 / {n})…', 'a missing variable keeps its placeholder');
+assert.equal(inst.t('load.free', { i: 1 }), 'API kalitisiz tarjima (1 / {n})…', 'a missing variable keeps its placeholder');
 assert.equal(I.create(null).tn('nope.missing', 3), 'nope.missing');
+// --- Uzbek quality: one glossary, canonical letters, one register ---
+const Lg = require('../languages');
+const uzTexts = Object.entries(I.dict).flatMap(([key, e]) => [].concat(e[2]).map(text => [key, text]));
+for (const [key, text] of uzTexts) {
+  assert.equal(Lg.normalizeUzApostrophes(text), text, key + ': Uzbek apostrophes must already be oʻ/gʻ and the tutuq belgisi');
+  assert(!/['‘’`]/.test(text.replace(/(^|[\s(«])'/g, '')), key + ': plain apostrophe left in Uzbek text');
+  assert(!/\p{Script=Cyrillic}/u.test(text), key + ': the Uzbek interface is Latin, found Cyrillic');
+  assert(!/koloda/i.test(text), key + ': a deck is "toʻplam", never "koloda"');
+  assert(!/mashg.ulot/i.test(text), key + ': use "mashq" (practice), not "mashgʻulot"');
+  assert(!/sun.iy intellekt/i.test(text), key + ': use "AI" in the interface');
+  assert(!/\b[A-Z][A-Za-z0-9.+-]* (ni|ga|dan|ning|siz)\b/.test(text.replace(/\b(Tarjimasi|Bu|Bir)\b/g, '')), key + ': a suffix must not float after a Latin name');
+  assert(!/\b(sizning|siz|sizga|sizni)\b|ingiz\b|laringiz/i.test(text), key + ': the Uzbek interface speaks to you as "sen", not "siz"');
+}
+const uzT = (k, l) => [].concat(I.dict[k][2])[0];
+assert.equal(uzT('lib.newDeck'), '+ Yangi to\u02BBplam');
+assert.equal(I.dict['welcome.h'][2], 'Wordzone\u02BCga xush kelibsiz!');
+console.log('✓ i18n: Uzbek glossary, canonical oʻ/gʻ, sen-register and Latin script hold in all ' + uzTexts.length + ' strings');
 console.log('✓ i18n: language detection, persisted switching, listeners, DOM binding without needless writes, EN/UZ plurals');
