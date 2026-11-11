@@ -302,6 +302,37 @@
       [a.grammar || {}, b.grammar || {}].forEach(function (g) { Object.keys(g).forEach(function (id) { if (!Object.prototype.hasOwnProperty.call(grammar, id)) grammar[id] = g[id]; }); });
       out.grammar = grammar;
     }
+    if (a.course || b.course) out.course = mergeCourse(a.course, b.course);
+    return out;
+  }
+  /* Grammar course progress (v2.23): library.course["en.present-perfect"] = { seen, best, total, last, done }. */
+  var COURSE_KEY = /^[a-z]{2}\.[a-z0-9-]{2,40}$/;
+  function cleanCourse(raw) {
+    var out = {};
+    if (!raw || typeof raw !== 'object') return out;
+    Object.keys(raw).slice(0, 2000).forEach(function (k) {
+      var r = raw[k];
+      if (!COURSE_KEY.test(k) || !r || typeof r !== 'object') return;
+      var rec = {};
+      ['seen', 'last', 'done'].forEach(function (f) { var v = Number(r[f]); if (v > 0 && v < 1e14) rec[f] = Math.round(v); });
+      var total = Math.round(Number(r.total)), best = Math.round(Number(r.best));
+      if (total > 0 && total <= 100) { rec.total = total; rec.best = Math.max(0, Math.min(total, best || 0)); }
+      if (Object.keys(rec).length) out[k] = rec;
+    });
+    return out;
+  }
+  // Two devices: the best score wins, the first "seen" and "done" are kept, the latest "last".
+  function mergeCourse(a, b) {
+    var out = {};
+    [a || {}, b || {}].forEach(function (src) {
+      Object.keys(src).forEach(function (k) {
+        var r = src[k], o = out[k];
+        if (!o) { out[k] = Object.assign({}, r); return; }
+        ['seen', 'done'].forEach(function (f) { if (r[f] && (!o[f] || r[f] < o[f])) o[f] = r[f]; });
+        if (r.last && (!o.last || r.last > o.last)) o.last = r.last;
+        if (r.total && (r.best || 0) >= (o.best || 0)) { o.best = r.best || 0; o.total = r.total; }
+      });
+    });
     return out;
   }
   function backupFile(library) { return { version: 2, library: library }; }
@@ -357,6 +388,7 @@
       var grammar = cleanGrammar(incoming.grammar);
       if (Object.keys(grammar).length) out.grammar = grammar;
     }
+    if (incoming.course) { var course = cleanCourse(incoming.course); if (Object.keys(course).length) out.course = course; }
     return out;
   }
   function librarySize(library) {
@@ -364,5 +396,5 @@
     return { decks: keys.length, words: keys.reduce(function (n, k) { return n + library.decks[k].cards.length; }, 0) };
   }
   return { forecast: forecast, maturity: maturity, weakest: weakest, accuracy: accuracy, longestStreak: longestStreak, trimHistory: trimHistory,
-    backupFile: backupFile, restoreBackup: restoreBackup, librarySize: librarySize, day: day, gap: gap, reconcile: reconcile, complete: complete, validate: validate, grade: grade, schedule: schedule, quiz: quiz, swapPairs: swapPairs, reverseCards: reverseCards, hint: hint, pick: pick, pairs: pairs, activity: activity, status: status, mergeLibrary: mergeLibrary, DECK_KEY: DECK_KEY, deckId: deckId, deckKey: deckKey, cleanName: cleanName, keyFor: keyFor, NAME_MAX: NAME_MAX, MAX_DECKS: MAX_DECKS, deckCount: deckCount, canAddDeck: canAddDeck };
+    backupFile: backupFile, restoreBackup: restoreBackup, librarySize: librarySize, day: day, gap: gap, reconcile: reconcile, complete: complete, validate: validate, grade: grade, schedule: schedule, quiz: quiz, swapPairs: swapPairs, reverseCards: reverseCards, hint: hint, pick: pick, pairs: pairs, activity: activity, status: status, mergeLibrary: mergeLibrary, DECK_KEY: DECK_KEY, deckId: deckId, deckKey: deckKey, cleanName: cleanName, keyFor: keyFor, NAME_MAX: NAME_MAX, MAX_DECKS: MAX_DECKS, deckCount: deckCount, canAddDeck: canAddDeck, cleanCourse: cleanCourse, mergeCourse: mergeCourse };
 });

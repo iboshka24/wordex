@@ -10,11 +10,11 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%81%3C/text%3E%3C/svg%3E" />
   <!-- Self-hosted fonts (tools/fetch-fonts.js): no third-party requests, works offline and under a strict CSP. -->
-  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.22" />
-  <link rel="stylesheet" href="styles.css?v=2.22" />
-  <link rel="stylesheet" href="editorial.css?v=2.22" />
-  <link rel="stylesheet" href="shell.css?v=2.22" />
-  <link rel="stylesheet" href="motion.css?v=2.22" />
+  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.23" />
+  <link rel="stylesheet" href="styles.css?v=2.23" />
+  <link rel="stylesheet" href="editorial.css?v=2.23" />
+  <link rel="stylesheet" href="shell.css?v=2.23" />
+  <link rel="stylesheet" href="motion.css?v=2.23" />
   <script>try{var r=document.documentElement,s=JSON.parse(localStorage.getItem('vm.display')||'null')||{},t=/^(system|light|dark)$/.test(s.theme)?s.theme:localStorage.getItem('vm.theme');if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';r.dataset.theme=t==='dark'?'dark':'light';if(/^(s|l|xl)$/.test(s.size))r.dataset.size=s.size;if(s.contrast===true)r.dataset.contrast='high';if(s.spacing===true)r.dataset.spacing='wide'}catch(e){document.documentElement.dataset.theme='light'}</script>
 </head>
 <body>
@@ -355,7 +355,32 @@
       </div>
     </section>
     <section class="screen" id="screen-grammar">
-      <div class="library-intro"><div><span class="eyebrow" data-i18n="gram.eyebrow">ПРАВИЛА ИЗ ТВОИХ СЛОВ</span><h1 data-i18n="gram.h1">Грамматика</h1><p data-i18n="gram.sub">Каждое правило — из слов, которые ты учишь. С примерами и типичными ошибками.</p></div></div>
+      <div class="library-intro"><div><span class="eyebrow" data-i18n="course.eyebrow">ГРАММАТИКА ПО ШАГАМ</span><h1 data-i18n="gram.h1">Грамматика</h1><p data-i18n="course.sub">Выбери язык и иди по темам: короткое правило, живые примеры и тренировка — минут на пять.</p></div></div>
+      <div class="gram-tabs" role="tablist" aria-label="Грамматика" data-i18n-attr="aria-label:gram.h1">
+        <button class="gram-tab on" type="button" role="tab" id="tabCourse" aria-selected="true" aria-controls="courseView" data-i18n="course.tab">Курс</button>
+        <button class="gram-tab" type="button" role="tab" id="tabWords" aria-selected="false" aria-controls="wordsGrammar" tabindex="-1" data-i18n="course.tabWords">Из моих слов</button>
+      </div>
+      <div class="course" id="courseView" role="tabpanel" aria-labelledby="tabCourse" data-view="courseHome">
+        <div id="courseHome">
+          <h2 class="course-h" id="courseHomeTitle" data-i18n="course.pickLang">Какой язык разбираем?</h2>
+          <div class="plates" id="courseLangs" role="radiogroup" aria-labelledby="courseHomeTitle"></div>
+          <div class="course-path" id="coursePath" aria-live="polite"></div>
+        </div>
+        <article class="lesson" id="courseLesson" hidden aria-labelledby="courseLessonTitle">
+          <button class="link lesson-back" type="button" id="btnCourseBack" data-i18n="course.back">← Все темы</button>
+          <header class="lesson-head"><span class="eyebrow" id="courseLessonLevel"></span><h2 id="courseLessonTitle"></h2><p id="courseLessonSum"></p></header>
+          <div class="lesson-body" id="courseLessonBody"></div>
+          <div class="lesson-cta"><button class="btn primary big" type="button" id="btnCoursePractice">Тренировать</button></div>
+        </article>
+        <section class="practice" id="coursePractice" hidden aria-label="Тренировка" data-i18n-attr="aria-label:course.practiceAria">
+          <div class="practice-top"><button class="link" type="button" id="btnPracticeQuit" data-i18n="course.quit">← К правилу</button><span class="practice-count" id="practiceCount"></span></div>
+          <div class="practice-dots" id="practiceDots" aria-hidden="true"></div>
+          <div class="practice-body" id="practiceBody"></div>
+          <div class="practice-actions"><button class="btn primary big" type="button" id="btnPracticeCheck" data-i18n="course.check">Проверить</button><button class="btn primary big" type="button" id="btnPracticeNext" hidden data-i18n="course.next">Дальше</button></div>
+        </section>
+      </div>
+      <div class="words-grammar" id="wordsGrammar" role="tabpanel" aria-labelledby="tabWords" hidden>
+      <p class="words-grammar-intro" data-i18n="gram.sub">Каждое правило — из слов, которые ты учишь. С примерами и типичными ошибками.</p>
       <div class="panel gram-build" id="gramBuild">
         <div class="gram-build-row">
           <div class="deck-bar" data-deck-bar="grammar"></div><label class="filter-field deck-synced"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramBuildDeck" tabindex="-1"></select></span></label>
@@ -383,6 +408,7 @@
       <div class="grid-head"><h2 data-i18n="gram.listH">Твоя карта грамматики</h2><span id="gramCount"></span></div>
       <div class="gram-list" id="gramList"></div>
       <p class="quiz-empty" id="gramNone" hidden data-i18n="gram.none">Под фильтры не подошло ни одно правило.</p>
+      </div>
     </section>
 
     <section class="screen" id="screen-progress">
@@ -409,7 +435,7 @@
       </div>
     </section>
   </main>
-  <footer class="app-footer"><span>Wordzone</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.22</span></footer>
+  <footer class="app-footer"><span>Wordzone</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.23</span></footer>
   </div>
   </div>
 
@@ -662,16 +688,17 @@
   <div class="goal-celebration" id="goalCelebration" hidden role="status"><div class="goal-motion" id="goalMotion" aria-hidden="true"></div><div><strong data-i18n="goal.title">Ещё один шаг вперёд.</strong><p data-i18n="goal.text">Дневная цель достигнута. Хорошая работа!</p></div><button id="closeGoalMotion" type="button" aria-label="Закрыть уведомление" data-i18n-attr="aria-label:goal.close">×</button></div>
 
   <!-- lottie + the achievement animation are loaded on demand by motion.js -->
-  <script defer src="display.js?v=2.22"></script>
-  <script defer src="i18n.js?v=2.22"></script>
-  <script defer src="motion.js?v=2.22"></script>
-  <script defer src="languages.js?v=2.22"></script>
-  <script defer src="grammar.js?v=2.22"></script>
-  <script defer src="learning.js?v=2.22"></script>
-  <script defer src="ai-core.js?v=2.22"></script>
-  <script defer src="share.js?v=2.22"></script>
-  <script defer src="games.js?v=2.22"></script>
-  <script defer src="account.js?v=2.22"></script>
-  <script defer src="app.js?v=2.22"></script>
+  <script defer src="display.js?v=2.23"></script>
+  <script defer src="i18n.js?v=2.23"></script>
+  <script defer src="motion.js?v=2.23"></script>
+  <script defer src="languages.js?v=2.23"></script>
+  <script defer src="grammar.js?v=2.23"></script>
+  <script defer src="learning.js?v=2.23"></script>
+  <script defer src="ai-core.js?v=2.23"></script>
+  <script defer src="share.js?v=2.23"></script>
+  <script defer src="games.js?v=2.23"></script>
+  <script defer src="course.js?v=2.23"></script>
+  <script defer src="account.js?v=2.23"></script>
+  <script defer src="app.js?v=2.23"></script>
 </body>
 </html>
