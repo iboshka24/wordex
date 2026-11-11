@@ -247,6 +247,10 @@
   function deckKey(source, target, id) { return source + '-' + target + (id ? ':' + id : ''); }
   function cleanName(name) { return String(name || '').replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, NAME_MAX); }
   // The key a deck is stored under, if it belongs to this deck's language pair; else the pair's plain key.
+  // At most this many decks; existing libraries above the limit keep every deck but cannot grow.
+  var MAX_DECKS = 10;
+  function deckCount(lib) { return lib && lib.decks ? Object.keys(lib.decks).length : 0; }
+  function canAddDeck(lib) { return deckCount(lib) < MAX_DECKS; }
   function keyFor(key, d) {
     var m = DECK_KEY.exec(String(key || ''));
     return m && m[1] === d.source && m[2] === d.target ? key : deckKey(d.source, d.target);
@@ -360,5 +364,5 @@
     return { decks: keys.length, words: keys.reduce(function (n, k) { return n + library.decks[k].cards.length; }, 0) };
   }
   return { forecast: forecast, maturity: maturity, weakest: weakest, accuracy: accuracy, longestStreak: longestStreak, trimHistory: trimHistory,
-    backupFile: backupFile, restoreBackup: restoreBackup, librarySize: librarySize, day: day, gap: gap, reconcile: reconcile, complete: complete, validate: validate, grade: grade, schedule: schedule, quiz: quiz, swapPairs: swapPairs, reverseCards: reverseCards, hint: hint, pick: pick, pairs: pairs, activity: activity, status: status, mergeLibrary: mergeLibrary, DECK_KEY: DECK_KEY, deckId: deckId, deckKey: deckKey, cleanName: cleanName, keyFor: keyFor, NAME_MAX: NAME_MAX };
+    backupFile: backupFile, restoreBackup: restoreBackup, librarySize: librarySize, day: day, gap: gap, reconcile: reconcile, complete: complete, validate: validate, grade: grade, schedule: schedule, quiz: quiz, swapPairs: swapPairs, reverseCards: reverseCards, hint: hint, pick: pick, pairs: pairs, activity: activity, status: status, mergeLibrary: mergeLibrary, DECK_KEY: DECK_KEY, deckId: deckId, deckKey: deckKey, cleanName: cleanName, keyFor: keyFor, NAME_MAX: NAME_MAX, MAX_DECKS: MAX_DECKS, deckCount: deckCount, canAddDeck: canAddDeck };
 });

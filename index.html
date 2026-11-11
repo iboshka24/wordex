@@ -10,11 +10,11 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%81%3C/text%3E%3C/svg%3E" />
   <!-- Self-hosted fonts (tools/fetch-fonts.js): no third-party requests, works offline and under a strict CSP. -->
-  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.21" />
-  <link rel="stylesheet" href="styles.css?v=2.21" />
-  <link rel="stylesheet" href="editorial.css?v=2.21" />
-  <link rel="stylesheet" href="shell.css?v=2.21" />
-  <link rel="stylesheet" href="motion.css?v=2.21" />
+  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.22" />
+  <link rel="stylesheet" href="styles.css?v=2.22" />
+  <link rel="stylesheet" href="editorial.css?v=2.22" />
+  <link rel="stylesheet" href="shell.css?v=2.22" />
+  <link rel="stylesheet" href="motion.css?v=2.22" />
   <script>try{var r=document.documentElement,s=JSON.parse(localStorage.getItem('vm.display')||'null')||{},t=/^(system|light|dark)$/.test(s.theme)?s.theme:localStorage.getItem('vm.theme');if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';r.dataset.theme=t==='dark'?'dark':'light';if(/^(s|l|xl)$/.test(s.size))r.dataset.size=s.size;if(s.contrast===true)r.dataset.contrast='high';if(s.spacing===true)r.dataset.spacing='wide'}catch(e){document.documentElement.dataset.theme='light'}</script>
 </head>
 <body>
@@ -31,13 +31,19 @@
     </a>
     <p class="side-slogan" data-i18n="footer.tag">Меньше шума. Больше смысла.</p>
     <nav class="side-nav" aria-label="Основная навигация" data-i18n-attr="aria-label:nav.aria">
-      <div class="side-group-row"><p class="side-group" data-i18n="side.learning">Обучение</p><button class="side-plus" id="btnNewDeck" type="button" title="Создать новую колоду" aria-label="Создать новую колоду" data-i18n-attr="title:deck.new,aria-label:deck.new">+</button></div>
+      <p class="side-group" data-i18n="side.learning">Обучение</p>
       <button type="button" class="nav-link active" id="navStudy"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span data-i18n="nav.study">Учить слова</span></button>
       <button type="button" class="nav-link" id="navLibrary"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2"/><path d="M8 7h7"/></svg><span data-i18n="nav.library">Моя библиотека</span></button>
       <button type="button" class="nav-link" id="navTest"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 11 2 2 4-4"/><rect x="4" y="3" width="16" height="18" rx="2"/></svg><span data-i18n="nav.test">Лексический тест</span></button>
       <button type="button" class="nav-link" id="navGames"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="12" rx="4"/><path d="M7 11v4M5 13h4"/><circle cx="15.5" cy="12" r="1"/><circle cx="18" cy="14.5" r="1"/></svg><span data-i18n="nav.games">Игры</span></button>
       <button type="button" class="nav-link" id="navGrammar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 18 5-13 5 13M5 13.5h6"/><path d="M15 12.5a3 3 0 0 1 6 0V18m0-3.5c-.8-.6-1.8-1-3-1-1.7 0-3 1-3 2.2 0 1.3 1.1 2.3 2.6 2.3 1.4 0 2.6-.8 3.4-2"/></svg><span data-i18n="nav.grammar">Грамматика</span></button>
       <button type="button" class="nav-link" id="navProgress"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span data-i18n="nav.progress">Прогресс</span></button>
+      <div class="side-decks-block" id="sideDecksBlock">
+        <div class="side-group-row"><p class="side-group" id="sideDecksTitle" data-i18n="decks.title">Мои колоды</p><span class="side-count" id="sideDeckCount"></span><button class="side-plus" id="btnNewDeck" type="button" title="Создать новую колоду" aria-label="Создать новую колоду" data-i18n-attr="title:deck.new,aria-label:deck.new">+</button></div>
+        <ul class="side-decks" id="sideDecks" aria-labelledby="sideDecksTitle"></ul>
+        <p class="side-decks-empty mini" id="sideDecksEmpty" hidden data-i18n="decks.none">Колод пока нет — создай первую.</p>
+        <p class="deck-full-note mini" id="sideDeckFull" role="status" hidden></p>
+      </div>
       <p class="side-group" data-i18n="side.tools">Инструменты</p>
       <button class="side-link" id="btnSettings" type="button" title="Настройки API" data-i18n-attr="title:top.settings">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" /><circle cx="16" cy="6" r="2" /><circle cx="10" cy="12" r="2" /><circle cx="18" cy="18" r="2" /></svg>
@@ -138,7 +144,7 @@
 
           <div class="field deck-field">
             <span data-i18n="home.deck">Колода</span>
-            <div class="deck-row"><span class="select-wrap"><select id="homeDeck" aria-label="Колода" data-i18n-attr="aria-label:home.deck"></select></span><button class="chip-btn" id="btnHomeNewDeck" type="button" data-i18n="deck.newShort">+ Новая</button></div>
+            <div class="deck-row"><div class="deck-bar deck-bar-home" data-deck-bar="home"></div><span class="select-wrap deck-synced"><select id="homeDeck" aria-label="Колода" tabindex="-1" data-i18n-attr="aria-label:home.deck"></select></span><button class="chip-btn" id="btnHomeNewDeck" type="button" data-i18n="deck.newShort">+ Новая</button></div>
             <p class="mini deck-note" id="homeDeckNote" hidden></p>
             <button class="btn block deck-practice" id="btnHomePractice" type="button" hidden></button>
           </div>
@@ -149,7 +155,7 @@
             </button>
             <label class="field"><span data-i18n="lang.native">Мой родной язык</span><span class="select-wrap"><select id="targetLang"></select></span></label>
           </div>
-
+          <p class="mini pair-locked" id="pairLocked" hidden><span data-i18n="decks.pairLocked">Языки берутся из колоды.</span> <button class="link" type="button" id="btnOtherLangs" data-i18n="decks.otherLangs">Другие языки → новая колода</button></p>
 
           <div class="actions">
             <button class="btn primary big" id="btnStart" type="button">
@@ -326,11 +332,11 @@
       </div>
       <details class="motion-details"><summary data-i18n="motion.summary">За кулисами: Native motion / EffectCraft</summary><p data-i18n="motion.p">Спокойное движение интерфейса — CSS. Ниже — сохранённый рендер композиции из EffectCraft CLI; это отдельный motion-этюд, не стиль приложения.</p><div class="motion-comparison"><div class="motion-native"><b data-i18n="motion.native">Слово за словом.</b></div><video src="motion/streak-celebration.mp4" controls preload="none" playsinline aria-label="Композиция EffectCraft" data-i18n-attr="aria-label:motion.video"></video></div></details>
     </section>
-    <section class="screen" id="screen-test"><div class="library-intro"><div><span class="eyebrow" data-i18n="test.eyebrow">ЛЕКСИЧЕСКИЙ ЗАПАС</span><h1 data-i18n="test.h1">Проверь глубину словаря</h1><p data-i18n="test.sub">Контекстные вопросы и точное значение. Четыре варианта, один ответ.</p></div></div><div class="panel quiz-panel"><p class="quiz-empty" id="quizEmpty" hidden><span data-i18n="test.empty">Для теста и игры нужна колода хотя бы из 4 слов.</span> <button class="link" type="button" id="btnQuizEmpty" data-i18n="lib.emptyBtn">Добавить слова →</button></p><label class="field"><span data-i18n="test.deck">Выбери колоду</span><span class="select-wrap"><select id="quizDeck"></select></span></label><button class="btn primary" id="btnQuizStart" type="button" data-i18n="test.start">Начать мини-тест →</button><p class="mini" data-i18n="test.note">Нужно минимум 4 разных слова. Если есть примеры — используем пропуски в предложениях, иначе проверим значение.</p><div id="quizBody" hidden><span class="eyebrow" id="quizProgress"></span><h2 id="quizQuestion"></h2><div class="quiz-options" id="quizOptions"></div><div class="quiz-answer" id="quizAnswer" role="status"></div><button class="btn" id="btnQuizNext" type="button" hidden data-i18n="btn.next">Дальше →</button></div></div><div class="panel match-panel"><div class="match-head"><div><span class="eyebrow" data-i18n="match.eyebrow">МИНИ-ИГРА</span><h2 data-i18n="match.title">Найди пару</h2><p class="mini" data-i18n="match.sub">Соедини слово с переводом как можно быстрее. Колода — та же, что выбрана выше.</p></div><button class="btn primary" id="btnMatchStart" type="button" data-i18n="match.start">Играть →</button></div><div class="match-stats" id="matchStats" hidden><span id="matchTime">0:00</span><span id="matchMistakes"></span><span id="matchBest"></span></div><div class="match-grid" id="matchGrid"></div></div></section>
+    <section class="screen" id="screen-test"><div class="library-intro"><div><span class="eyebrow" data-i18n="test.eyebrow">ЛЕКСИЧЕСКИЙ ЗАПАС</span><h1 data-i18n="test.h1">Проверь глубину словаря</h1><p data-i18n="test.sub">Контекстные вопросы и точное значение. Четыре варианта, один ответ.</p></div></div><div class="panel quiz-panel"><p class="quiz-empty" id="quizEmpty" hidden><span data-i18n="test.empty">Для теста и игры нужна колода хотя бы из 4 слов.</span> <button class="link" type="button" id="btnQuizEmpty" data-i18n="lib.emptyBtn">Добавить слова →</button></p><div class="deck-bar" data-deck-bar="test"></div><label class="field deck-synced"><span data-i18n="test.deck">Выбери колоду</span><span class="select-wrap"><select id="quizDeck" tabindex="-1"></select></span></label><button class="btn primary" id="btnQuizStart" type="button" data-i18n="test.start">Начать мини-тест →</button><p class="mini" data-i18n="test.note">Нужно минимум 4 разных слова. Если есть примеры — используем пропуски в предложениях, иначе проверим значение.</p><div id="quizBody" hidden><span class="eyebrow" id="quizProgress"></span><h2 id="quizQuestion"></h2><div class="quiz-options" id="quizOptions"></div><div class="quiz-answer" id="quizAnswer" role="status"></div><button class="btn" id="btnQuizNext" type="button" hidden data-i18n="btn.next">Дальше →</button></div></div><div class="panel match-panel"><div class="match-head"><div><span class="eyebrow" data-i18n="match.eyebrow">МИНИ-ИГРА</span><h2 data-i18n="match.title">Найди пару</h2><p class="mini" data-i18n="match.sub">Соедини слово с переводом как можно быстрее. Колода — та же, что выбрана выше.</p></div><button class="btn primary" id="btnMatchStart" type="button" data-i18n="match.start">Играть →</button></div><div class="match-stats" id="matchStats" hidden><span id="matchTime">0:00</span><span id="matchMistakes"></span><span id="matchBest"></span></div><div class="match-grid" id="matchGrid"></div></div></section>
     <section class="screen" id="screen-games">
       <div class="library-intro"><div><span class="eyebrow" data-i18n="games.eyebrow">ИГРАЙ СО СВОИМИ СЛОВАМИ</span><h1 data-i18n="games.h1">Игры</h1><p data-i18n="games.sub">Короткие игры из твоей библиотеки. Каждый ответ идёт в дневную цель.</p></div></div>
       <p class="quiz-empty" id="gamesEmpty" hidden><span data-i18n="test.empty">Для теста и игры нужна колода хотя бы из 4 слов.</span> <button class="link" type="button" id="btnGamesDemo" data-i18n="hero.demo">Попробовать демо-колоду</button></p>
-      <label class="field games-pick" id="gamesPick"><span data-i18n="test.deck">Выбери колоду</span><span class="select-wrap"><select id="gameDeck"></select></span></label>
+      <div class="games-pick" id="gamesPick"><div class="deck-bar" data-deck-bar="games"></div><label class="field deck-synced"><span data-i18n="test.deck">Выбери колоду</span><span class="select-wrap"><select id="gameDeck" tabindex="-1"></select></span></label></div>
       <div class="games-hub" id="gamesHub">
         <button type="button" class="game-tile tile-context" data-game="context"><span class="game-icon" aria-hidden="true">“_”</span><strong data-i18n="game.context">Слово в контексте</strong><span data-i18n="game.contextSub">Вставь пропущенное слово в предложение</span><span class="game-best"></span></button>
         <button type="button" class="game-tile tile-scramble" data-game="scramble"><span class="game-icon" aria-hidden="true">A·Z</span><strong data-i18n="game.scramble">Собери слово</strong><span data-i18n="game.scrambleSub">Расставь буквы по порядку по переводу</span><span class="game-best"></span></button>
@@ -352,7 +358,7 @@
       <div class="library-intro"><div><span class="eyebrow" data-i18n="gram.eyebrow">ПРАВИЛА ИЗ ТВОИХ СЛОВ</span><h1 data-i18n="gram.h1">Грамматика</h1><p data-i18n="gram.sub">Каждое правило — из слов, которые ты учишь. С примерами и типичными ошибками.</p></div></div>
       <div class="panel gram-build" id="gramBuild">
         <div class="gram-build-row">
-          <label class="filter-field"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramBuildDeck"></select></span></label>
+          <div class="deck-bar" data-deck-bar="grammar"></div><label class="filter-field deck-synced"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramBuildDeck" tabindex="-1"></select></span></label>
           <button class="btn primary" id="btnGramBuild" type="button" data-i18n="gram.build">Собрать грамматику для колоды</button>
           <label class="freeze-control gram-auto"><input type="checkbox" id="gramAuto" checked> <span data-i18n="gram.auto">Разбирать новые слова автоматически</span></label>
         </div>
@@ -362,7 +368,7 @@
       <div class="quiz-empty gram-empty" id="gramEmpty" hidden><span id="gramEmptyText"></span> <button class="link" type="button" id="btnGramEmpty"></button></div>
       <div class="filter-row gram-filters" id="gramFilters">
         <label class="filter-field"><span data-i18n="filter.lang">Язык</span><span class="select-wrap"><select id="gramLang"><option value="" data-i18n="filter.any">Все</option></select></span></label>
-        <label class="filter-field"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramDeck"></select></span></label>
+        <label class="filter-field deck-synced"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="gramDeck" tabindex="-1"></select></span></label>
         <label class="filter-field"><span data-i18n="gram.category">Тема</span><span class="select-wrap"><select id="gramCategory"><option value="" data-i18n="filter.any">Все</option></select></span></label>
         <label class="filter-field"><span data-i18n="gram.level">Уровень</span><span class="select-wrap"><select id="gramLevel"><option value="" data-i18n="filter.any">Все</option></select></span></label>
         <label class="filter-field"><span data-i18n="gram.sort">Порядок</span><span class="select-wrap"><select id="gramSort"><option value="new" data-i18n="gram.sortNew">Сначала новые</option><option value="category" data-i18n="gram.sortCat">По темам</option></select></span></label>
@@ -380,7 +386,7 @@
     </section>
 
     <section class="screen" id="screen-progress">
-      <div class="library-intro"><div><span class="eyebrow" data-i18n="prog.eyebrow">ПРОГРЕСС</span><h1 data-i18n="prog.h1">Как идёт обучение</h1><p data-i18n="prog.sub">Что ждёт впереди, насколько прочно держатся слова и где нужна помощь.</p></div><label class="filter-field prog-deck"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="progDeck"></select></span></label></div>
+      <div class="library-intro"><div><span class="eyebrow" data-i18n="prog.eyebrow">ПРОГРЕСС</span><h1 data-i18n="prog.h1">Как идёт обучение</h1><p data-i18n="prog.sub">Что ждёт впереди, насколько прочно держатся слова и где нужна помощь.</p></div><div class="deck-bar prog-deck" data-deck-bar="progress"></div><label class="filter-field prog-deck deck-synced"><span data-i18n="home.deck">Колода</span><span class="select-wrap"><select id="progDeck" tabindex="-1"></select></span></label></div>
       <p class="quiz-empty" id="progEmpty" hidden><span data-i18n="prog.empty">Статистика появится после первых ответов.</span> <button class="link" type="button" id="btnProgEmpty" data-i18n="lib.emptyBtn">Добавить слова →</button></p>
       <div id="progBody">
         <div class="prog-tiles" id="progTiles"></div>
@@ -403,7 +409,7 @@
       </div>
     </section>
   </main>
-  <footer class="app-footer"><span>Wordzone</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.21</span></footer>
+  <footer class="app-footer"><span>Wordzone</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.22</span></footer>
   </div>
   </div>
 
@@ -492,16 +498,66 @@
       <div class="actions"><button class="btn primary" type="button" id="btnSessionClose" data-i18n="set.done">Готово</button></div>
     </div>
   </div>
-  <div class="overlay onboard" id="onboarding" hidden role="dialog" aria-modal="true" aria-labelledby="onboardTitle">
-    <form class="panel share-card onboard-card" id="onboardForm">
-      <span class="eyebrow" data-i18n="hero.eyebrow">МАЛЕНЬКАЯ ПРИВЫЧКА. БОЛЬШОЙ СЛОВАРЬ.</span>
-      <h2 id="onboardTitle" data-i18n="onb.title">Добро пожаловать!</h2>
-      <p class="mini" data-i18n="onb.sub">Два вопроса — и можно начинать. Поменять можно в любой момент.</p>
-      <label class="field"><span data-i18n="onb.native">Мой родной язык</span><span class="select-wrap"><select id="onbNative" required></select></span></label>
-      <label class="field"><span data-i18n="onb.learn">Я хочу выучить</span><span class="select-wrap"><select id="onbLearn" required></select></span></label>
-      <p class="mini onb-ui" id="onbUiNote" hidden></p>
-      <div class="actions"><button class="btn primary big" type="submit" id="btnOnboardGo" data-i18n="onb.go">Начать</button></div>
-    </form>
+  <div class="overlay deck-picker" id="deckPicker" hidden role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+    <div class="panel share-card picker-card">
+      <span class="eyebrow"><span class="edition-dot"></span><span data-i18n="picker.eyebrow">НАЧАЛО СЕССИИ</span></span>
+      <h2 id="pickerTitle" tabindex="-1" data-i18n="picker.title">С какой колодой работаем?</h2>
+      <p class="mini" data-i18n="picker.sub">Новые слова, тренировка, тест, игры, грамматика и прогресс — всё будет по этой колоде.</p>
+      <div class="picker-list" id="pickerList" role="listbox" aria-labelledby="pickerTitle"></div>
+      <button class="picker-new" id="btnPickerNew" type="button"><b aria-hidden="true">+</b><span data-i18n="deck.new">Создать новую колоду</span></button>
+      <p class="deck-full-note mini" id="pickerFull" role="status" hidden></p>
+      <div class="actions picker-actions"><button class="btn primary big" type="button" id="btnPickerGo" data-i18n="picker.go">Продолжить</button></div>
+    </div>
+  </div>
+  <div class="overlay onboard" id="onboarding" hidden role="dialog" aria-modal="true" aria-labelledby="tourH1">
+    <div class="panel onboard-card tour" id="tourCard" data-step="1">
+      <div class="tour-top">
+        <span class="eyebrow tour-eyebrow"><span class="edition-dot"></span><span id="tourCount">1 / 4</span></span>
+        <button class="link tour-skip" id="btnTourSkip" type="button" data-i18n="tour.skip">Пропустить</button>
+      </div>
+      <div class="tour-scene" id="tourScene">
+        <section class="tour-step is-current" data-step="1" aria-labelledby="tourH1">
+          <div class="tour-illus tour-paste" aria-hidden="true">
+            <div class="tour-input"><span class="tour-line-1">apple</span><span class="tour-line-2">although</span><span class="tour-line-3">give up</span><i class="tour-caret"></i></div>
+            <div class="tour-minis"><span class="tour-mini">apple</span><span class="tour-mini">although</span><span class="tour-mini">give up</span></div>
+          </div>
+          <h2 class="tour-h" id="tourH1" tabindex="-1" data-i18n-html="tour.s1.h">Свои слова — <em>свои карточки.</em></h2>
+          <p class="tour-p" data-i18n="tour.s1.p">Вставь список или текст — ИИ переведёт и сделает карточки.</p>
+        </section>
+        <section class="tour-step" data-step="2" aria-labelledby="tourH2" hidden>
+          <div class="tour-illus tour-flipper" aria-hidden="true">
+            <span class="tour-card"><span class="tour-face tour-front"><span class="tour-face-top">English</span><strong>although</strong><span class="tour-face-foot" data-i18n="tour.s2.front">Сначала вспомни…</span></span><span class="tour-face tour-back"><span class="tour-face-top" data-i18n="tour.s2.backTop">Перевод</span><strong data-i18n="tour.s2.back">хотя</strong><span class="tour-face-foot" data-i18n="tour.s2.backFoot">…потом переверни</span></span></span>
+            <span class="tour-verdicts"><span class="tour-verdict is-known" data-i18n="verdict.ok">✓  В памяти</span><span class="tour-verdict is-repeat" data-i18n="verdict.no">↻  Вернётся в колоду</span></span>
+          </div>
+          <h2 class="tour-h" id="tourH2" tabindex="-1" data-i18n-html="tour.s2.h">Он спрашивает. <em>Ты вспоминаешь.</em></h2>
+          <p class="tour-p" data-i18n="tour.s2.p">Вспомни перевод и переверни карточку. Забытые слова вернутся вовремя.</p>
+        </section>
+        <section class="tour-step" data-step="3" aria-labelledby="tourH3" hidden>
+          <div class="tour-illus tour-chips" aria-hidden="true">
+            <span class="tour-chip"><b>Aa</b><span data-i18n="nav.grammar">Грамматика</span></span>
+            <span class="tour-chip"><b>🔊</b><span data-i18n="card.speak">Озвучить</span></span>
+            <span class="tour-chip"><b>⇄</b><span data-i18n="match.title">Найди пару</span></span>
+          </div>
+          <h2 class="tour-h" id="tourH3" tabindex="-1" data-i18n-html="tour.s3.h">Грамматика и игры — <em>из твоих слов.</em></h2>
+          <p class="tour-p" data-i18n="tour.s3.p">Правила, озвучка и мини-игры строятся по твоей библиотеке.</p>
+        </section>
+        <form class="tour-step tour-form" data-step="4" id="onboardForm" aria-labelledby="onboardTitle" hidden>
+          <h2 class="tour-h" id="onboardTitle" tabindex="-1" data-i18n="onb.title">Добро пожаловать!</h2>
+          <p class="mini" data-i18n="onb.sub">Два вопроса — и можно начинать. Поменять можно в любой момент.</p>
+          <label class="field"><span data-i18n="onb.native">Мой родной язык</span><span class="select-wrap"><select id="onbNative" required></select></span></label>
+          <label class="field"><span data-i18n="onb.learn">Я хочу выучить</span><span class="select-wrap"><select id="onbLearn" required></select></span></label>
+          <p class="mini onb-ui" id="onbUiNote" hidden></p>
+          <div class="actions tour-actions"><button class="btn primary big" type="button" id="btnTourTry5" data-i18n="tour.try5">Попробовать на 5 словах</button><button class="btn ghost big" type="submit" id="btnOnboardGo" data-i18n="tour.own">Добавить свои слова</button></div>
+        </form>
+      </div>
+      <svg class="tour-thread" width="100%" height="12" viewBox="0 0 300 12" preserveAspectRatio="none" aria-hidden="true"><path id="tourThread" d="M2 6 C 60 1, 110 11, 150 6 S 240 1, 298 6" pathLength="100" /></svg>
+      <div class="tour-nav" id="tourNav">
+        <button class="link tour-prev" id="btnTourBack" type="button" data-i18n="tour.back" hidden>← Назад</button>
+        <span class="tour-dots" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></span>
+        <button class="btn primary tour-next" id="btnTourNext" type="button" data-i18n="tour.next">Дальше →</button>
+      </div>
+      <p class="sr-only" id="tourLive" aria-live="polite"></p>
+    </div>
   </div>
   <div class="overlay" id="accountDialog" hidden role="dialog" aria-modal="true" aria-labelledby="accTitle">
     <div class="panel share-card account-card">
@@ -606,16 +662,16 @@
   <div class="goal-celebration" id="goalCelebration" hidden role="status"><div class="goal-motion" id="goalMotion" aria-hidden="true"></div><div><strong data-i18n="goal.title">Ещё один шаг вперёд.</strong><p data-i18n="goal.text">Дневная цель достигнута. Хорошая работа!</p></div><button id="closeGoalMotion" type="button" aria-label="Закрыть уведомление" data-i18n-attr="aria-label:goal.close">×</button></div>
 
   <!-- lottie + the achievement animation are loaded on demand by motion.js -->
-  <script defer src="display.js?v=2.21"></script>
-  <script defer src="i18n.js?v=2.21"></script>
-  <script defer src="motion.js?v=2.21"></script>
-  <script defer src="languages.js?v=2.21"></script>
-  <script defer src="grammar.js?v=2.21"></script>
-  <script defer src="learning.js?v=2.21"></script>
-  <script defer src="ai-core.js?v=2.21"></script>
-  <script defer src="share.js?v=2.21"></script>
-  <script defer src="games.js?v=2.21"></script>
-  <script defer src="account.js?v=2.21"></script>
-  <script defer src="app.js?v=2.21"></script>
+  <script defer src="display.js?v=2.22"></script>
+  <script defer src="i18n.js?v=2.22"></script>
+  <script defer src="motion.js?v=2.22"></script>
+  <script defer src="languages.js?v=2.22"></script>
+  <script defer src="grammar.js?v=2.22"></script>
+  <script defer src="learning.js?v=2.22"></script>
+  <script defer src="ai-core.js?v=2.22"></script>
+  <script defer src="share.js?v=2.22"></script>
+  <script defer src="games.js?v=2.22"></script>
+  <script defer src="account.js?v=2.22"></script>
+  <script defer src="app.js?v=2.22"></script>
 </body>
 </html>

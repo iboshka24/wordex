@@ -67,7 +67,7 @@ function layoutProblems() {
     .concat(LANGS.map(lang => ({ lang, theme: 'light', width: 375, size: 'xl' })));
   for (const { lang, theme, width, size } of combos) {
     const context = await browser.newContext({ viewport: { width, height: width < 600 ? 812 : 900 }, deviceScaleFactor: 1, reducedMotion: 'reduce', locale: lang, hasTouch: width < 600, isMobile: width < 600 });
-    await context.addInitScript(([l, t, z]) => { try { localStorage.setItem('vm.onboarded', '1'); localStorage.setItem('vm.ui-lang', l); localStorage.setItem('vm.display', JSON.stringify({ theme: t, size: z })); } catch (e) {} }, [lang, theme, size]);
+    await context.addInitScript(([l, t, z]) => { try { localStorage.setItem('vm.onboarded', '1'); sessionStorage.setItem('vm.deck-picked', '1'); localStorage.setItem('vm.ui-lang', l); localStorage.setItem('vm.display', JSON.stringify({ theme: t, size: z })); } catch (e) {} }, [lang, theme, size]);
     const page = await context.newPage();
     const shot = async scene => {
       await page.evaluate(() => document.fonts.ready);
