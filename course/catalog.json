@@ -1,0 +1,89 @@
+{
+  "languages": [
+    { "code": "en", "glyph": "Aa", "native": "English", "ready": true },
+    { "code": "es", "glyph": "Ññ", "native": "Español", "ready": false, "topics": [
+      { "id": "ser-estar", "level": "A1", "title": { "ru": "Ser и estar", "en": "Ser and estar", "uz": "Ser va estar" } },
+      { "id": "gender", "level": "A1", "title": { "ru": "Род и артикли: el, la, un, una", "en": "Gender and articles: el, la, un, una", "uz": "Rod va artikllar: el, la, un, una" } },
+      { "id": "present", "level": "A1", "title": { "ru": "Настоящее время: -ar, -er, -ir", "en": "Present tense: -ar, -er, -ir", "uz": "Hozirgi zamon: -ar, -er, -ir" } },
+      { "id": "irregular", "level": "A1", "title": { "ru": "Неправильные глаголы: tener, ir, hacer", "en": "Irregular verbs: tener, ir, hacer", "uz": "Noto'g'ri fe'llar: tener, ir, hacer" } },
+      { "id": "gustar", "level": "A2", "title": { "ru": "Me gusta: как сказать «мне нравится»", "en": "Me gusta: saying what you like", "uz": "Me gusta: «menga yoqadi»" } },
+      { "id": "reflexive", "level": "A2", "title": { "ru": "Возвратные глаголы", "en": "Reflexive verbs", "uz": "O'zlik fe'llari" } },
+      { "id": "preterite", "level": "A2", "title": { "ru": "Прошедшее: pretérito indefinido", "en": "Past: the preterite", "uz": "O'tgan zamon: pretérito indefinido" } },
+      { "id": "imperfect", "level": "B1", "title": { "ru": "Pretérito imperfecto или indefinido", "en": "Imperfect or preterite", "uz": "Imperfecto yoki indefinido" } },
+      { "id": "subjunctive", "level": "B1", "title": { "ru": "Subjuntivo: первые шаги", "en": "The subjunctive: first steps", "uz": "Subjuntivo: ilk qadamlar" } }
+    ] },
+    { "code": "fr", "glyph": "Éé", "native": "Français", "ready": false, "topics": [
+      { "id": "etre-avoir", "level": "A1", "title": { "ru": "Être и avoir", "en": "Être and avoir", "uz": "Être va avoir" } },
+      { "id": "articles", "level": "A1", "title": { "ru": "Артикли: le, la, un, une, du", "en": "Articles: le, la, un, une, du", "uz": "Artikllar: le, la, un, une, du" } },
+      { "id": "present", "level": "A1", "title": { "ru": "Настоящее время глаголов на -er", "en": "Present tense of -er verbs", "uz": "-er fe'llarining hozirgi zamoni" } },
+      { "id": "negation", "level": "A1", "title": { "ru": "Отрицание ne … pas", "en": "Negation: ne … pas", "uz": "Inkor: ne … pas" } },
+      { "id": "passe-compose", "level": "A2", "title": { "ru": "Passé composé", "en": "Passé composé", "uz": "Passé composé" } },
+      { "id": "futur-proche", "level": "A2", "title": { "ru": "Futur proche: aller + глагол", "en": "Futur proche: aller + verb", "uz": "Futur proche: aller + fe'l" } },
+      { "id": "pronouns", "level": "A2", "title": { "ru": "Местоимения le, la, lui, y, en", "en": "Pronouns le, la, lui, y, en", "uz": "Olmoshlar le, la, lui, y, en" } },
+      { "id": "imparfait", "level": "B1", "title": { "ru": "Imparfait или passé composé", "en": "Imparfait or passé composé", "uz": "Imparfait yoki passé composé" } },
+      { "id": "subjonctif", "level": "B1", "title": { "ru": "Subjonctif после il faut que", "en": "The subjunctive after il faut que", "uz": "Il faut que dan keyin subjonctif" } }
+    ] },
+    { "code": "de", "glyph": "Ää", "native": "Deutsch", "ready": false, "topics": [
+      { "id": "sein-haben", "level": "A1", "title": { "ru": "Sein и haben", "en": "Sein and haben", "uz": "Sein va haben" } },
+      { "id": "articles", "level": "A1", "title": { "ru": "Род и артикли: der, die, das", "en": "Gender and articles: der, die, das", "uz": "Rod va artikllar: der, die, das" } },
+      { "id": "word-order", "level": "A1", "title": { "ru": "Порядок слов: глагол на втором месте", "en": "Word order: the verb in second place", "uz": "So'z tartibi: fe'l ikkinchi o'rinda" } },
+      { "id": "accusative", "level": "A1", "title": { "ru": "Аккузатив: den, einen", "en": "The accusative: den, einen", "uz": "Akkuzativ: den, einen" } },
+      { "id": "modal", "level": "A2", "title": { "ru": "Модальные: können, müssen, wollen", "en": "Modal verbs: können, müssen, wollen", "uz": "Modal fe'llar: können, müssen, wollen" } },
+      { "id": "separable", "level": "A2", "title": { "ru": "Глаголы с отделяемой приставкой", "en": "Separable verbs", "uz": "Ajraladigan old qo'shimchali fe'llar" } },
+      { "id": "dative", "level": "A2", "title": { "ru": "Датив: dem, der, mit, bei", "en": "The dative: dem, der, mit, bei", "uz": "Dativ: dem, der, mit, bei" } },
+      { "id": "perfekt", "level": "A2", "title": { "ru": "Perfekt: haben или sein", "en": "Perfekt: haben or sein", "uz": "Perfekt: haben yoki sein" } },
+      { "id": "subordinate", "level": "B1", "title": { "ru": "Придаточные: weil, dass, wenn", "en": "Subordinate clauses: weil, dass, wenn", "uz": "Ergash gaplar: weil, dass, wenn" } }
+    ] },
+    { "code": "it", "glyph": "Ii", "native": "Italiano", "ready": false, "topics": [
+      { "id": "essere-avere", "level": "A1", "title": { "ru": "Essere и avere", "en": "Essere and avere", "uz": "Essere va avere" } },
+      { "id": "articles", "level": "A1", "title": { "ru": "Артикли: il, lo, la, un, uno", "en": "Articles: il, lo, la, un, uno", "uz": "Artikllar: il, lo, la, un, uno" } },
+      { "id": "present", "level": "A1", "title": { "ru": "Настоящее время: -are, -ere, -ire", "en": "Present tense: -are, -ere, -ire", "uz": "Hozirgi zamon: -are, -ere, -ire" } },
+      { "id": "plurals", "level": "A1", "title": { "ru": "Множественное число", "en": "Plurals", "uz": "Ko'plik" } },
+      { "id": "prepositions", "level": "A2", "title": { "ru": "Слитные предлоги: al, del, nel", "en": "Articulated prepositions: al, del, nel", "uz": "Qo'shma predloglar: al, del, nel" } },
+      { "id": "passato", "level": "A2", "title": { "ru": "Passato prossimo", "en": "Passato prossimo", "uz": "Passato prossimo" } },
+      { "id": "reflexive", "level": "A2", "title": { "ru": "Возвратные глаголы", "en": "Reflexive verbs", "uz": "O'zlik fe'llari" } },
+      { "id": "imperfetto", "level": "B1", "title": { "ru": "Imperfetto или passato prossimo", "en": "Imperfetto or passato prossimo", "uz": "Imperfetto yoki passato prossimo" } },
+      { "id": "condizionale", "level": "B1", "title": { "ru": "Condizionale: vorrei, potrei", "en": "The conditional: vorrei, potrei", "uz": "Shart mayli: vorrei, potrei" } }
+    ] },
+    { "code": "ja", "glyph": "あ", "native": "日本語", "ready": false, "topics": [
+      { "id": "desu", "level": "A1", "title": { "ru": "です и は: «X — это Y»", "en": "です and は: “X is Y”", "uz": "です va は: «X — bu Y»" } },
+      { "id": "particles", "level": "A1", "title": { "ru": "Частицы を, に, で, へ", "en": "Particles を, に, で, へ", "uz": "Yuklamalar を, に, で, へ" } },
+      { "id": "masu", "level": "A1", "title": { "ru": "Вежливые глаголы: ます", "en": "Polite verbs: ます", "uz": "Hurmat fe'llari: ます" } },
+      { "id": "adjectives", "level": "A1", "title": { "ru": "Прилагательные на い и な", "en": "い- and な-adjectives", "uz": "い va な sifatlari" } },
+      { "id": "te-form", "level": "A2", "title": { "ru": "て-форма", "en": "The て-form", "uz": "て-shakli" } },
+      { "id": "past", "level": "A2", "title": { "ru": "Прошедшее: ました, でした", "en": "Past: ました, でした", "uz": "O'tgan zamon: ました, でした" } },
+      { "id": "plain", "level": "A2", "title": { "ru": "Простая (словарная) форма", "en": "Plain (dictionary) form", "uz": "Oddiy (lug'at) shakl" } },
+      { "id": "potential", "level": "B1", "title": { "ru": "Возможность: できる, られる", "en": "Potential: できる, られる", "uz": "Imkoniyat: できる, られる" } }
+    ] },
+    { "code": "ko", "glyph": "한", "native": "한국어", "ready": false, "topics": [
+      { "id": "hangul", "level": "A1", "title": { "ru": "Хангыль: как читать", "en": "Hangul: how to read", "uz": "Hangul: qanday o'qish" } },
+      { "id": "imnida", "level": "A1", "title": { "ru": "입니다 и 이에요/예요", "en": "입니다 and 이에요/예요", "uz": "입니다 va 이에요/예요" } },
+      { "id": "particles", "level": "A1", "title": { "ru": "Частицы 은/는, 이/가, 을/를", "en": "Particles 은/는, 이/가, 을/를", "uz": "Yuklamalar 은/는, 이/가, 을/를" } },
+      { "id": "present", "level": "A1", "title": { "ru": "Вежливое настоящее: 아요/어요", "en": "Polite present: 아요/어요", "uz": "Hurmat hozirgi zamon: 아요/어요" } },
+      { "id": "past", "level": "A2", "title": { "ru": "Прошедшее: 았어요/었어요", "en": "Past: 았어요/었어요", "uz": "O'tgan zamon: 았어요/었어요" } },
+      { "id": "negation", "level": "A2", "title": { "ru": "Отрицание: 안 и 지 않다", "en": "Negation: 안 and 지 않다", "uz": "Inkor: 안 va 지 않다" } },
+      { "id": "future", "level": "A2", "title": { "ru": "Будущее: (으)ㄹ 거예요", "en": "Future: (으)ㄹ 거예요", "uz": "Kelasi zamon: (으)ㄹ 거예요" } },
+      { "id": "want", "level": "B1", "title": { "ru": "Хочу: 고 싶다", "en": "Wanting: 고 싶다", "uz": "Xohish: 고 싶다" } }
+    ] },
+    { "code": "zh", "glyph": "中", "native": "中文", "ready": false, "topics": [
+      { "id": "shi", "level": "A1", "title": { "ru": "是: «быть»", "en": "是: “to be”", "uz": "是: «bo'lmoq»" } },
+      { "id": "word-order", "level": "A1", "title": { "ru": "Порядок слов: кто — когда — где — что делает", "en": "Word order: who — when — where — action", "uz": "So'z tartibi: kim — qachon — qayerda — harakat" } },
+      { "id": "ma", "level": "A1", "title": { "ru": "Вопросы с 吗", "en": "Questions with 吗", "uz": "吗 bilan so'roq" } },
+      { "id": "measure", "level": "A1", "title": { "ru": "Счётные слова: 个, 本, 只", "en": "Measure words: 个, 本, 只", "uz": "Hisob so'zlari: 个, 本, 只" } },
+      { "id": "de", "level": "A2", "title": { "ru": "Частица 的", "en": "The particle 的", "uz": "的 yuklamasi" } },
+      { "id": "le", "level": "A2", "title": { "ru": "了: завершённое действие", "en": "了: completed actions", "uz": "了: tugagan harakat" } },
+      { "id": "bu-mei", "level": "A2", "title": { "ru": "Отрицание: 不 и 没", "en": "Negation: 不 and 没", "uz": "Inkor: 不 va 没" } },
+      { "id": "comparison", "level": "B1", "title": { "ru": "Сравнение с 比", "en": "Comparison with 比", "uz": "比 bilan qiyoslash" } }
+    ] },
+    { "code": "uz", "glyph": "Oʻ", "native": "Oʻzbekcha", "ready": false, "topics": [
+      { "id": "suffix-order", "level": "A1", "title": { "ru": "Аффиксы: порядок окончаний", "en": "Suffixes: the order of endings", "uz": "Qo'shimchalar tartibi" } },
+      { "id": "personal", "level": "A1", "title": { "ru": "Личные окончания: -man, -san", "en": "Personal endings: -man, -san", "uz": "Shaxs qo'shimchalari: -man, -san" } },
+      { "id": "plural", "level": "A1", "title": { "ru": "Множественное число: -lar", "en": "Plural: -lar", "uz": "Ko'plik: -lar" } },
+      { "id": "possessive", "level": "A1", "title": { "ru": "Притяжательные: -im, -ing", "en": "Possessive endings: -im, -ing", "uz": "Egalik qo'shimchalari: -im, -ing" } },
+      { "id": "cases", "level": "A2", "title": { "ru": "Падежи: -ni, -ga, -da, -dan", "en": "Cases: -ni, -ga, -da, -dan", "uz": "Kelishiklar: -ni, -ga, -da, -dan" } },
+      { "id": "present", "level": "A2", "title": { "ru": "Настоящее-будущее: -a, -y", "en": "Present-future: -a, -y", "uz": "Hozirgi-kelasi zamon: -a, -y" } },
+      { "id": "past", "level": "A2", "title": { "ru": "Прошедшее: -di", "en": "Past: -di", "uz": "O'tgan zamon: -di" } },
+      { "id": "continuous", "level": "B1", "title": { "ru": "Длительное: -yap", "en": "Continuous: -yap", "uz": "Davomli zamon: -yap" } }
+    ] }
+  ]
+}

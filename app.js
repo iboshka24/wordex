@@ -2413,7 +2413,49 @@
     if (id === 'screen-library') renderLibrary();
     if (id === 'screen-test') fillQuizDecks();
     if (id === 'screen-progress') renderProgress();
-    if (id === 'screen-grammar') { drill = null; renderGrammar(); }
+    if (id === 'screen-grammar') { drill = null; renderGrammar(); if (grammarTab === 'course' && course) course.open(); }
+  }
+  /* Grammar screen: the course (ready-made lessons by language) and "From my words" (rules found in the decks). */
+  var course = null, grammarTab = 'course';
+  function setGrammarTab(tab, focus) {
+    grammarTab = tab;
+    var isCourse = tab === 'course';
+    [['tabCourse', isCourse], ['tabWords', !isCourse]].forEach(function (t) {
+      var b = $(t[0]); b.classList.toggle('on', t[1]); b.setAttribute('aria-selected', String(t[1])); b.tabIndex = t[1] ? 0 : -1;
+    });
+    $('courseView').hidden = !isCourse;
+    $('wordsGrammar').hidden = isCourse;
+    try { localStorage.setItem('vm.grammar-tab', tab); } catch (e) {}
+    if (isCourse && course) course.open(); else renderGrammar();
+    if (focus) $(isCourse ? 'tabCourse' : 'tabWords').focus();
+  }
+  function initCourse() {
+    if (!window.VMCourse || !$('courseView')) return;
+    course = window.VMCourse.mount({
+      tr: tr,
+      uiLang: function () { return I18N ? I18N.lang() : 'ru'; },
+      progress: function () { return library.course || {}; },
+      saveProgress: function (key, rec) { library.course = library.course || {}; library.course[key] = rec; persistLibrary(); },
+      preferredLang: function () { var d = activeDeck(); return d ? d.source : state.cfg.source; },
+      speak: function (text, lang, btn) { speakText(text, lang, btn); },
+      answer: function (ok) { recordAnswer(ok); renderDaily(); },
+      sound: function (ok) { if (ok) playSuccessSound(); else playForgotSound(); },
+      complete: function () { L.complete(library.streak, L.day()); persistLibrary(); renderDaily(); }
+    });
+    try { grammarTab = localStorage.getItem('vm.grammar-tab') === 'words' ? 'words' : 'course'; } catch (e) {}
+    $('tabCourse').onclick = function () { setGrammarTab('course'); };
+    $('tabWords').onclick = function () { setGrammarTab('words'); };
+    $('tabCourse').parentNode.addEventListener('keydown', function (e) {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      e.preventDefault(); setGrammarTab(grammarTab === 'course' ? 'words' : 'course', true);
+    });
+    setGrammarTabQuiet(grammarTab);
+    if (I18N && I18N.onChange) I18N.onChange(function () { if (course) course.relabel(); });
+  }
+  function setGrammarTabQuiet(tab) {
+    var isCourse = tab === 'course';
+    [['tabCourse', isCourse], ['tabWords', !isCourse]].forEach(function (t) { var b = $(t[0]); b.classList.toggle('on', t[1]); b.setAttribute('aria-selected', String(t[1])); b.tabIndex = t[1] ? 0 : -1; });
+    $('courseView').hidden = !isCourse; $('wordsGrammar').hidden = isCourse;
   }
   function deckMatches(d, lang, status) {
     if (lang && d.source !== lang && d.target !== lang) return false;
@@ -3376,6 +3418,7 @@
     updateSoundUI();
     checkServerStatus();
     if (L) initLearningUI();
+    if (L) initCourse();
     if (L) maybeOnboard();
     if (L) { onActiveDeckChange(); maybePickDeck(); }
 

@@ -1082,6 +1082,64 @@ run.server(server);
     await pg.context().close();
   }
 
+  step('grammar course: language plates, a path of topics, a lesson, 8 questions answered right, progress kept');
+  {
+    const lessons = JSON.parse(fs.readFileSync(path.join(root, 'course/en.json'), 'utf8'));
+    const toBe = lessons.topics.find(t => t.id === 'to-be');
+    const ctx = await browser.newContext({ locale: 'ru-RU', reducedMotion: 'reduce', viewport: { width: 1280, height: 900 } });
+    await ctx.addInitScript(() => { localStorage.setItem('vm.onboarded', '1'); sessionStorage.setItem('vm.deck-picked', '1'); });
+    const pg = await ctx.newPage(); watch(pg); pg.on('pageerror', e => errors.push(e.message));
+    await pg.goto(origin); await pg.locator('#screen-setup.active').waitFor();
+    await pg.click('#navGrammar');
+    await pg.locator('.plate').first().waitFor();
+    assert.equal(await pg.locator('.plate').count(), 9, 'one plate per learnable language');
+    assert.equal(await pg.getAttribute('.plate.on', 'data-code'), 'en');
+    await pg.locator('.stop').first().waitFor();
+    assert.equal(await pg.locator('.stop').count(), lessons.topics.length, 'the English path lists every topic');
+    await pg.click('.plate[data-code="ja"]');
+    assert(await pg.locator('.course-soon-note').isVisible(), 'a language without lessons says they are coming');
+    assert(await pg.locator('div.stop.soon').count() > 0, 'and shows its future topics');
+    await pg.click('.plate[data-code="en"]');
+    await pg.click('.stop:has-text("to be")');
+    assert.equal(await pg.locator('#courseLessonTitle').innerText(), toBe.title.ru);
+    assert.equal(await pg.locator('.lesson-points li').count(), toBe.explain.ru.length);
+    assert.match(await pg.locator('.lesson-mistake').innerText(), /My brother tired/);
+    await pg.click('#btnCoursePractice');
+    for (let i = 0; i < toBe.ex.length; i++) {
+      const prompt = await pg.locator('.practice-q').count() ? (await pg.locator('.practice-q').innerText()).replace(/\s+/g, ' ').trim() : '';
+      if (await pg.locator('.answer-opt').count()) {
+        const opts = await pg.locator('.answer-opt').allInnerTexts();
+        const fits = e => !e.q || e.q.split('___').every(part => prompt.includes(part.replace(/\s+/g, ' ').trim()));
+        const ex = toBe.ex.find(e => e.o && e.o.every(o => opts.includes(o)) && opts.length === e.o.length && fits(e));
+        await pg.locator('.answer-opt').nth(opts.indexOf(ex.o[ex.a])).click();
+      } else if (await pg.locator('.order-pool').count()) {
+        const tiles = await pg.locator('.order-pool .tile').allInnerTexts();
+        const ex = toBe.ex.find(e => e.k === 'order' && e.w.slice().sort().join('|') === tiles.slice().sort().join('|'));
+        const used = new Set();
+        for (const w of ex.w) { const n = tiles.findIndex((t, j) => t === w && !used.has(j)); used.add(n); await pg.locator('.order-pool .tile').nth(n).click(); }
+        await pg.click('#btnPracticeCheck');
+      } else {
+        const ex = toBe.ex.find(e => e.k === 'type');
+        await pg.fill('#practiceInput', ex.a[0]); await pg.click('#btnPracticeCheck');
+      }
+      assert(await pg.locator('.practice-body.is-ok').count(), 'question ' + (i + 1) + ' (' + prompt + ') accepted');
+      await pg.click('#btnPracticeNext');
+    }
+    assert.match(await pg.locator('.result-num').innerText(), /8 из 8/);
+    const course = await pg.evaluate(() => JSON.parse(localStorage.getItem('vocabulary-master.library.v2')).course);
+    assert.equal(course['en.to-be'].best, 8, 'the score is saved with the library');
+    assert(course['en.to-be'].done, 'and the topic counts as done');
+    await pg.click('.result-actions .link');
+    assert.match(await pg.locator('.plate.on .plate-meta').innerText(), /^1\/18/, 'the plate shows progress');
+    assert.equal(await pg.locator('.stop.done').count(), 1);
+    await pg.click('#tabWords');
+    assert(await pg.locator('#gramBuild').isVisible() && await pg.locator('#courseView').isHidden(), '"From my words" keeps the rules found in the decks');
+    await pg.reload(); await pg.click('#navGrammar');
+    assert(await pg.locator('#wordsGrammar').isVisible(), 'the chosen tab is remembered');
+    await pg.click('#tabCourse'); await pg.locator('.stop.done').waitFor();
+    await ctx.close();
+  }
+
   step('interface language: RU → EN → UZ, choice survives a reload');
   await page.click('#navStudy');
   await page.click('#uiLang [data-lang="en"]');
