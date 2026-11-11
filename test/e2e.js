@@ -396,11 +396,19 @@ run.server(server);
   const deckCount = await page.locator('.deck-item').count();
   await page.locator('.deck-item summary').first().click();
   await page.locator('.deck-item [data-act="delete"]').first().click();
-  assert.match(lastDialog, /Удалить колоду «.+» \(\d+ сл\.\)/, 'the confirmation names the deck and its size');
+  // v2.23.1: an in-page dialog (some browsers silently block window.confirm).
+  assert.match(await page.locator('#askText').innerText(), /Удалить колоду «.+» \(\d+ сл\.\)/, 'the confirmation names the deck and its size');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('.deck-item').count(), deckCount, 'Escape cancels the delete');
+  await page.locator('.deck-item [data-act="delete"]').first().click();
+  await page.click('#askOk');
   await page.waitForFunction(n => document.querySelectorAll('.deck-item').length === n - 1, deckCount);
   await page.click('.toast-action');
   await page.waitForFunction(n => document.querySelectorAll('.deck-item').length === n, deckCount);
   assert.deepEqual(settled(await library(page), before), settled(before, before), 'a deleted deck comes back intact');
+  await page.locator('.deck-item [data-act="rename"]').first().click();
+  await page.fill('#askInput', 'Моя колода'); await page.keyboard.press('Enter');
+  assert(Object.values((await library(page)).decks).some(d => d.name === 'Моя колода'), 'rename works without native dialogs');
 
   before = await library(page);
   const small = { version: 2, library: { decks: { 'uz-ru': { source: 'uz', target: 'ru', created: 1, cards: [{ original: 'olma', translation: 'яблоко', streak: 0, fails: 0 }] } }, history: {}, goal: 10, streak: { count: 0, last: null, freezes: 2, enabled: true } } };
@@ -1069,6 +1077,7 @@ run.server(server);
     await pg.locator('#screen-library.active').waitFor();
     await pg.locator('.deck-item').nth(2).locator('summary').click();
     await pg.locator('.deck-item').nth(2).locator('[data-act="delete"]').click();
+    await pg.click('#askOk');
     await pg.waitForFunction(() => document.getElementById('sideDeckCount').textContent === '9/10');
     assert(await pg.locator('#sideDeckFull').isHidden());
     await pg.click('#btnNewDeck');

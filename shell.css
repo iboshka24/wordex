@@ -757,3 +757,9 @@ button.stop.done:hover .stop-node { color:var(--bg); border-color:var(--emerald)
   .practice-q { font-size:22px; }
   .practice-actions .btn, .lesson-cta .btn { width:100%; min-width:0; }
 }
+
+/* v2.23.1 — in-page confirm / input dialog (replaces native prompt and confirm for decks and words). */
+.ask-card { width:min(440px,calc(100vw - 32px)); gap:10px; }
+.ask-card h2 { font:500 24px var(--font-display); letter-spacing:-.4px; }
+.ask-text { margin:0; line-height:1.5; color:var(--text); }
+.ask-card .btn.primary.danger { background:var(--rose); border-color:var(--rose); color:#fff; }

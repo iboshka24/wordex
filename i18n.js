@@ -6,7 +6,7 @@
 })(typeof window !== 'undefined' ? window : this, function (win) {
   'use strict';
   var CODES = ['ru', 'en', 'uz'];
-  var VERSION = '2.23'; // the one place the shown version lives (footer)
+  var VERSION = '2.23.1'; // the one place the shown version lives (footer)
   var KEY = 'vm.ui-lang';
   var D = {
     'meta.title': ['Wordzone — слова становятся знаниями', 'Wordzone — words become knowledge', "Wordzone — so'zlar bilimga aylanadi"],
@@ -573,6 +573,8 @@
     'deck.delete': ['Удалить колоду', 'Delete deck', "Kolodani o'chirish"],
     'word.edit': ['Изменить', 'Edit', "O'zgartirish"],
     'word.remove': ['Убрать', 'Remove', 'Olib tashlash'],
+    'ask.save': ['Сохранить', 'Save', 'Saqlash'],
+    'ask.delete': ['Удалить', 'Delete', "O'chirish"],
     'word.prompt': ['Перевод для «{w}»', 'Translation for "{w}"', '«{w}» uchun tarjima'],
     'confirm.deleteDeckDetail': ['Удалить колоду «{name}» ({w} сл.) вместе с прогрессом? Сразу после этого можно нажать «Отменить».', 'Delete the deck "{name}" ({w} words) with its progress? You can press Undo right after.', "«{name}» kolodasi ({w} ta so'z) natijalari bilan o'chirilsinmi? Shundan so'ng darhol «Bekor qilish»ni bosish mumkin."],
     'confirm.replaceDetail': ['Сейчас в библиотеке колод: {d}, слов: {w}. В файле колод: {d2}, слов: {w2}. Заменить библиотеку файлом? Сразу после замены можно нажать «Отменить».', 'Your library now has {d} decks and {w} words; the file has {d2} decks and {w2} words. Replace the library with the file? You can press Undo right after.', "Hozir kutubxonada {d} ta koloda va {w} ta so'z bor; faylda {d2} ta koloda va {w2} ta so'z. Kutubxona fayl bilan almashtirilsinmi? Shundan so'ng darhol «Bekor qilish»ni bosish mumkin."],

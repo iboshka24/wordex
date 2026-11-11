@@ -2572,9 +2572,10 @@
           ])
         ]);
         row.querySelector('[data-act="edit"]').onclick = function () {
-          var value = window.prompt(tr('word.prompt', { w: c.original }), c.translation);
-          if (value === null || !value.trim()) return;
-          c.translation = value.trim(); persistLibrary(); renderLibrary();
+          askDialog({ title: tr('word.edit'), label: tr('word.prompt', { w: c.original }), value: c.translation, ok: tr('ask.save') }, function (value) {
+            if (!value.trim()) return;
+            c.translation = value.trim(); persistLibrary(); renderLibrary();
+          });
         };
         row.querySelector('[data-act="remove"]').onclick = function () {
           var previous = snapshotLibrary();
@@ -2594,11 +2595,11 @@
       panel.querySelector('[data-act="reverse"]').onclick = function () { reverseDeck(d); };
       panel.querySelector('[data-act="copy"]').onclick = function () { copyDeck(d); };
       panel.querySelector('[data-act="rename"]').onclick = function () {
-        var value = window.prompt(tr('deck.renamePrompt'), d.name || '');
-        if (value === null) return;
-        var name = L.cleanName(value);
-        if (name) d.name = name; else delete d.name;
-        persistLibrary(); renderLibrary(); renderHomeDeck();
+        askDialog({ title: tr('deck.rename'), label: tr('deck.renamePrompt'), value: d.name || '', ok: tr('ask.save'), allowEmpty: true }, function (value) {
+          var name = L.cleanName(value);
+          if (name) d.name = name; else delete d.name;
+          persistLibrary(); renderLibrary(); renderHomeDeck();
+        });
       };
       panel.querySelector('[data-act="share"]').onclick = function () { openShare(d, this); };
       panel.querySelector('[data-act="add"]').onclick = function () {
@@ -2607,7 +2608,7 @@
       };
       panel.querySelector('[data-act="delete"]').onclick = function () {
         var name = deckLabel(d);
-        if (!window.confirm(tr('confirm.deleteDeckDetail', { name: name, w: d.cards.length }))) return;
+        askDialog({ title: tr('deck.delete'), text: tr('confirm.deleteDeckDetail', { name: name, w: d.cards.length }), ok: tr('ask.delete'), danger: true }, function () {
         var previous = snapshotLibrary();
         var wasWorking = key === state.cfg.deck;
         try { localStorage.removeItem(draftKey(key)); } catch (e) {}
@@ -2616,11 +2617,50 @@
         renderLibrary(); onActiveDeckChange();
         offerUndo(tr('undo.deckDeleted', { name: name }), restoreLibrary(previous));
         // The working deck is gone: the next one takes over (no dialog over the undo toast); the sidebar shows which.
+        });
       };
       host.appendChild(panel);
     });
     if (!$('vaultPanel').hidden) renderVault();
     if (window.VMMotion) window.VMMotion.library();
+  }
+  /* In-page replacement for window.prompt / window.confirm: some browsers (in-app browsers, or a site whose
+     dialogs were blocked once) silently refuse native dialogs, which made rename / edit / delete do nothing. */
+  var askDone = null, askOpener = null;
+  function askDialog(o, onOk) {
+    askOpener = document.activeElement;
+    askDone = onOk;
+    $('askTitle').textContent = o.title || '';
+    $('askText').hidden = !o.text; $('askText').textContent = o.text || '';
+    var withInput = o.value !== undefined;
+    $('askField').hidden = !withInput;
+    $('askLabel').textContent = o.label || '';
+    $('askInput').value = withInput ? o.value : '';
+    $('askForm').dataset.allowEmpty = o.allowEmpty ? '1' : '';
+    $('askOk').textContent = o.ok || tr('ask.save');
+    $('askOk').classList.toggle('danger', !!o.danger);
+    $('askDialog').hidden = false;
+    if (withInput) { $('askInput').focus(); $('askInput').select(); } else $('askCancel').focus();
+  }
+  function closeAsk(confirmed) {
+    if ($('askDialog').hidden) return;
+    var cb = askDone, value = $('askInput').value;
+    $('askDialog').hidden = true; askDone = null;
+    if (askOpener && document.contains(askOpener)) askOpener.focus({ preventScroll: true });
+    if (confirmed && cb) cb(value);
+  }
+  function initAskDialog() {
+    $('askForm').onsubmit = function (e) {
+      e.preventDefault();
+      if (!$('askField').hidden && !$('askInput').value.trim() && !this.dataset.allowEmpty) { $('askInput').focus(); return; }
+      closeAsk(true);
+    };
+    $('askCancel').onclick = function () { closeAsk(false); };
+    $('askDialog').addEventListener('click', function (e) { if (e.target === this) closeAsk(false); });
+    $('askDialog').addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeAsk(false); }
+      else if (e.key === 'Tab') trapIn($('askDialog'), e);
+    });
   }
   function showAnswerFeedback(text, wrong) {
     $('answerFeedbackText').textContent = text;
@@ -3418,6 +3458,7 @@
     updateSoundUI();
     checkServerStatus();
     if (L) initLearningUI();
+    initAskDialog();
     if (L) initCourse();
     if (L) maybeOnboard();
     if (L) { onActiveDeckChange(); maybePickDeck(); }
