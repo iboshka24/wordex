@@ -621,6 +621,26 @@
       <div class="actions"><button class="btn primary" type="submit" data-i18n="deck.create">Создать колоду</button><button class="btn" type="button" id="deckCancel" data-i18n="share.cancel">Отмена</button></div>
     </form>
   </div>
+  <div class="overlay deck-editor" id="deckEditor" hidden role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+    <form class="panel editor-card" id="editorForm" novalidate>
+      <header class="editor-head">
+        <div><span class="eyebrow" id="editorPair"></span><h2 id="editorTitle" data-i18n="editor.title">Изменить колоду</h2></div>
+        <button class="editor-x" type="button" id="editorClose" aria-label="Закрыть" data-i18n-attr="aria-label:editor.close">✕</button>
+      </header>
+      <label class="field"><span data-i18n="editor.name">Название колоды</span><input id="editorName" type="text" maxlength="60" autocomplete="off" /></label>
+      <div class="editor-bar"><input class="editor-search" id="editorSearch" type="search" autocomplete="off" placeholder="Найти слово" aria-label="Найти слово" data-i18n-attr="placeholder:editor.search,aria-label:editor.search" /><span class="editor-count" id="editorCount" aria-live="polite"></span></div>
+      <ol class="editor-list" id="editorList"></ol>
+      <p class="editor-empty mini" id="editorEmpty" hidden></p>
+      <div class="editor-new" role="group" aria-label="Новое слово" data-i18n-attr="aria-label:editor.newWord">
+        <input class="editor-in" id="editorNewO" type="text" maxlength="200" autocomplete="off" placeholder="Новое слово" aria-label="Новое слово" data-i18n-attr="placeholder:editor.newWord,aria-label:editor.newWord" />
+        <span class="editor-arrow" aria-hidden="true">→</span>
+        <input class="editor-in" id="editorNewT" type="text" maxlength="300" autocomplete="off" placeholder="Перевод" aria-label="Перевод" data-i18n-attr="placeholder:editor.translation,aria-label:editor.translation" />
+        <button class="chip-btn editor-add" type="button" id="editorAdd" data-i18n="editor.add">+ Добавить</button>
+      </div>
+      <p class="editor-error" id="editorError" role="alert"></p>
+      <div class="actions editor-actions"><button class="btn primary" type="submit" data-i18n="ask.save">Сохранить</button><button class="btn" type="button" id="editorCancel" data-i18n="share.cancel">Отмена</button></div>
+    </form>
+  </div>
   <div class="overlay" id="askDialog" hidden role="dialog" aria-modal="true" aria-labelledby="askTitle">
     <form class="panel share-card ask-card" id="askForm" novalidate>
       <h2 id="askTitle"></h2>
