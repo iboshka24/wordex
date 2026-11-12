@@ -96,7 +96,7 @@ async function waitToast(page, text) {
 // v2.23.1: each deck has a "⋯" menu with "Edit" (the deck editor) and "Delete".
 async function deckMenu(deck, item) {
   await deck.locator('.deck-menu-btn').click();
-  await deck.locator('.deck-menu-item', { hasText: item }).click();
+  await deck.page().locator('.deck-menu .deck-menu-item', { hasText: item }).click(); // the menu floats above the page
 }
 async function startWords(page) {
   await page.click('#btnStart');
@@ -1065,6 +1065,12 @@ run.server(server);
     assert.equal((await pg.evaluate(() => JSON.parse(localStorage.getItem('wordloop.cfg')))).deck, 'de-ru:a2');
     assert.equal(await pg.locator('.side-deck.active .side-deck-name').innerText(), 'Deutsch A2');
     assert.equal(await pg.locator('#sideDeckCount').innerText(), '2/10');
+    // v2.24: every deck in the sidebar has its own "⋯" menu.
+    await pg.locator('.side-deck-row', { hasText: 'Deutsch A2' }).locator('.side-deck-more').click();
+    await pg.click('.deck-menu-item:has-text("Изменить")');
+    assert.equal(await pg.inputValue('#editorName'), 'Deutsch A2', 'Edit from the sidebar opens that deck');
+    await pg.keyboard.press('Escape');
+    assert(await pg.locator('#deckEditor').isHidden());
     await pg.fill('#input', 'Tisch'); await pg.waitForTimeout(500);
     await pg.click('.side-deck:not(.active)');
     assert.equal(await pg.inputValue('#input'), 'pear\nplum', 'the old single draft moved to the pair deck');
@@ -1118,16 +1124,39 @@ run.server(server);
     assert.equal(await pg.locator('.plate').count(), 9, 'one plate per learnable language');
     assert.equal(await pg.getAttribute('.plate.on', 'data-code'), 'en');
     await pg.locator('.stop').first().waitFor();
-    assert.equal(await pg.locator('.stop').count(), lessons.topics.length, 'the English path lists every topic');
+    assert.equal(await pg.locator('.stop:not(.checkpoint)').count(), lessons.topics.length, 'the English path lists every topic');
+    assert.equal(await pg.locator('.stop.checkpoint').count(), 3, 'and a checkpoint at the end of each level');
     await pg.click('.plate[data-code="ja"]');
     assert(await pg.locator('.course-soon-note').isVisible(), 'a language without lessons says they are coming');
     assert(await pg.locator('div.stop.soon').count() > 0, 'and shows its future topics');
     await pg.click('.plate[data-code="en"]');
     await pg.click('.stop:has-text("to be")');
     assert.equal(await pg.locator('#courseLessonTitle').innerText(), toBe.title.ru);
-    assert.equal(await pg.locator('.lesson-points li').count(), toBe.explain.ru.length);
-    assert.match(await pg.locator('.lesson-mistake').innerText(), /My brother tired/);
-    await pg.click('#btnCoursePractice');
+    // v2.24: the lesson is taught step by step and can't just be scrolled past.
+    assert.match(await pg.locator('#lessonStepLabel').innerText(), /^1 \/ 7/, 'notice · 3 rule parts · build · fix · write');
+    assert(await pg.locator('.mark-line mark').count() >= 3, 'the pattern is highlighted in the examples');
+    assert(await pg.locator('#btnStepNext').isDisabled(), 'the first question has to be answered before moving on');
+    await pg.locator('.lesson-q-opts .answer-opt').nth(1).click();
+    assert(await pg.locator('.lesson-q-opts .answer-opt.right').count() === 1 && await pg.locator('.fb-why').isVisible(), 'a wrong guess shows the right answer and why');
+    await pg.click('#btnStepNext');
+    for (let i = 0; i < toBe.checks.length; i++) {
+      const c = toBe.checks[i];
+      assert.equal(await pg.locator('.step-rule').innerText(), toBe.explain.ru[i], 'rule part ' + (i + 1));
+      await pg.locator('.lesson-q-opts .answer-opt', { hasText: new RegExp('^' + c.o[c.a].replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$') }).click();
+      assert.equal(await pg.locator('.fb-why').innerText(), c.e.ru, 'each check explains itself');
+      await pg.click('#btnStepNext');
+    }
+    assert(await pg.locator('.formula-card').count() === toBe.formula.length, 'then how it is built');
+    await pg.click('#btnStepNext');
+    assert.equal(await pg.inputValue('.fix-input'), toBe.mistake.wrong, 'the common mistake is there to fix');
+    await pg.locator('.fix-actions .btn').first().click();
+    assert.match(await pg.locator('.step-card .fb-no').innerText(), /не изменено/);
+    await pg.fill('.fix-input', toBe.mistake.right);
+    await pg.locator('.fix-actions .btn').first().click();
+    assert(await pg.locator('.step-card.is-ok').count(), 'the fixed sentence is accepted');
+    await pg.click('#btnStepNext');
+    assert(await pg.locator('.write-input').isVisible(), 'and finally your own sentences');
+    await pg.click('#btnStepNext'); // skip writing → practice
     for (let i = 0; i < toBe.ex.length; i++) {
       const prompt = await pg.locator('.practice-q').count() ? (await pg.locator('.practice-q').innerText()).replace(/\s+/g, ' ').trim() : '';
       if (await pg.locator('.answer-opt').count()) {
@@ -1149,12 +1178,28 @@ run.server(server);
       await pg.click('#btnPracticeNext');
     }
     assert.match(await pg.locator('.result-num').innerText(), /8 из 8/);
+    assert.equal(await pg.locator('.practice-result .stars i.on').count(), 3, '8 of 8 gives three stars');
     const course = await pg.evaluate(() => JSON.parse(localStorage.getItem('vocabulary-master.library.v2')).course);
     assert.equal(course['en.to-be'].best, 8, 'the score is saved with the library');
     assert(course['en.to-be'].done, 'and the topic counts as done');
-    await pg.click('.result-actions .link');
+    assert(course['en.to-be'].lesson, 'the step-by-step lesson is remembered');
+    assert(course['en.to-be'].due > Date.now(), 'a review is scheduled');
+    await pg.evaluate(() => { const l = JSON.parse(localStorage.getItem('vocabulary-master.library.v2')); l.course['en.to-be'].due = 1; localStorage.setItem('vocabulary-master.library.v2', JSON.stringify(l)); });
+    await pg.reload(); await pg.click('#navGrammar'); await pg.click('#tabCourse');
+    await pg.locator('.course-resume.is-review').waitFor();
+    assert.equal(await pg.locator('.stop.due').count(), 1, 'a due topic asks for a review');
+    await pg.click('.course-resume .btn');
+    assert.match(await pg.locator('#practiceCount').innerText(), /1 \/ 5/, 'a review is 5 questions');
+    await pg.click('#btnPracticeQuit');
+    await pg.locator('#courseHome:not([hidden])').waitFor();
     assert.match(await pg.locator('.plate.on .plate-meta').innerText(), /^1\/18/, 'the plate shows progress');
     assert.equal(await pg.locator('.stop.done').count(), 1);
+    // The level checkpoint: grammar + listening + reading + writing (writing skipped here: no AI in the test).
+    await pg.click('.stop.checkpoint >> nth=0');
+    assert.match(await pg.locator('#practiceTitle').innerText(), /Контрольная A1/);
+    assert(await pg.locator('.cp-section').isVisible(), 'the checkpoint shows which part it is in');
+    assert(await pg.locator('#practiceCount').innerText() !== '', 'and how far along');
+    await pg.click('#btnPracticeQuit');
     await pg.click('#tabWords');
     assert(await pg.locator('#gramBuild').isVisible() && await pg.locator('#courseView').isHidden(), '"From my words" keeps the rules found in the decks');
     await pg.reload(); await pg.click('#navGrammar');

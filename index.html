@@ -10,11 +10,11 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%94%81%3C/text%3E%3C/svg%3E" />
   <!-- Self-hosted fonts (tools/fetch-fonts.js): no third-party requests, works offline and under a strict CSP. -->
-  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.23.1" />
-  <link rel="stylesheet" href="styles.css?v=2.23.1" />
-  <link rel="stylesheet" href="editorial.css?v=2.23.1" />
-  <link rel="stylesheet" href="shell.css?v=2.23.1" />
-  <link rel="stylesheet" href="motion.css?v=2.23.1" />
+  <link rel="stylesheet" href="vendor/fonts/fonts.css?v=2.24" />
+  <link rel="stylesheet" href="styles.css?v=2.24" />
+  <link rel="stylesheet" href="editorial.css?v=2.24" />
+  <link rel="stylesheet" href="shell.css?v=2.24" />
+  <link rel="stylesheet" href="motion.css?v=2.24" />
   <script>try{var r=document.documentElement,s=JSON.parse(localStorage.getItem('vm.display')||'null')||{},t=/^(system|light|dark)$/.test(s.theme)?s.theme:localStorage.getItem('vm.theme');if(t==='system')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';r.dataset.theme=t==='dark'?'dark':'light';if(/^(s|l|xl)$/.test(s.size))r.dataset.size=s.size;if(s.contrast===true)r.dataset.contrast='high';if(s.spacing===true)r.dataset.spacing='wide'}catch(e){document.documentElement.dataset.theme='light'}</script>
 </head>
 <body>
@@ -367,13 +367,19 @@
           <div class="course-path" id="coursePath" aria-live="polite"></div>
         </div>
         <article class="lesson" id="courseLesson" hidden aria-labelledby="courseLessonTitle">
-          <button class="link lesson-back" type="button" id="btnCourseBack" data-i18n="course.back">← Все темы</button>
+          <div class="lesson-top"><button class="link lesson-back" type="button" id="btnCourseBack" data-i18n="course.back">← Все темы</button><button class="chip-btn lesson-mode" type="button" id="btnLessonMode">Конспект</button></div>
           <header class="lesson-head"><span class="eyebrow" id="courseLessonLevel"></span><h2 id="courseLessonTitle"></h2><p id="courseLessonSum"></p></header>
-          <div class="lesson-body" id="courseLessonBody"></div>
-          <div class="lesson-cta"><button class="btn primary big" type="button" id="btnCoursePractice">Тренировать</button></div>
+          <div class="lesson-stepper" id="lessonStepper">
+            <div class="lesson-progress"><span class="lesson-step-label" id="lessonStepLabel"></span><span class="lesson-dots" id="lessonDots" aria-hidden="true"></span></div>
+            <div class="lesson-stage" id="lessonStage" aria-live="polite"></div>
+            <div class="lesson-nav"><button class="btn" type="button" id="btnStepBack" data-i18n="course.back1">← Назад</button><button class="btn primary big" type="button" id="btnStepNext" data-i18n="course.next">Дальше</button></div>
+          </div>
+          <div class="lesson-body" id="courseLessonBody" hidden></div>
+          <div class="lesson-cta" id="lessonSummaryCta" hidden><button class="btn primary big" type="button" id="btnCoursePractice">Тренировать</button></div>
         </article>
         <section class="practice" id="coursePractice" hidden aria-label="Тренировка" data-i18n-attr="aria-label:course.practiceAria">
-          <div class="practice-top"><button class="link" type="button" id="btnPracticeQuit" data-i18n="course.quit">← К правилу</button><span class="practice-count" id="practiceCount"></span></div>
+          <div class="practice-top"><button class="link" type="button" id="btnPracticeQuit" data-i18n="course.quit">← К правилу</button><span class="practice-combo" id="practiceCombo" hidden aria-live="polite"></span><span class="practice-count" id="practiceCount"></span></div>
+          <h2 class="practice-title" id="practiceTitle"></h2>
           <div class="practice-dots" id="practiceDots" aria-hidden="true"></div>
           <div class="practice-body" id="practiceBody"></div>
           <div class="practice-actions"><button class="btn primary big" type="button" id="btnPracticeCheck" data-i18n="course.check">Проверить</button><button class="btn primary big" type="button" id="btnPracticeNext" hidden data-i18n="course.next">Дальше</button></div>
@@ -435,7 +441,7 @@
       </div>
     </section>
   </main>
-  <footer class="app-footer"><span>Wordzone</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.23.1</span></footer>
+  <footer class="app-footer"><span>Wordzone</span><span data-i18n="footer.tag">Меньше шума. Больше смысла.</span><span data-i18n="footer.made">Сделано для ежедневной практики · v2.24</span></footer>
   </div>
   </div>
 
@@ -716,17 +722,18 @@
   <div class="goal-celebration" id="goalCelebration" hidden role="status"><div class="goal-motion" id="goalMotion" aria-hidden="true"></div><div><strong data-i18n="goal.title">Ещё один шаг вперёд.</strong><p data-i18n="goal.text">Дневная цель достигнута. Хорошая работа!</p></div><button id="closeGoalMotion" type="button" aria-label="Закрыть уведомление" data-i18n-attr="aria-label:goal.close">×</button></div>
 
   <!-- lottie + the achievement animation are loaded on demand by motion.js -->
-  <script defer src="display.js?v=2.23.1"></script>
-  <script defer src="i18n.js?v=2.23.1"></script>
-  <script defer src="motion.js?v=2.23.1"></script>
-  <script defer src="languages.js?v=2.23.1"></script>
-  <script defer src="grammar.js?v=2.23.1"></script>
-  <script defer src="learning.js?v=2.23.1"></script>
-  <script defer src="ai-core.js?v=2.23.1"></script>
-  <script defer src="share.js?v=2.23.1"></script>
-  <script defer src="games.js?v=2.23.1"></script>
-  <script defer src="course.js?v=2.23.1"></script>
-  <script defer src="account.js?v=2.23.1"></script>
-  <script defer src="app.js?v=2.23.1"></script>
+  <script defer src="display.js?v=2.24"></script>
+  <script defer src="i18n.js?v=2.24"></script>
+  <script defer src="motion.js?v=2.24"></script>
+  <script defer src="languages.js?v=2.24"></script>
+  <script defer src="grammar.js?v=2.24"></script>
+  <script defer src="learning.js?v=2.24"></script>
+  <script defer src="writing.js?v=2.24"></script>
+  <script defer src="ai-core.js?v=2.24"></script>
+  <script defer src="share.js?v=2.24"></script>
+  <script defer src="games.js?v=2.24"></script>
+  <script defer src="course.js?v=2.24"></script>
+  <script defer src="account.js?v=2.24"></script>
+  <script defer src="app.js?v=2.24"></script>
 </body>
 </html>

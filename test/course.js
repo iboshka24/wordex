@@ -71,3 +71,42 @@ const lib = { decks: {}, history: {}, streak: { count: 0, last: null, freezes: 2
 assert.deepEqual(L.restoreBackup(L.backupFile(lib), Langs.KNOWN_CODES).course, lib.course, 'a backup keeps grammar progress');
 assert.deepEqual(L.mergeLibrary(lib, { decks: {}, history: {}, streak: {} }).course, lib.course, 'cloud merge keeps grammar progress');
 console.log('✓ Course progress: survives backups and merges across devices');
+
+// v2.24: teaching steps, stars, spaced reviews, checkpoints, the AI writing check.
+assert.deepEqual(C.marked('I *am* tired.'), [{ t: 'I ', hi: false }, { t: 'am', hi: true }, { t: ' tired.', hi: false }]);
+const en = JSON.parse(fs.readFileSync(path.join(root, 'course/en.json'), 'utf8'));
+assert.deepEqual(C.lessonSteps(en.topics[0]).map(s => s.kind), ['discover', 'point', 'point', 'point', 'build', 'fix', 'write']);
+assert(C.checkFix(en.topics[0].mistake, 'my brother is tired'), 'a fixed sentence is accepted without the final dot');
+assert(!C.checkFix(en.topics[0].mistake, en.topics[0].mistake.wrong), 'the unchanged mistake is not');
+assert.deepEqual([C.stars(5, 8), C.stars(6, 8), C.stars(7, 8), C.stars(8, 8)], [0, 1, 2, 3]);
+const t0 = Date.UTC(2026, 0, 1), DAY = 86400000;
+let r = Object.assign({ best: 8, total: 8 }, C.scheduleReview({ rev: -1 }, true, t0));
+assert.equal(r.due, t0 + DAY, 'the first review is the next day');
+assert(!C.isDue(r, t0) && C.isDue(r, t0 + DAY));
+r = Object.assign(r, C.scheduleReview(r, true, t0 + DAY));
+assert.equal(r.due, t0 + DAY + 3 * DAY, 'a good review pushes the next one further (3 days)');
+assert.equal(C.scheduleReview(r, false, t0).due, t0 + DAY, 'a weak review brings it back tomorrow');
+assert(!C.isDue({ seen: 1, due: 1 }, t0), 'a topic that is not done is never "due"');
+const cp = C.checkpoint(en, 'A1', rand);
+assert.equal(cp.grammar.length, Math.min(8, en.topics.filter(t => t.level === 'A1').length));
+cp.grammar.forEach(it => assert.equal(it.options[it.answer], it.src.o[it.src.a]));
+cp.listening.forEach(it => assert.equal(it.options[it.answer], it.say));
+assert.equal(cp.reading.length, en.levels.A1.reading.qs.length);
+cp.reading.forEach((it, i) => assert.equal(it.options[it.answer], en.levels.A1.reading.qs[i].o[en.levels.A1.reading.qs[i].a]));
+assert(cp.write && cp.write.ru, 'the checkpoint ends with writing');
+console.log('✓ Course teaching: notice → rule in parts → build → fix → write; stars; spaced reviews; level checkpoints');
+
+const W = require('../writing.js');
+const AI = require('../ai-core.js');
+const req = AI.validateRequest({ mode: 'check', lang: 'en', ui: 'ru', topic: 'to be', task: 'Write 2 sentences', text: '  I is happy.  ' });
+assert.deepEqual(req, { mode: 'check', lang: 'en', ui: 'ru', topic: 'to be', task: 'Write 2 sentences', text: 'I is happy.' });
+assert.throws(() => AI.validateRequest({ mode: 'check', lang: 'ru', ui: 'en', text: 'x' }), /Writing checks/, 'only learnable languages');
+assert.throws(() => AI.validateRequest({ mode: 'check', lang: 'en', ui: 'ru', text: 'x'.repeat(501) }), /500/);
+const msgs = AI.buildMessages(req);
+assert(/DATA written by the learner/.test(msgs[0].content) && JSON.parse(msgs[1].content).text === 'I is happy.', 'the learner text is passed as data');
+const parsed = AI.parseResponse('```json\n{"verdict":"good","corrected":"I am happy.","notes":[{"wrong":"is","right":"am","why":"с I — am"}],"praise":"Молодец"}\n```', req);
+assert.equal(parsed.verdict, 'almost', 'a "good" that lists errors is not good');
+assert.deepEqual(parsed.notes, [{ wrong: 'is', right: 'am', why: 'с I — am' }]);
+assert.throws(() => AI.parseResponse('{"verdict":"great"}', req), e => e.code === 'bad-model-response');
+assert.equal(W.parseResponse('{"verdict":"wrong","notes":[{"wrong":"a","right":"a"}]}', req).notes.length, 0, 'a "fix" that changes nothing is dropped');
+console.log('✓ Writing check: strict request, learner text as data, careful parsing');

@@ -314,7 +314,8 @@
       var r = raw[k];
       if (!COURSE_KEY.test(k) || !r || typeof r !== 'object') return;
       var rec = {};
-      ['seen', 'last', 'done'].forEach(function (f) { var v = Number(r[f]); if (v > 0 && v < 1e14) rec[f] = Math.round(v); });
+      ['seen', 'last', 'done', 'lesson', 'due'].forEach(function (f) { var v = Number(r[f]); if (v > 0 && v < 1e14) rec[f] = Math.round(v); });
+      var rev = Math.round(Number(r.rev)); if (rev >= 0 && rev <= 20) rec.rev = rev;
       var total = Math.round(Number(r.total)), best = Math.round(Number(r.best));
       if (total > 0 && total <= 100) { rec.total = total; rec.best = Math.max(0, Math.min(total, best || 0)); }
       if (Object.keys(rec).length) out[k] = rec;
@@ -328,8 +329,13 @@
       Object.keys(src).forEach(function (k) {
         var r = src[k], o = out[k];
         if (!o) { out[k] = Object.assign({}, r); return; }
-        ['seen', 'done'].forEach(function (f) { if (r[f] && (!o[f] || r[f] < o[f])) o[f] = r[f]; });
+        ['seen', 'done', 'lesson'].forEach(function (f) { if (r[f] && (!o[f] || r[f] < o[f])) o[f] = r[f]; });
         if (r.last && (!o.last || r.last > o.last)) o.last = r.last;
+        // Spaced reviews: the device that got further along (more reviews, then the later date) wins.
+        if (r.rev !== undefined || r.due) {
+          var rr = r.rev || 0, or = o.rev || 0;
+          if (rr > or || (rr === or && (r.due || 0) > (o.due || 0))) { if (r.rev !== undefined) o.rev = r.rev; if (r.due) o.due = r.due; }
+        }
         if (r.total && (r.best || 0) >= (o.best || 0)) { o.best = r.best || 0; o.total = r.total; }
       });
     });
