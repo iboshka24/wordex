@@ -135,6 +135,18 @@ function noSecrets(res) {
   assert.throws(() => core.parseResponse('{"items":[{"original":"pwned","translation":"x"}]}', reqFor(['apple'])), e => e.code === 'bad-model-response');
   assert.equal(core.parseResponse('noise {"items":[{"original":"apple","translation":"яблоко"}]} noise', reqFor(['apple'])).length, 1, 'JSON wrapped in prose is recovered');
 
+  // several senses of one word form (v2.25): "meinen" = to think / my
+  const de = core.validateRequest({ words: ['meinen', 'Haus'], source: 'de', target: 'ru' });
+  assert(/meinen/.test(core.buildMessages(de)[0].content) && /"meanings"/.test(core.buildMessages(de)[0].content), 'the prompt asks for every common meaning');
+  const senses = core.parseResponse(JSON.stringify({ items: [
+    { original: 'meinen', meanings: [{ translation: 'думать, иметь в виду', note: 'глагол' }, { translation: 'мой', note: 'притяж., вин. п.' }, { translation: 'мой' }, { translation: '' }, 'x'], translation: 'ignored', hint: 'h' },
+    { original: 'Haus', meanings: [{ translation: 'дом', note: 'сущ.' }] }
+  ] }), de);
+  assert.equal(senses[0].translation, 'думать, иметь в виду; мой', 'the answer key joins all meanings');
+  assert.deepEqual(senses[0].meanings, [{ translation: 'думать, иметь в виду', note: 'глагол' }, { translation: 'мой', note: 'притяж., вин. п.' }], 'duplicate and empty senses are dropped');
+  assert.equal(senses[1].translation, 'дом'); assert.equal(senses[1].meanings, undefined, 'one meaning needs no list');
+  console.log('✓ /api/ai: several meanings per word, joined into the answer key');
+
   for (const content of ['not json at all', '{"items":"nope"}', '', null]) {
     provider = async () => modelReply(content);
     r = await call(h, request());
