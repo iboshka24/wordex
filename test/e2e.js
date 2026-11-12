@@ -93,6 +93,11 @@ async function waitToast(page, text) {
   await page.waitForFunction(t => document.getElementById('toast').textContent.includes(t), text, { timeout: 15000 });
 }
 // v2.22: words always go into a deck — with none yet, "start" first asks for one (its words come along).
+// v2.23.1: each deck has a "⋯" menu with "Edit" (the deck editor) and "Delete".
+async function deckMenu(deck, item) {
+  await deck.locator('.deck-menu-btn').click();
+  await deck.locator('.deck-menu-item', { hasText: item }).click();
+}
 async function startWords(page) {
   await page.click('#btnStart');
   const dialog = page.locator('#deckDialog:not([hidden])');
@@ -383,10 +388,12 @@ run.server(server);
 
   before = await library(page);
   const firstDeck = page.locator('.deck-item').first();
-  await firstDeck.locator('summary').click();
-  const removed = await firstDeck.locator('.saved-word strong').first().innerText();
-  await firstDeck.locator('[data-act="remove"]').first().click();
-  await waitToast(page, removed);
+  await deckMenu(firstDeck, 'Изменить');
+  assert(await page.locator('#deckEditor').isVisible(), '"Edit" opens every word of the deck');
+  await page.locator('.editor-row .editor-del').first().click();
+  assert.equal(await page.locator('.editor-row.removed').count(), 1, 'a removed word is only marked until saving');
+  await page.click('#editorForm [type="submit"]');
+  await waitToast(page, 'сохранена');
   await page.locator('body').click({ position: { x: 5, y: 5 } });
   await page.keyboard.press('u');
   await waitToast(page, 'Отменено');
@@ -394,13 +401,26 @@ run.server(server);
 
   before = await library(page);
   const deckCount = await page.locator('.deck-item').count();
-  await page.locator('.deck-item summary').first().click();
-  await page.locator('.deck-item [data-act="delete"]').first().click();
-  assert.match(lastDialog, /Удалить колоду «.+» \(\d+ сл\.\)/, 'the confirmation names the deck and its size');
+  await deckMenu(page.locator('.deck-item').first(), 'Удалить');
+  // v2.23.1: an in-page dialog (some browsers silently block window.confirm).
+  assert.match(await page.locator('#askText').innerText(), /Удалить колоду «.+» \(\d+ сл\.\)/, 'the confirmation names the deck and its size');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('.deck-item').count(), deckCount, 'Escape cancels the delete');
+  await deckMenu(page.locator('.deck-item').first(), 'Удалить');
+  await page.click('#askOk');
   await page.waitForFunction(n => document.querySelectorAll('.deck-item').length === n - 1, deckCount);
   await page.click('.toast-action');
   await page.waitForFunction(n => document.querySelectorAll('.deck-item').length === n, deckCount);
   assert.deepEqual(settled(await library(page), before), settled(before, before), 'a deleted deck comes back intact');
+  await deckMenu(page.locator('.deck-item').first(), 'Изменить');
+  await page.fill('#editorName', 'Моя колода');
+  await page.fill('#editorNewO', 'lamp'); await page.fill('#editorNewT', 'лампа'); await page.click('#editorAdd');
+  await page.locator('.editor-row .editor-in').nth(1).fill('новый перевод');
+  await page.click('#editorForm [type="submit"]');
+  const edited = Object.values((await library(page)).decks).find(d => d.name === 'Моя колода');
+  assert(edited && edited.cards.some(c => c.original === 'lamp' && c.translation === 'лампа'), 'a word added in the editor is saved');
+  assert.equal(edited.cards[0].translation, 'новый перевод', 'a translation changed in the editor is saved');
+  assert(Object.values((await library(page)).decks).some(d => d.name === 'Моя колода'), 'rename works without native dialogs');
 
   before = await library(page);
   const small = { version: 2, library: { decks: { 'uz-ru': { source: 'uz', target: 'ru', created: 1, cards: [{ original: 'olma', translation: 'яблоко', streak: 0, fails: 0 }] } }, history: {}, goal: 10, streak: { count: 0, last: null, freezes: 2, enabled: true } } };
@@ -552,9 +572,11 @@ run.server(server);
   await receiver.locator('#sharePreview:not([hidden])').waitFor();
   assert.equal(await receiver.locator('#previewList li strong').first().innerText(), '<img src=x onerror="window.__xss=1">');
   await receiver.click('#btnPreviewAdd');
-  await receiver.locator('.deck-item summary').first().click();
+  await deckMenu(receiver.locator('.deck-item').first(), 'Изменить');
   const injected = await receiver.evaluate(() => ({ flag: window.__xss, img: document.querySelectorAll('img[src="x"]').length, handlers: [...document.querySelectorAll('*')].filter(el => [...el.attributes].some(a => /^on/i.test(a.name))).length }));
   assert.deepEqual(injected, { flag: undefined, img: 0, handlers: 0 }, 'a malicious link is shown as plain text');
+  await receiver.keyboard.press('Escape');
+  assert(await receiver.locator('#deckEditor').isHidden(), 'Escape closes an unchanged editor');
 
   // Damaged link: a clear message, nothing added.
   await receiver.goto(origin + '/#deck=1.@@@broken');
@@ -618,9 +640,10 @@ run.server(server);
     }));
     assert.deepEqual(found, { flag: undefined, img: 0, handlers: [], jsLinks: 0 }, 'no injected markup in ' + where);
   };
-  await xpage.locator('.deck-item summary').first().click();
-  assert.equal(await xpage.locator('.saved-word strong').first().innerText(), payload, 'the word is shown literally');
+  await deckMenu(xpage.locator('.deck-item').first(), 'Изменить');
+  assert.equal(await xpage.locator('.editor-row .editor-in').first().inputValue(), payload, 'the word is shown literally');
   await noInjection('library');
+  await xpage.keyboard.press('Escape');
   await xpage.fill('#librarySearch', 'img');
   assert.match(await xpage.locator('#searchResults').innerText(), /<img src=x/);
   await noInjection('search');
@@ -1067,8 +1090,8 @@ run.server(server);
     assert(await pg.locator('#deckDialog').isHidden(), 'nor from the home screen');
     await pg.click('#sideDeckFull .link');
     await pg.locator('#screen-library.active').waitFor();
-    await pg.locator('.deck-item').nth(2).locator('summary').click();
-    await pg.locator('.deck-item').nth(2).locator('[data-act="delete"]').click();
+    await deckMenu(pg.locator('.deck-item').nth(2), 'Удалить');
+    await pg.click('#askOk');
     await pg.waitForFunction(() => document.getElementById('sideDeckCount').textContent === '9/10');
     assert(await pg.locator('#sideDeckFull').isHidden());
     await pg.click('#btnNewDeck');

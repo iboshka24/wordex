@@ -6,7 +6,7 @@
 })(typeof window !== 'undefined' ? window : this, function (win) {
   'use strict';
   var CODES = ['ru', 'en', 'uz'];
-  var VERSION = '2.23'; // the one place the shown version lives (footer)
+  var VERSION = '2.23.1'; // the one place the shown version lives (footer)
   var KEY = 'vm.ui-lang';
   var D = {
     'meta.title': ['Wordzone — слова становятся знаниями', 'Wordzone — words become knowledge', "Wordzone — so'zlar bilimga aylanadi"],
@@ -573,6 +573,32 @@
     'deck.delete': ['Удалить колоду', 'Delete deck', "Kolodani o'chirish"],
     'word.edit': ['Изменить', 'Edit', "O'zgartirish"],
     'word.remove': ['Убрать', 'Remove', 'Olib tashlash'],
+    'deck.menu': ['Действия с колодой «{n}»', 'Actions for “{n}”', "«{n}» bilan amallar"],
+    'deck.edit': ['Изменить', 'Edit', "O'zgartirish"],
+    'editor.title': ['Изменить колоду', 'Edit deck', "To'plamni o'zgartirish"],
+    'editor.close': ['Закрыть', 'Close', 'Yopish'],
+    'editor.name': ['Название колоды', 'Deck name', "To'plam nomi"],
+    'editor.search': ['Найти слово', 'Find a word', "So'z qidirish"],
+    'editor.word': ['Слово', 'Word', "So'z"],
+    'editor.translation': ['Перевод', 'Translation', 'Tarjima'],
+    'editor.newWord': ['Новое слово', 'New word', "Yangi so'z"],
+    'editor.add': ['+ Добавить', '+ Add', "+ Qo'shish"],
+    'editor.restore': ['Вернуть', 'Bring back', 'Qaytarish'],
+    'editor.known': ['Уже знаешь', 'Already known', 'Allaqachon bilasiz'],
+    'editor.learning': ['Учится', 'Learning', "O'rganilmoqda"],
+    'editor.removedN': ['удалится {n}', '{n} to remove', "{n} ta o'chiriladi"],
+    'editor.addedN': ['новых {n}', '{n} new', '{n} ta yangi'],
+    'editor.noMatch': ['Ничего не нашлось.', 'Nothing found.', 'Hech narsa topilmadi.'],
+    'editor.noWords': ['В колоде пока нет слов — добавь первое ниже.', 'No words yet — add the first one below.', "Hozircha so'z yo'q — birinchisini pastda qo'shing."],
+    'editor.needT': ['Добавь перевод.', 'Add a translation.', "Tarjimani qo'shing."],
+    'editor.dup': ['«{w}» уже есть в колоде.', '“{w}” is already in the deck.', "«{w}» to'plamda allaqachon bor."],
+    'editor.empty': ['У каждого слова должны быть слово и перевод.', 'Every word needs a word and a translation.', "Har bir so'zda so'z va tarjima bo'lishi kerak."],
+    'editor.saved': ['Колода «{n}» сохранена.', 'Deck “{n}” saved.', "«{n}» to'plami saqlandi."],
+    'editor.discardH': ['Выйти без сохранения?', 'Leave without saving?', 'Saqlamasdan chiqasizmi?'],
+    'editor.discardP': ['Изменения в этой колоде не сохранятся.', 'Your changes to this deck won’t be kept.', "Bu to'plamdagi o'zgarishlar saqlanmaydi."],
+    'editor.discard': ['Выйти', 'Leave', 'Chiqish'],
+    'ask.save': ['Сохранить', 'Save', 'Saqlash'],
+    'ask.delete': ['Удалить', 'Delete', "O'chirish"],
     'word.prompt': ['Перевод для «{w}»', 'Translation for "{w}"', '«{w}» uchun tarjima'],
     'confirm.deleteDeckDetail': ['Удалить колоду «{name}» ({w} сл.) вместе с прогрессом? Сразу после этого можно нажать «Отменить».', 'Delete the deck "{name}" ({w} words) with its progress? You can press Undo right after.', "«{name}» kolodasi ({w} ta so'z) natijalari bilan o'chirilsinmi? Shundan so'ng darhol «Bekor qilish»ni bosish mumkin."],
     'confirm.replaceDetail': ['Сейчас в библиотеке колод: {d}, слов: {w}. В файле колод: {d2}, слов: {w2}. Заменить библиотеку файлом? Сразу после замены можно нажать «Отменить».', 'Your library now has {d} decks and {w} words; the file has {d2} decks and {w2} words. Replace the library with the file? You can press Undo right after.', "Hozir kutubxonada {d} ta koloda va {w} ta so'z bor; faylda {d2} ta koloda va {w2} ta so'z. Kutubxona fayl bilan almashtirilsinmi? Shundan so'ng darhol «Bekor qilish»ni bosish mumkin."],

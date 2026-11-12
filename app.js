@@ -2548,41 +2548,20 @@
       var cover = h('div', { className: 'deck-cover cover-' + ((d.source.charCodeAt(0) + d.target.charCodeAt(1)) % 4) }, [
         h('span', { className: 'cover-langs', text: d.source.toUpperCase() + ' → ' + d.target.toUpperCase() }),
         h('button', { className: 'cover-play', type: 'button', 'aria-label': tr('deck.play') + ': ' + deckLabel(d) }),
-        h('span', { className: 'cover-badge', text: tr('deck.minutes', { n: Math.max(1, Math.round(Math.max(due, Math.min(d.cards.length, 20)) * 0.25)) }) })
+        h('span', { className: 'cover-badge', text: tr('deck.minutes', { n: Math.max(1, Math.round(Math.max(due, Math.min(d.cards.length, 20)) * 0.25)) }) }),
+        h('button', { className: 'deck-menu-btn', type: 'button', 'data-act': 'menu', 'aria-haspopup': 'menu', 'aria-expanded': 'false', 'aria-label': tr('deck.menu', { n: deckLabel(d) }), text: '⋯' })
       ]);
       panel.innerHTML = '<span class="deck-kicker">' + escapeHTML(d.name ? pairLabel(d) : '→ ' + langByCode(d.target).label) + ' / ' + trn('words.count', d.cards.length) + (LANGUAGES.isArchivedPair(d.source, d.target) ? ' <span class="archived-badge" title="' + escapeHTML(tr('lang.archivedTitle')) + '">' + tr('lang.archived') + '</span>' : '') + '</span><h2 class="deck-name">' + escapeHTML(d.name || langByCode(d.source).label) + '</h2><p>' + tr('deck.stats', { m: mastered, d: due, h: trn('deck.hard', hard) }) + '</p><div class="daily-track deck-progress"><i></i></div>' +
         '<p class="deck-working">' + (key === state.cfg.deck ? '<span class="deck-working-on">● ' + tr('decks.workingNow') + '</span>' : '<button class="link" type="button" data-act="work">' + tr('decks.workHere') + '</button>') + '</p>' +
         '<div class="actions"><button class="btn primary" type="button" data-act="practice" title="' + tr('deck.practiceTitle') + '">' + (due ? tr('deck.practiceDue', { n: due }) : tr('deck.practiceAll')) + '</button><button class="btn" type="button" data-act="hard"' + (hard ? '' : ' disabled') + ' title="' + tr('deck.hardTitle') + '">' + tr('deck.hardBtn', { n: hard }) + '</button><button class="btn" type="button" data-act="add">' + tr('deck.add') + '</button></div>' +
-        '<div class="deck-tools"><button class="link" type="button" data-act="reverse"' + (canSwapPair(d.source, d.target) ? '' : ' disabled') + ' title="' + escapeHTML(canSwapPair(d.source, d.target) ? tr('deck.reverseTitle', { p: langByCode(d.target).label + ' → ' + langByCode(d.source).label }) : tr('lang.swapOff', { l: langByCode(d.target).label })) + '">' + tr('deck.reverse') + '</button><button class="link" type="button" data-act="rename">' + tr('deck.rename') + '</button><button class="link" type="button" data-act="copy">' + tr('deck.copy') + '</button><button class="link" type="button" data-act="share">' + tr('share.button') + '</button></div>' +
-        '<details><summary>' + tr('deck.all') + '</summary><div class="word-list"></div><button class="link link-danger" type="button" data-act="delete">' + tr('deck.delete') + '</button></details>';
+        '<div class="deck-tools"><button class="link" type="button" data-act="reverse"' + (canSwapPair(d.source, d.target) ? '' : ' disabled') + ' title="' + escapeHTML(canSwapPair(d.source, d.target) ? tr('deck.reverseTitle', { p: langByCode(d.target).label + ' → ' + langByCode(d.source).label }) : tr('lang.swapOff', { l: langByCode(d.target).label })) + '">' + tr('deck.reverse') + '</button><button class="link" type="button" data-act="copy">' + tr('deck.copy') + '</button><button class="link" type="button" data-act="share">' + tr('share.button') + '</button></div>' +
+        '';
       panel.insertBefore(cover, panel.firstChild);
       cover.querySelector('.cover-play').onclick = function () {
         if (!d.cards.length) { toast(tr('toast.addWords'), 'err'); return; }
         practiceDeck(d, 'due');
       };
       panel.querySelector('.deck-progress i').style.width = Math.round(mastered / Math.max(1, d.cards.length) * 100) + '%';
-      var list = panel.querySelector('.word-list');
-      d.cards.forEach(function (c, i) {
-        var row = h('div', { className: 'saved-word' }, [
-          h('strong', { text: c.original, lang: d.source }),
-          h('span', { text: c.translation, lang: d.target }),
-          h('div', { className: 'word-actions' }, [
-            h('button', { className: 'link', type: 'button', 'data-act': 'edit', text: tr('word.edit') }),
-            h('button', { className: 'link', type: 'button', 'data-act': 'remove', text: tr('word.remove') })
-          ])
-        ]);
-        row.querySelector('[data-act="edit"]').onclick = function () {
-          var value = window.prompt(tr('word.prompt', { w: c.original }), c.translation);
-          if (value === null || !value.trim()) return;
-          c.translation = value.trim(); persistLibrary(); renderLibrary();
-        };
-        row.querySelector('[data-act="remove"]').onclick = function () {
-          var previous = snapshotLibrary();
-          d.cards.splice(i, 1); persistLibrary(); renderLibrary();
-          offerUndo(tr('undo.wordRemoved', { w: c.original }), restoreLibrary(previous));
-        };
-        list.appendChild(row);
-      });
       panel.querySelector('[data-act="practice"]').onclick = function () {
         if (!d.cards.length) { toast(tr('toast.addWords'), 'err'); return; }
         practiceDeck(d, 'due');
@@ -2593,21 +2572,21 @@
       if (key === state.cfg.deck) panel.classList.add('is-working');
       panel.querySelector('[data-act="reverse"]').onclick = function () { reverseDeck(d); };
       panel.querySelector('[data-act="copy"]').onclick = function () { copyDeck(d); };
-      panel.querySelector('[data-act="rename"]').onclick = function () {
-        var value = window.prompt(tr('deck.renamePrompt'), d.name || '');
-        if (value === null) return;
-        var name = L.cleanName(value);
-        if (name) d.name = name; else delete d.name;
-        persistLibrary(); renderLibrary(); renderHomeDeck();
-      };
       panel.querySelector('[data-act="share"]').onclick = function () { openShare(d, this); };
       panel.querySelector('[data-act="add"]').onclick = function () {
         setActiveDeck(keyOf(d), true);
         navigateLearning('screen-setup'); $('input').focus(); updateInputStat(true);
       };
-      panel.querySelector('[data-act="delete"]').onclick = function () {
+      panel.querySelector('[data-act="menu"]').onclick = function (e) {
+        e.stopPropagation();
+        openDeckMenu(this, [
+          { label: tr('deck.edit'), icon: '✎', run: function () { openDeckEditor(key); } },
+          { label: tr('deck.delete'), icon: '✕', danger: true, run: deleteThisDeck }
+        ]);
+      };
+      function deleteThisDeck() {
         var name = deckLabel(d);
-        if (!window.confirm(tr('confirm.deleteDeckDetail', { name: name, w: d.cards.length }))) return;
+        askDialog({ title: tr('deck.delete'), text: tr('confirm.deleteDeckDetail', { name: name, w: d.cards.length }), ok: tr('ask.delete'), danger: true }, function () {
         var previous = snapshotLibrary();
         var wasWorking = key === state.cfg.deck;
         try { localStorage.removeItem(draftKey(key)); } catch (e) {}
@@ -2616,11 +2595,207 @@
         renderLibrary(); onActiveDeckChange();
         offerUndo(tr('undo.deckDeleted', { name: name }), restoreLibrary(previous));
         // The working deck is gone: the next one takes over (no dialog over the undo toast); the sidebar shows which.
-      };
+        });
+      }
       host.appendChild(panel);
     });
     if (!$('vaultPanel').hidden) renderVault();
     if (window.VMMotion) window.VMMotion.library();
+  }
+  /* Deck "⋯" menu: Edit / Delete. */
+  var deckMenuEl = null;
+  function closeDeckMenu(refocus) {
+    if (!deckMenuEl) return;
+    var btn = deckMenuEl._opener;
+    deckMenuEl.remove(); deckMenuEl = null;
+    document.removeEventListener('click', onMenuOutside, true);
+    if (btn) { btn.setAttribute('aria-expanded', 'false'); if (refocus) btn.focus(); }
+  }
+  function onMenuOutside(e) { if (deckMenuEl && !deckMenuEl.contains(e.target) && e.target !== deckMenuEl._opener) closeDeckMenu(false); }
+  function openDeckMenu(btn, items) {
+    var again = deckMenuEl && deckMenuEl._opener === btn;
+    closeDeckMenu(false);
+    if (again) return;
+    var menu = h('div', { className: 'deck-menu', role: 'menu' });
+    items.forEach(function (it) {
+      var b = h('button', { className: 'deck-menu-item' + (it.danger ? ' danger' : ''), type: 'button', role: 'menuitem' }, [h('span', { className: 'deck-menu-icon', text: it.icon, 'aria-hidden': 'true' }), h('span', { text: it.label })]);
+      b.onclick = function () { closeDeckMenu(false); it.run(); };
+      menu.appendChild(b);
+    });
+    menu.addEventListener('keydown', function (e) {
+      var all = Array.prototype.slice.call(menu.querySelectorAll('.deck-menu-item')), i = all.indexOf(document.activeElement);
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeDeckMenu(true); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); all[(i + (e.key === 'ArrowDown' ? 1 : -1) + all.length) % all.length].focus(); }
+      else if (e.key === 'Tab') closeDeckMenu(false);
+    });
+    menu._opener = btn;
+    (btn.closest('.deck-item') || btn.parentNode).appendChild(menu);
+    btn.setAttribute('aria-expanded', 'true');
+    deckMenuEl = menu;
+    setTimeout(function () { document.addEventListener('click', onMenuOutside, true); }, 0);
+    menu.querySelector('.deck-menu-item').focus();
+  }
+
+  /* Deck editor: every word of a deck in one place — rename the deck, change words and translations,
+     remove or add words. Changes are kept aside and applied together on "Save". */
+  var editor = null;
+  function openDeckEditor(key) {
+    var d = library.decks[key]; if (!d) return;
+    editor = { key: key, opener: document.activeElement, rows: d.cards.map(function (c, i) { return { i: i, o: c.original, t: c.translation, removed: false }; }), added: [] };
+    $('editorName').value = d.name || '';
+    $('editorName').placeholder = pairLabel(d);
+    $('editorPair').textContent = pairLabel(d);
+    $('editorSearch').value = '';
+    $('editorNewO').value = ''; $('editorNewT').value = '';
+    $('editorNewO').lang = d.source; $('editorNewT').lang = d.target;
+    $('editorError').textContent = '';
+    renderEditorRows();
+    $('deckEditor').hidden = false;
+    $('editorName').focus();
+  }
+  function editorDirty() {
+    if (!editor) return false;
+    var d = library.decks[editor.key]; if (!d) return false;
+    if ((L.cleanName($('editorName').value) || '') !== (d.name || '')) return true;
+    if (editor.added.length || $('editorNewO').value.trim()) return true;
+    return editor.rows.some(function (r) { var c = d.cards[r.i]; return r.removed || r.o.trim() !== c.original || r.t.trim() !== c.translation; });
+  }
+  function renderEditorRows() {
+    var d = library.decks[editor.key], q = $('editorSearch').value.trim().toLowerCase();
+    var list = $('editorList'); list.textContent = '';
+    var all = editor.rows.concat(editor.added);
+    var shown = all.filter(function (r) { return !q || r.o.toLowerCase().indexOf(q) >= 0 || r.t.toLowerCase().indexOf(q) >= 0; });
+    shown.forEach(function (r) {
+      var o = h('input', { className: 'editor-in', type: 'text', value: r.o, lang: d.source, maxlength: '200', 'aria-label': tr('editor.word') });
+      var t = h('input', { className: 'editor-in', type: 'text', value: r.t, lang: d.target, maxlength: '300', 'aria-label': tr('editor.translation') + ': ' + r.o });
+      o.value = r.o; t.value = r.t;
+      o.oninput = function () { r.o = o.value; }; t.oninput = function () { r.t = t.value; };
+      var del = h('button', { className: 'editor-del', type: 'button', 'aria-label': (r.removed ? tr('editor.restore') : tr('word.remove')) + ': ' + r.o, title: r.removed ? tr('editor.restore') : tr('word.remove'), text: r.removed ? '↺' : '✕' });
+      del.onclick = function () {
+        if (r.i === undefined) editor.added.splice(editor.added.indexOf(r), 1); else r.removed = !r.removed;
+        renderEditorRows();
+        var again = Array.prototype.find.call($('editorList').querySelectorAll('.editor-del'), function (b) { return b.getAttribute('aria-label').indexOf(r.o) >= 0; });
+        (again || $('editorNewO')).focus();
+      };
+      if (r.removed) { o.disabled = true; t.disabled = true; }
+      var row = h('li', { className: 'editor-row' + (r.removed ? ' removed' : '') + (r.i === undefined ? ' added' : '') }, [o, h('span', { className: 'editor-arrow', 'aria-hidden': 'true', text: '→' }), t, del]);
+      if (r.i !== undefined && d.cards[r.i]) {
+        var c = d.cards[r.i];
+        row.appendChild(h('span', { className: 'editor-state' + (c.streak >= 2 ? ' known' : ''), title: c.streak >= 2 ? tr('editor.known') : tr('editor.learning'), 'aria-hidden': 'true' }));
+      }
+      list.appendChild(row);
+    });
+    var removed = editor.rows.filter(function (r) { return r.removed; }).length;
+    $('editorCount').textContent = trn('words.count', all.length - removed) + (removed ? ' · ' + tr('editor.removedN', { n: removed }) : '') + (editor.added.length ? ' · ' + tr('editor.addedN', { n: editor.added.length }) : '');
+    $('editorEmpty').hidden = shown.length > 0;
+    $('editorEmpty').textContent = all.length ? tr('editor.noMatch') : tr('editor.noWords');
+  }
+  function editorAddRow() {
+    var o = $('editorNewO').value.trim(), t = $('editorNewT').value.trim();
+    if (!o) { $('editorNewO').focus(); return; }
+    if (!t) { $('editorError').textContent = tr('editor.needT'); $('editorNewT').focus(); return; }
+    var exists = editor.rows.concat(editor.added).some(function (r) { return !r.removed && r.o.trim().toLowerCase() === o.toLowerCase(); });
+    if (exists) { $('editorError').textContent = tr('editor.dup', { w: o }); $('editorNewO').focus(); return; }
+    $('editorError').textContent = '';
+    editor.added.push({ o: o, t: t, removed: false });
+    $('editorNewO').value = ''; $('editorNewT').value = '';
+    $('editorSearch').value = '';
+    renderEditorRows();
+    $('editorList').lastChild && $('editorList').lastChild.scrollIntoView({ block: 'nearest' });
+    $('editorNewO').focus();
+  }
+  function saveDeckEditor() {
+    var d = library.decks[editor.key]; if (!d) { closeDeckEditor(); return; }
+    if ($('editorNewO').value.trim()) { editorAddRow(); if ($('editorNewO').value.trim()) return; }
+    var bad = editor.rows.concat(editor.added).find(function (r) { return !r.removed && (!r.o.trim() || !r.t.trim()); });
+    if (bad) { $('editorError').textContent = tr('editor.empty'); return; }
+    var seen = {}, dup = null;
+    editor.rows.concat(editor.added).forEach(function (r) { if (r.removed) return; var k = r.o.trim().toLowerCase(); if (seen[k]) dup = r.o.trim(); seen[k] = true; });
+    if (dup) { $('editorError').textContent = tr('editor.dup', { w: dup }); return; }
+    var previous = snapshotLibrary();
+    var cards = [];
+    editor.rows.forEach(function (r) {
+      if (r.removed) return;
+      var c = d.cards[r.i];
+      // A changed word keeps its learning progress; the translation simply follows.
+      c.original = r.o.trim(); c.translation = r.t.trim();
+      cards.push(c);
+    });
+    editor.added.forEach(function (r) { cards.push({ original: r.o.trim(), translation: r.t.trim(), hint: '', definition: '', examples: [], streak: 0, fails: 0, added: Date.now() }); });
+    d.cards = cards;
+    var name = L.cleanName($('editorName').value);
+    if (name) d.name = name; else delete d.name;
+    persistLibrary();
+    closeDeckEditor();
+    renderLibrary(); renderHomeDeck(); onActiveDeckChange();
+    offerUndo(tr('editor.saved', { n: deckLabel(d) }), restoreLibrary(previous));
+  }
+  function closeDeckEditor() {
+    if (!editor) return;
+    var back = editor.opener; editor = null;
+    $('deckEditor').hidden = true;
+    var btn = back && document.contains(back) ? back : document.querySelector('.deck-item .deck-menu-btn');
+    if (btn) btn.focus({ preventScroll: true });
+  }
+  function cancelDeckEditor() {
+    if (!editorDirty()) { closeDeckEditor(); return; }
+    askDialog({ title: tr('editor.discardH'), text: tr('editor.discardP'), ok: tr('editor.discard'), danger: true }, closeDeckEditor);
+  }
+  function initDeckEditor() {
+    $('editorForm').onsubmit = function (e) { e.preventDefault(); saveDeckEditor(); };
+    $('editorCancel').onclick = cancelDeckEditor;
+    $('editorClose').onclick = cancelDeckEditor;
+    $('editorAdd').onclick = editorAddRow;
+    $('editorSearch').oninput = renderEditorRows;
+    [$('editorNewO'), $('editorNewT')].forEach(function (inp) {
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); if (inp === $('editorNewO') && !$('editorNewT').value.trim()) $('editorNewT').focus(); else editorAddRow(); } });
+    });
+    $('editorSearch').addEventListener('keydown', function (e) { if (e.key === 'Enter') e.preventDefault(); });
+    $('deckEditor').addEventListener('click', function (e) { if (e.target === this) cancelDeckEditor(); });
+    $('deckEditor').addEventListener('keydown', function (e) {
+      if (!$('askDialog').hidden) return;
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); cancelDeckEditor(); }
+      else if (e.key === 'Tab') trapIn($('deckEditor'), e);
+    });
+  }
+
+  /* In-page replacement for window.prompt / window.confirm: some browsers (in-app browsers, or a site whose
+     dialogs were blocked once) silently refuse native dialogs, which made rename / edit / delete do nothing. */
+  var askDone = null, askOpener = null;
+  function askDialog(o, onOk) {
+    askOpener = document.activeElement;
+    askDone = onOk;
+    $('askTitle').textContent = o.title || '';
+    $('askText').hidden = !o.text; $('askText').textContent = o.text || '';
+    var withInput = o.value !== undefined;
+    $('askField').hidden = !withInput;
+    $('askLabel').textContent = o.label || '';
+    $('askInput').value = withInput ? o.value : '';
+    $('askForm').dataset.allowEmpty = o.allowEmpty ? '1' : '';
+    $('askOk').textContent = o.ok || tr('ask.save');
+    $('askOk').classList.toggle('danger', !!o.danger);
+    $('askDialog').hidden = false;
+    if (withInput) { $('askInput').focus(); $('askInput').select(); } else $('askCancel').focus();
+  }
+  function closeAsk(confirmed) {
+    if ($('askDialog').hidden) return;
+    var cb = askDone, value = $('askInput').value;
+    $('askDialog').hidden = true; askDone = null;
+    if (askOpener && document.contains(askOpener)) askOpener.focus({ preventScroll: true });
+    if (confirmed && cb) cb(value);
+  }
+  function initAskDialog() {
+    $('askForm').onsubmit = function (e) {
+      e.preventDefault();
+      if (!$('askField').hidden && !$('askInput').value.trim() && !this.dataset.allowEmpty) { $('askInput').focus(); return; }
+      closeAsk(true);
+    };
+    $('askCancel').onclick = function () { closeAsk(false); };
+    $('askDialog').addEventListener('click', function (e) { if (e.target === this) closeAsk(false); });
+    $('askDialog').addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeAsk(false); }
+      else if (e.key === 'Tab') trapIn($('askDialog'), e);
+    });
   }
   function showAnswerFeedback(text, wrong) {
     $('answerFeedbackText').textContent = text;
@@ -3418,6 +3593,8 @@
     updateSoundUI();
     checkServerStatus();
     if (L) initLearningUI();
+    initAskDialog();
+    initDeckEditor();
     if (L) initCourse();
     if (L) maybeOnboard();
     if (L) { onActiveDeckChange(); maybePickDeck(); }
