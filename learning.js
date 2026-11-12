@@ -275,7 +275,7 @@
         d.cards.forEach(function (c) {
           var k = normalize(c.original), i = out.index[k];
           if (i == null) { out.index[k] = out.cards.length; out.cards.push(Object.assign({}, c)); return; }
-          var prev = out.cards[i], win = Object.assign({}, better(prev, c));
+          var prev = out.cards[i], picked = better(prev, c), other = picked === prev ? c : prev, win = Object.assign({}, picked);
           var added = [prev.added, c.added].filter(function (v) { return v > 0; });
           if (added.length) win.added = Math.min.apply(null, added);
           // Grammar found on either device is kept; a reading too.
@@ -283,6 +283,11 @@
             win.grammarIds = (prev.grammarIds || []).concat(c.grammarIds || []).filter(function (id, n, all) { return all.indexOf(id) === n; }).slice(0, 6);
           }
           if (!win.reading && (prev.reading || c.reading)) win.reading = prev.reading || c.reading;
+          // An AI translation from the other device replaces a free-translator one (progress stays with the winner).
+          if (win.noAI && !other.noAI && other.translation && other.translation !== '—') {
+            ['translation', 'hint', 'definition', 'examples', 'meanings'].forEach(function (f) { if (other[f] !== undefined) win[f] = other[f]; });
+            delete win.noAI;
+          }
           out.cards[i] = win;
         });
       });
@@ -350,9 +355,21 @@
   var GRAMMAR_ID = /^[a-z]{2}\.[a-z-]{2,20}\.[a-z0-9-]{2,60}$/;
   function withOptional(src, card) {
     if (typeof src.reading === 'string' && src.reading.trim()) card.reading = src.reading.slice(0, 200);
+    var meanings = cleanMeanings(src.meanings);
+    if (meanings.length > 1) card.meanings = meanings;
+    if (src.noAI === true) card.noAI = true;
     // grammarIds: [] means "analysed, no rules"; absent means "not analysed yet".
     if (Array.isArray(src.grammarIds)) card.grammarIds = src.grammarIds.filter(function (id, i, all) { return typeof id === 'string' && GRAMMAR_ID.test(id) && all.indexOf(id) === i; }).slice(0, 6);
     return card;
+  }
+  // Several senses of one word form (v2.25): [{ translation, note? }], 2-3 items; anything else is dropped.
+  function cleanMeanings(list) {
+    if (!Array.isArray(list)) return [];
+    return list.filter(function (m) { return m && typeof m.translation === 'string' && m.translation.trim(); }).slice(0, 3).map(function (m) {
+      var out = { translation: m.translation.trim().slice(0, 120) };
+      if (typeof m.note === 'string' && m.note.trim()) out.note = m.note.trim().slice(0, 60);
+      return out;
+    });
   }
   // cleanGrammar (optional): validates library.grammar (grammar.js cleanStore). Without it, rules are not restored.
   function restoreBackup(data, langCodes, cleanGrammar) {
@@ -402,5 +419,5 @@
     return { decks: keys.length, words: keys.reduce(function (n, k) { return n + library.decks[k].cards.length; }, 0) };
   }
   return { forecast: forecast, maturity: maturity, weakest: weakest, accuracy: accuracy, longestStreak: longestStreak, trimHistory: trimHistory,
-    backupFile: backupFile, restoreBackup: restoreBackup, librarySize: librarySize, day: day, gap: gap, reconcile: reconcile, complete: complete, validate: validate, grade: grade, schedule: schedule, quiz: quiz, swapPairs: swapPairs, reverseCards: reverseCards, hint: hint, pick: pick, pairs: pairs, activity: activity, status: status, mergeLibrary: mergeLibrary, DECK_KEY: DECK_KEY, deckId: deckId, deckKey: deckKey, cleanName: cleanName, keyFor: keyFor, NAME_MAX: NAME_MAX, MAX_DECKS: MAX_DECKS, deckCount: deckCount, canAddDeck: canAddDeck, cleanCourse: cleanCourse, mergeCourse: mergeCourse };
+    backupFile: backupFile, restoreBackup: restoreBackup, librarySize: librarySize, day: day, gap: gap, reconcile: reconcile, complete: complete, validate: validate, grade: grade, schedule: schedule, quiz: quiz, swapPairs: swapPairs, reverseCards: reverseCards, hint: hint, pick: pick, pairs: pairs, activity: activity, status: status, mergeLibrary: mergeLibrary, DECK_KEY: DECK_KEY, deckId: deckId, deckKey: deckKey, cleanName: cleanName, keyFor: keyFor, NAME_MAX: NAME_MAX, MAX_DECKS: MAX_DECKS, deckCount: deckCount, canAddDeck: canAddDeck, cleanCourse: cleanCourse, mergeCourse: mergeCourse, cleanMeanings: cleanMeanings };
 });

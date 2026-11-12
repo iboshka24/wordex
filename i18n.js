@@ -6,7 +6,7 @@
 })(typeof window !== 'undefined' ? window : this, function (win) {
   'use strict';
   var CODES = ['ru', 'en', 'uz'];
-  var VERSION = '2.24'; // the one place the shown version lives (footer)
+  var VERSION = '2.25'; // the one place the shown version lives (footer)
   var KEY = 'vm.ui-lang';
   var D = {
     'meta.title': ['Wordzone — слова становятся знаниями', 'Wordzone — words become knowledge', "Wordzone — so'zlar bilimga aylanadi"],
@@ -774,7 +774,16 @@
     'toast.allOffline': ['Нет сети — перевести слова не получилось. Они сохранены в библиотеке и переведутся, когда интернет вернётся.', 'Offline — the words could not be translated. They are saved in the library and will be translated when you are back online.', "Internet yo'q — so'zlarni tarjima qilib bo'lmadi. Ular kutubxonada saqlandi va internet qaytganda tarjima qilinadi."],
     'toast.allFailed': ['Сервис перевода не ответил. Слова сохранены в библиотеке — попробуем ещё раз позже, или впиши переводы сам («слово - перевод»).', 'The translation service did not respond. The words are saved in the library — we will retry later, or type pairs yourself ("word - translation").', "Tarjima xizmati javob bermadi. So'zlar kutubxonada saqlandi — keyinroq yana urinamiz yoki juftliklarni o'zing yoz («so'z - tarjima»)."],
     'toast.someMissing': [['{n} слово пока без перевода — оно в библиотеке, догрузим позже.', '{n} слова пока без перевода — они в библиотеке, догрузим позже.', '{n} слов пока без перевода — они в библиотеке, догрузим позже.'], ['{n} word has no translation yet — it is in the library and will load later.', '{n} words have no translation yet — they are in the library and will load later.'], ["{n} ta so'z hozircha tarjimasiz — kutubxonada, keyinroq yuklaymiz."]],
-    'toast.aiFailed': ['ИИ не ответил — перевожу бесплатным переводчиком.', 'The AI did not respond — using the free translator instead.', 'AI javob bermadi — bepul tarjimon bilan tarjima qilyapman.'],
+    'toast.aiFailed': ['ИИ не ответил — {n} слов перевожу бесплатным переводчиком (помечены «без ИИ», их можно перевести заново).', 'The AI did not respond — {n} words go to the free translator (marked “no AI”, you can redo them).', "AI javob bermadi — {n} ta so'z bepul tarjimonga o'tdi («AI siz» belgisi bilan, keyin qayta tarjima qilsa bo'ladi)."],
+    'toast.aiPartial': ['ИИ перевёл не всё: {n} слов ушли в бесплатный переводчик (помечены «без ИИ»).', 'The AI did not translate everything: {n} words went to the free translator (marked “no AI”).', "AI hammasini tarjima qilmadi: {n} ta so'z bepul tarjimonga o'tdi («AI siz» belgisi bilan)."],
+    'aiErr.no-key': ['ИИ-ключ не настроен: на сервере нет ключа, а свой ключ не указан в настройках.', 'No AI key: the server has none and no own key is set in settings.', "AI kaliti yo'q: serverda kalit yo'q, sozlamalarda o'z kaliting ham ko'rsatilmagan."],
+    'deck.retranslate': ['Перевести заново через ИИ ({n})', 'Translate again with AI ({n})', 'AI bilan qayta tarjima ({n})'],
+    'toast.retranslating': ['Перевожу через ИИ: {n}…', 'Translating with AI: {n}…', 'AI bilan tarjima qilyapman: {n}…'],
+    'toast.retranslated': [['ИИ перевёл {n} слово ✓', 'ИИ перевёл {n} слова ✓', 'ИИ перевёл {n} слов ✓'], ['The AI translated {n} word ✓', 'The AI translated {n} words ✓'], ["AI {n} ta so'zni tarjima qildi ✓"]],
+    'toast.retranslatePart': ['ИИ перевёл {a} из {b}.', 'The AI translated {a} of {b}.', 'AI {b} tadan {a} tasini tarjima qildi.'],
+    'card.noAI': ['⚠ переведено без ИИ — может быть неточно', '⚠ translated without AI — may be inaccurate', "⚠ AI siz tarjima — noaniq bo'lishi mumkin"],
+    'card.noAIBtn': ['Перевести через ИИ', 'Translate with AI', 'AI bilan tarjima'],
+    'card.meanings': ['Значения', 'Meanings', "Ma'nolar"],
     'aiErr.provider-auth': ['Провайдер отклонил API-ключ — проверь его в настройках.', 'The provider rejected the API key — check it in settings.', "Provayder API kalitini rad etdi — sozlamalarda tekshir."],
     'aiErr.provider-rate-limit': ['Провайдер ограничил число запросов.', 'The provider is rate limiting.', "Provayder so'rovlar sonini chekladi."],
     'aiErr.rate-limited': ['Слишком много запросов к ИИ — подожди несколько минут.', 'Too many AI requests — wait a few minutes.', "AI ga so'rovlar juda ko'p — bir necha daqiqa kut."],

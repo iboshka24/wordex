@@ -72,7 +72,7 @@
   var CFG_KEY = 'wordloop.cfg';
   var SESSION_KEY = 'wordloop.session';
   var SOUND_KEY = 'wordloop.sound';
-  var CHUNK = 35;
+  var CHUNK = 12; // small batches: faster answers, and one failure costs few words
 
   var state = {
     cfg: { baseUrl: 'https://api.openai.com/v1', model: 'gpt-4o-mini', apiKey: '', target: 'ru', source: 'en', dir: 'mixed', mode: 'flashcard', simple: false, deck: '' },
@@ -500,7 +500,7 @@
           method: 'POST',
           headers: headers,
           body: JSON.stringify(Object.assign({ words: request.words, source: request.source, target: request.target, model: state.cfg.model, baseUrl: state.cfg.baseUrl }, request.mode === 'grammar' ? { mode: 'grammar' } : {})),
-          signal: AbortSignal.timeout(45000)
+          signal: AbortSignal.timeout(58000)
         });
         var j = {};
         try { j = await r.json(); } catch (e) {}
@@ -658,7 +658,8 @@
       out.push({
         original: item.original,
         translation: translated,
-        hint: tr('hint.assoc', { w: item.original })
+        hint: '',
+        noAI: true
       });
       // Small pause to be gentle on free API
       if (i < total - 1) await new Promise(function (r) { setTimeout(r, 70); });
@@ -696,69 +697,73 @@
       return readyCards;
     }
 
-    // Try AI first if key exists
-    var aiFailed = false;
+    // AI first, batch by batch. A failed batch is retried, then split in halves, so one bad answer
+    // never sends the whole list to the free translator. Words the AI still could not do are marked noAI
+    // (badge on the card, "translate again" in the deck menu) instead of getting a fake hint.
     var canTryAI = state.serverHasKey || Boolean(state.cfg.apiKey);
+    var aiCards = [], left = needTranslation.slice(), lastErr = null;
     if (canTryAI) {
-      try {
-        var parts = aiChunks(needTranslation);
-        var aiCards = [];
-        var aiWords = Object.create(null);
-        parts.forEach(function (part) { part.forEach(function (it) { aiWords[it.original] = true; }); });
-        for (var i = 0; i < parts.length; i++) {
-          if (state.cancelled) return null;
-          setLoad(
-            Math.round((i / parts.length) * 90) + 5,
-            parts.length > 1 ? tr('load.aiPart', { i: i + 1, n: parts.length }) : tr('load.aiOne'),
-            tr('load.processed', { a: aiCards.length, b: needTranslation.length })
-          );
-
-          var parsed = await callAI(parts[i].map(function (it) { return it.original; }));
-          if (parsed && parsed.length > 0) {
-            // Use AI filtered and translated items directly
-            for (var pIdx = 0; pIdx < parsed.length; pIdx++) {
-              var pItem = parsed[pIdx];
-              var translated = pItem.translation;
-              if (!translated || translated === '—') {
-                translated = await translateSingleFree(pItem.original, state.cfg.target);
-              }
-              aiCards.push({
-                original: pItem.original,
-                translation: translated || '—',
-                hint: pItem.hint || '', definition: pItem.definition || '', examples: pItem.examples || []
-              });
-              if (pItem.reading) aiCards[aiCards.length - 1].reading = pItem.reading;
-            }
-          } else {
-            // Fallback for this chunk if AI returned empty
-            for (var sIdx = 0; sIdx < parts[i].length; sIdx++) {
-              var src = parts[i][sIdx];
-              var freeTr = await translateSingleFree(src.original, state.cfg.target);
-              aiCards.push({ original: src.original, translation: freeTr, hint: '' });
-            }
-          }
+      var parts = aiChunks(needTranslation), done = 0;
+      var queue = parts.slice();
+      while (queue.length) {
+        if (state.cancelled) return null;
+        var part = queue.shift();
+        setLoad(Math.round((done / needTranslation.length) * 90) + 5,
+          parts.length > 1 ? tr('load.aiPart', { i: Math.min(parts.length, parts.length - queue.length), n: parts.length }) : tr('load.aiOne'),
+          tr('load.processed', { a: done, b: needTranslation.length }));
+        var res = await aiBatch(part.map(function (it) { return it.original; }));
+        if (res.items) {
+          res.items.forEach(function (c) { aiCards.push(c); });
+          done += part.length;
+          continue;
         }
-        // Phrases too long for the AI request still get a free translation.
-        for (var lIdx = 0; lIdx < needTranslation.length; lIdx++) {
-          if (aiWords[needTranslation[lIdx].original]) continue;
-          aiCards.push({ original: needTranslation[lIdx].original, translation: await translateSingleFree(needTranslation[lIdx].original, state.cfg.target), hint: '' });
-        }
-        return readyCards.concat(aiCards);
-      } catch (err) {
-        if (err.message !== 'no-key' && err.code !== 'no-key') {
-          aiFailed = err.code || true;
-          console.warn('AI call failed, falling back to free translator:', err);
-        }
+        lastErr = res.code;
+        if (res.fatal) break; // no key / bad key / rate limit: more requests would fail the same way
+        if (part.length > 3) { var mid = Math.ceil(part.length / 2); queue.unshift(part.slice(0, mid), part.slice(mid)); }
+        else done += part.length;
       }
+      var got = Object.create(null);
+      aiCards.forEach(function (c) { got[c.original.toLocaleLowerCase()] = true; });
+      left = needTranslation.filter(function (it) { return !got[it.original.toLocaleLowerCase()]; });
+      if (!left.length) return readyCards.concat(aiCards);
     }
 
-    // Fallback: Free translation
-    var reason = typeof aiFailed === 'string' ? tr('aiErr.' + aiFailed) : '';
-    if (reason === 'aiErr.' + aiFailed) reason = '';
-    toast(aiFailed ? tr('toast.aiFailed') + (reason ? ' ' + reason : '') : tr('toast.freeTr'), aiFailed ? 'err' : 'ok', aiFailed ? 6000 : 4000);
-    var freeCards = await translateBatchFree(needTranslation, state.cfg.target);
+    // The rest goes to the free translator, marked so it can be redone with the AI later.
+    if (canTryAI && lastErr !== 'no-key') {
+      var reason = lastErr ? tr('aiErr.' + lastErr) : '';
+      if (reason === 'aiErr.' + lastErr) reason = '';
+      toast(tr(aiCards.length ? 'toast.aiPartial' : 'toast.aiFailed', { n: left.length }) + (reason ? ' ' + reason : ''), 'err', 7000);
+    } else toast(tr('toast.freeTr'), 'ok', 4000);
+    var freeCards = await translateBatchFree(left, state.cfg.target);
     if (!freeCards) return null;
-    return readyCards.concat(freeCards);
+    return readyCards.concat(aiCards, freeCards);
+  }
+
+  // One AI request with a retry for transient errors. Resolves to { items } or { code, fatal }.
+  var FATAL_AI = { 'no-key': 1, 'provider-auth': 1, 'rate-limited': 1, 'provider-rate-limit': 1, 'forbidden-origin': 1, 'provider-bad-request': 1 };
+  async function aiBatch(words, opts) {
+    var code = null;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        var parsed = await callAI(words, opts);
+        var items = (parsed || []).map(aiCard).filter(function (c) { return c.translation && c.translation !== '—'; });
+        if (items.length) return { items: items };
+        code = 'bad-model-response';
+      } catch (err) {
+        code = err.code || (err.message === 'no-key' ? 'no-key' : 'provider-unavailable');
+        console.warn('AI batch failed:', code);
+        if (FATAL_AI[code]) return { code: code, fatal: true };
+      }
+      if (state.cancelled) break;
+      await new Promise(function (r) { setTimeout(r, 900); });
+    }
+    return { code: code };
+  }
+  function aiCard(p) {
+    var c = { original: p.original, translation: p.translation || '—', hint: p.hint || '', definition: p.definition || '', examples: p.examples || [] };
+    if (Array.isArray(p.meanings) && p.meanings.length > 1) c.meanings = p.meanings;
+    if (p.reading) c.reading = p.reading;
+    return c;
   }
 
   /* ---------------- demo ---------------- */
@@ -871,7 +876,8 @@
     var target = langByCode(state.cfg.target);
 
     $('cardWord').textContent = fwd ? c.original : c.translation;
-    $('cardTrans').textContent = fwd ? c.translation : c.original;
+    // Several meanings: the main one is shown big, the numbered list under it has them all with grammar notes.
+    $('cardTrans').textContent = fwd ? (Array.isArray(c.meanings) && c.meanings.length > 1 ? c.meanings[0].translation : c.translation) : c.original;
     // Pinyin (or another reading) sits under the word in the learning language, only when the card has one.
     setReading('cardReading', fwd && !isListen() ? c.reading : '');
     setReading('cardReadingBack', !fwd || isListen() ? c.reading : '');
@@ -915,6 +921,24 @@
     var box = $('cardContext');
     if (!box) return;
     box.textContent = '';
+    if (c.noAI && c.translation && c.translation !== '—') {
+      var warn = h('span', { className: 'context-noai' }, [h('span', { text: tr('card.noAI') })]);
+      var again = h('button', { className: 'context-noai-btn', type: 'button', text: tr('card.noAIBtn') });
+      again.addEventListener('click', function (e) { e.stopPropagation(); e.preventDefault(); again.disabled = true; retranslateDeck(state.cfg.deck, [c.original]).then(function () { again.disabled = false; }); });
+      warn.appendChild(again);
+      box.appendChild(warn);
+    }
+    if (Array.isArray(c.meanings) && c.meanings.length > 1) {
+      var list = h('ol', { className: 'context-meanings' });
+      list.setAttribute('aria-label', tr('card.meanings'));
+      c.meanings.forEach(function (m) {
+        var li = h('li', {}, [h('span', { className: 'meaning-t', text: m.translation })]);
+        li.lang = state.cfg.target;
+        if (m.note) li.appendChild(h('span', { className: 'meaning-note', text: m.note }));
+        list.appendChild(li);
+      });
+      box.appendChild(list);
+    }
     if (state.cfg.simple) return;
     if (c.definition) box.appendChild(h('span', { className: 'context-def', text: c.definition }));
     (c.examples || []).filter(Boolean).forEach(function (ex) {
@@ -1686,7 +1710,7 @@
           retried[key + ':' + c.original] = true; budget--;
           var text = await translateSingleFree(c.original, d.target, d.source);
           if (!text || text === '—') continue;
-          c.translation = text; fixed++;
+          c.translation = text; c.noAI = true; fixed++;
           state.cards.forEach(function (sc) { if (sc.original === c.original && (!sc.translation || sc.translation === '—')) sc.translation = text; });
         }
       }
@@ -1808,7 +1832,7 @@
       list.appendChild(h('div', { className: 'weak-deck' }, [
         h('div', { className: 'weak-head' }, [h('span', { className: 'deck-kicker', text: langByCode(d.source).label + ' → ' + langByCode(d.target).label }), btn]),
         h('ol', { className: 'weak-words' }, weak.slice(0, 5).map(function (c) {
-          return h('li', {}, [h('strong', { text: c.original, lang: d.source }), h('span', { text: c.translation, lang: d.target }),
+          return h('li', {}, [h('strong', { text: c.original, lang: d.source }), h('span', { className: c.noAI ? 'tr-noai' : '', title: c.noAI ? tr('card.noAI') : '', text: c.translation, lang: d.target }),
             h('span', { className: 'weak-meta', text: tr('prog.weakMeta', { f: c.fails || 0, e: (c.ease || 2.5).toFixed(2) }) })]);
         }))
       ]));
@@ -2050,9 +2074,10 @@
       more.onclick = function (e) {
         e.stopPropagation();
         openDeckMenu(this, [
-          { label: tr('deck.edit'), icon: '✎', run: function () { setSidebar(false); openDeckEditor(k); } },
+          { label: tr('deck.edit'), icon: '✎', run: function () { setSidebar(false); openDeckEditor(k); } }
+        ].concat(retranslateItem(k, function () { setSidebar(false); }), [
           { label: tr('deck.delete'), icon: '✕', danger: true, run: function () { setSidebar(false); confirmDeleteDeck(k); } }
-        ]);
+        ]));
       };
       b.onclick = function () {
         setSidebar(false);
@@ -2626,9 +2651,8 @@
       panel.querySelector('[data-act="menu"]').onclick = function (e) {
         e.stopPropagation();
         openDeckMenu(this, [
-          { label: tr('deck.edit'), icon: '✎', run: function () { openDeckEditor(key); } },
-          { label: tr('deck.delete'), icon: '✕', danger: true, run: deleteThisDeck }
-        ]);
+          { label: tr('deck.edit'), icon: '✎', run: function () { openDeckEditor(key); } }
+        ].concat(retranslateItem(key), [{ label: tr('deck.delete'), icon: '✕', danger: true, run: deleteThisDeck }]));
       };
       function deleteThisDeck() { confirmDeleteDeck(key); }
       host.appendChild(panel);
@@ -2698,6 +2722,63 @@
     window.addEventListener('resize', placeDeckMenu);
     document.addEventListener('scroll', placeDeckMenu, true);
     menu.querySelector('.deck-menu-item').focus();
+  }
+
+  /* Words the AI could not translate (free translator or "—") can be sent to the AI again, deck by deck. */
+  function needsAI(c) { return Boolean(c.noAI) || !c.translation || c.translation === '—'; }
+  function retranslateItem(key, before) {
+    var d = library.decks[key], n = d ? d.cards.filter(needsAI).length : 0;
+    if (!n) return [];
+    return [{ label: tr('deck.retranslate', { n: n }), icon: '✦', run: function () { if (before) before(); retranslateDeck(key); } }];
+  }
+  var retranslating = false;
+  async function retranslateDeck(key, only) {
+    var d = library.decks[key];
+    if (!d || retranslating) return 0;
+    if (!(state.serverHasKey || state.cfg.apiKey)) { toast(tr('aiErr.no-key'), 'err', 6000); return 0; }
+    // "only": one card from the training screen, which may not be in the library yet.
+    var todo = only ? only.map(function (w) { return { original: w }; }) : d.cards.filter(needsAI);
+    if (!todo.length) return 0;
+    retranslating = true;
+    var fixed = 0, err = null, LIM = window.VMAICore.LIMITS;
+    var words = todo.map(function (c) { return c.original; }).filter(function (w) { return w.length <= LIM.wordLength; });
+    toast(tr('toast.retranslating', { n: words.length }), 'ok', 3000);
+    try {
+      var queue = [];
+      for (var i = 0; i < words.length; i += CHUNK) queue.push(words.slice(i, i + CHUNK));
+      while (queue.length) {
+        var part = queue.shift();
+        var res = await aiBatch(part, { source: d.source, target: d.target });
+        if (!res.items) { err = res.code; if (res.fatal) break; if (part.length > 3) { var mid = Math.ceil(part.length / 2); queue.unshift(part.slice(0, mid), part.slice(mid)); } continue; }
+        res.items.forEach(function (it) {
+          if (d.target === 'uz') it.translation = LANGUAGES.normalizeUz(it.translation);
+          var k = it.original.toLocaleLowerCase(), hit = false;
+          [d.cards, state.cards].forEach(function (list) {
+            list.forEach(function (c) {
+              if (c.original.toLocaleLowerCase() !== k || !needsAI(c)) return;
+              c.translation = it.translation; c.hint = it.hint || c.hint || ''; c.definition = it.definition || c.definition || '';
+              if ((it.examples || []).length) c.examples = it.examples;
+              if (it.meanings) c.meanings = it.meanings; else delete c.meanings;
+              if (it.reading) c.reading = it.reading;
+              delete c.noAI;
+              hit = true;
+            });
+          });
+          if (hit) fixed++;
+        });
+      }
+    } finally { retranslating = false; }
+    if (fixed) {
+      persistLibrary();
+      if ($('screen-library').classList.contains('active')) renderLibrary();
+      if (state.current && $('screen-train').classList.contains('active') && !state.revealed) renderCard();
+      else if (state.current) renderCardContext(state.current);
+    }
+    var reason = err ? tr('aiErr.' + err) : '';
+    if (reason === 'aiErr.' + err) reason = '';
+    if (fixed === todo.length) toast(trn('toast.retranslated', fixed), 'ok', 4000);
+    else toast(tr('toast.retranslatePart', { a: fixed, b: todo.length }) + (reason ? ' ' + reason : ''), fixed ? 'ok' : 'err', 7000);
+    return fixed;
   }
 
   /* Deck editor: every word of a deck in one place — rename the deck, change words and translations,
@@ -2782,6 +2863,7 @@
       if (r.removed) return;
       var c = d.cards[r.i];
       // A changed word keeps its learning progress; the translation simply follows.
+      if (c.translation !== r.t.trim()) { delete c.meanings; delete c.noAI; } // the learner's own translation replaces the AI senses
       c.original = r.o.trim(); c.translation = r.t.trim();
       cards.push(c);
     });

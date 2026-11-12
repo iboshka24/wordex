@@ -28,7 +28,7 @@ const core = require('../ai-core.js');
 const DEFAULT_BASE = 'https://api.openai.com/v1';
 const PROVIDER_HOSTS = ['api.openai.com', 'api.groq.com', 'openrouter.ai', 'api.deepseek.com', 'api.mistral.ai', 'api.together.xyz', 'generativelanguage.googleapis.com'];
 const MAX_BODY_BYTES = 16 * 1024;
-const UPSTREAM_TIMEOUT_MS = 30000;
+const UPSTREAM_TIMEOUT_MS = 50000; // small batches answer in 5-15 s; slow providers get headroom (maxDuration is 60 s in vercel.json)
 const hits = new Map(); // ip -> request timestamps inside the current window (this instance only)
 
 const num = (v, d) => (Number(v) > 0 ? Number(v) : d);

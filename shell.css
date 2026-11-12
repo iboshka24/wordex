@@ -366,6 +366,19 @@
 .context-example { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:6px; }
 .speak-btn.speak-mini { width:28px; height:28px; }
 
+/* v2.25 — several meanings of one word, and cards the AI did not translate */
+.context-meanings { list-style:none; counter-reset:m; margin:4px auto 8px; padding:0; display:grid; gap:4px; max-width:34ch; text-align:left; }
+.context-meanings li { counter-increment:m; display:flex; flex-wrap:wrap; align-items:baseline; gap:2px 8px; font-size:14px; line-height:1.35; color:var(--text); }
+.context-meanings li::before { content:counter(m); flex:none; width:18px; height:18px; border-radius:50%; display:inline-grid; place-items:center; font-size:11px; font-weight:700; background:var(--amber); color:var(--surface); transform:translateY(-1px); }
+.meaning-t { font-weight:600; }
+.meaning-note { font-size:12px; color:var(--muted); font-style:italic; }
+.context-noai { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:6px 10px; margin:0 auto 8px; padding:6px 10px; border-radius:10px; font-size:12.5px; color:var(--text); background:color-mix(in srgb, var(--gold) 16%, transparent); border:1px dashed color-mix(in srgb, var(--gold) 60%, transparent); }
+.context-noai-btn { font:inherit; font-weight:600; font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--amber); background:transparent; color:var(--amber); cursor:pointer; }
+.context-noai-btn:hover { background:var(--amber); color:var(--surface); }
+.context-noai-btn:disabled { opacity:.5; cursor:progress; }
+.tr-noai::after { content:' ⚠'; color:var(--gold); }
+.context-noai-btn:focus-visible { outline:2px solid var(--amber); outline-offset:2px; }
+
 /* v2.21 — Grammar Lab */
 .gram-build { margin:0 0 22px; }
 .gram-build-row { display:flex; flex-wrap:wrap; align-items:end; gap:12px 18px; }

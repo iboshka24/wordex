@@ -234,3 +234,21 @@ console.log('✓ Backups: prototype keys are never accepted as languages');
   assert.equal(L.canAddDeck(many(12)), false, 'a library above the limit (old backup) keeps its decks but cannot grow');
   console.log('✓ Deck limit: at most 10 decks, libraries above it are kept as they are');
 }
+
+{
+  // v2.25: several meanings and the "no AI" mark survive backups; an AI translation wins a merge
+  const lib = { decks: { 'de-ru': { source: 'de', target: 'ru', created: 1, cards: [
+    { original: 'meinen', translation: 'думать; мой', meanings: [{ translation: 'думать', note: 'глагол' }, { translation: 'мой' }, { translation: 'x' }, { translation: 'y' }], streak: 0, fails: 0 },
+    { original: 'Haus', translation: 'дом', noAI: true, meanings: 'bad', streak: 0, fails: 0 }
+  ] } }, history: {}, streak: { count: 0, last: null } };
+  const back = L.restoreBackup(L.backupFile(lib), ['de', 'ru']);
+  const cards = back.decks['de-ru'].cards;
+  assert.equal(cards[0].meanings.length, 3, 'at most three meanings');
+  assert.deepEqual(cards[0].meanings[0], { translation: 'думать', note: 'глагол' });
+  assert.equal(cards[1].noAI, true); assert.equal(cards[1].meanings, undefined);
+  const a = { decks: { 'de-ru': { source: 'de', target: 'ru', created: 1, cards: [{ original: 'Haus', translation: 'Haus', noAI: true, streak: 3, fails: 0, due: 5, reps: 3 }] } }, history: {}, streak: {} };
+  const b = { decks: { 'de-ru': { source: 'de', target: 'ru', created: 1, cards: [{ original: 'Haus', translation: 'дом', hint: 'h', streak: 0, fails: 0 }] } }, history: {}, streak: {} };
+  const merged = L.mergeLibrary(a, b).decks['de-ru'].cards[0];
+  assert.equal(merged.translation, 'дом'); assert.equal(merged.noAI, undefined); assert.equal(merged.streak, 3, 'progress stays');
+  console.log('✓ Meanings and the no-AI mark: kept in backups, AI translation wins a merge');
+}

@@ -1,6 +1,6 @@
 /* Offline support: network first (so updates arrive immediately), cache as fallback. */
-const CACHE = 'vm-v2.24';
-const SHELL = ['./', 'index.html', 'styles.css', 'editorial.css', 'shell.css', 'motion.css', 'display.js', 'i18n.js', 'languages.js', 'grammar.js', 'writing.js', 'learning.js', 'ai-core.js', 'share.js', 'games.js', 'course.js', 'course/catalog.json', 'course/en.json', 'account.js', 'vendor/qrcode/qrcode.js', 'motion.js', 'app.js',
+const CACHE = 'vm-v2.25';
+const SHELL = ['./', 'index.html', 'styles.css', 'editorial.css', 'shell.css', 'motion.css', 'display.js', 'i18n.js', 'languages.js', 'grammar.js', 'writing.js', 'learning.js', 'ai-core.js', 'share.js', 'games.js', 'course.js', 'course/catalog.json', 'course/en.json', 'course/de.json', 'account.js', 'vendor/qrcode/qrcode.js', 'motion.js', 'app.js',
   'vendor/lottie_light.min.js', 'motion/editorial-achievement.js', 'manifest.webmanifest', 'vendor/fonts/fonts.css', 'icons/icon-192.png'];
 
 self.addEventListener('install', e => {
