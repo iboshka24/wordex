@@ -23,17 +23,7 @@
       { "id": "imparfait", "level": "B1", "title": { "ru": "Imparfait или passé composé", "en": "Imparfait or passé composé", "uz": "Imparfait yoki passé composé" } },
       { "id": "subjonctif", "level": "B1", "title": { "ru": "Subjonctif после il faut que", "en": "The subjunctive after il faut que", "uz": "Il faut que dan keyin subjonctif" } }
     ] },
-    { "code": "de", "glyph": "Ää", "native": "Deutsch", "ready": false, "topics": [
-      { "id": "sein-haben", "level": "A1", "title": { "ru": "Sein и haben", "en": "Sein and haben", "uz": "Sein va haben" } },
-      { "id": "articles", "level": "A1", "title": { "ru": "Род и артикли: der, die, das", "en": "Gender and articles: der, die, das", "uz": "Rod va artikllar: der, die, das" } },
-      { "id": "word-order", "level": "A1", "title": { "ru": "Порядок слов: глагол на втором месте", "en": "Word order: the verb in second place", "uz": "So'z tartibi: fe'l ikkinchi o'rinda" } },
-      { "id": "accusative", "level": "A1", "title": { "ru": "Аккузатив: den, einen", "en": "The accusative: den, einen", "uz": "Akkuzativ: den, einen" } },
-      { "id": "modal", "level": "A2", "title": { "ru": "Модальные: können, müssen, wollen", "en": "Modal verbs: können, müssen, wollen", "uz": "Modal fe'llar: können, müssen, wollen" } },
-      { "id": "separable", "level": "A2", "title": { "ru": "Глаголы с отделяемой приставкой", "en": "Separable verbs", "uz": "Ajraladigan old qo'shimchali fe'llar" } },
-      { "id": "dative", "level": "A2", "title": { "ru": "Датив: dem, der, mit, bei", "en": "The dative: dem, der, mit, bei", "uz": "Dativ: dem, der, mit, bei" } },
-      { "id": "perfekt", "level": "A2", "title": { "ru": "Perfekt: haben или sein", "en": "Perfekt: haben or sein", "uz": "Perfekt: haben yoki sein" } },
-      { "id": "subordinate", "level": "B1", "title": { "ru": "Придаточные: weil, dass, wenn", "en": "Subordinate clauses: weil, dass, wenn", "uz": "Ergash gaplar: weil, dass, wenn" } }
-    ] },
+    { "code": "de", "glyph": "Ää", "native": "Deutsch", "ready": true },
     { "code": "it", "glyph": "Ii", "native": "Italiano", "ready": false, "topics": [
       { "id": "essere-avere", "level": "A1", "title": { "ru": "Essere и avere", "en": "Essere and avere", "uz": "Essere va avere" } },
       { "id": "articles", "level": "A1", "title": { "ru": "Артикли: il, lo, la, un, uno", "en": "Articles: il, lo, la, un, uno", "uz": "Artikllar: il, lo, la, un, uno" } },

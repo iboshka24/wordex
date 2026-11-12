@@ -46,7 +46,11 @@ global.fetch = async (url, options) => {
   const words = JSON.parse(JSON.parse(options.body).messages[1].content).words;
   llm.lastWords = words;
   if (llm.mode === 'auth') return { ok: false, status: 401, text: async () => '{"error":{"message":"Incorrect API key provided: sk-e2e-SECRET"}}' };
-  const items = words.map(w => ({ original: w, translation: 'ИИ:' + w, hint: 'подсказка ' + w, definition: 'def ' + w, examples: ['I like ' + w + '.'] }));
+  // v2.25: "flaky" fails the next llm.failNext requests (a retry must recover); "meanings" gives "meinen" two senses.
+  if (llm.mode === 'flaky' && llm.failNext > 0) { llm.failNext--; return { ok: false, status: 500, text: async () => '' }; }
+  const items = words.map(w => w === 'meinen'
+    ? { original: w, meanings: [{ translation: 'думать, иметь в виду', note: 'глагол' }, { translation: 'мой', note: 'притяж., вин. п.' }], hint: 'h', examples: [] }
+    : { original: w, translation: 'ИИ:' + w, hint: 'подсказка ' + w, definition: 'def ' + w, examples: ['I like ' + w + '.'] });
   items.push({ original: 'injected', translation: 'should never appear' });
   return { ok: true, status: 200, text: async () => JSON.stringify({ choices: [{ message: { content: JSON.stringify({ items }) } }] }) };
 };
@@ -331,8 +335,30 @@ run.server(server);
   await page.locator('#screen-train.active').waitFor();
   assert.equal((await library(page)).decks['en-ru'].cards.find(c => c.original === 'compass').translation, 'компас', 'falls back to the free translator');
   assert(!(await page.evaluate(() => document.body.innerText)).includes('SECRET'), 'the key never reaches the page');
-  llm.mode = 'ok'; delete process.env.OPENAI_API_KEY;
+  const compass = (await library(page)).decks['en-ru'].cards.find(c => c.original === 'compass');
+  assert.equal(compass.noAI, true, 'a free-translator card is marked, not given a fake hint');
+  assert.equal(compass.hint, '', 'no template "association" hint');
+  // v2.25: a failing request is retried; several meanings come back as a list and as the answer key.
   await page.click('#btnExit'); await page.click('#btnNewSet');
+  llm.mode = 'flaky'; llm.failNext = 1;
+  await page.fill('#input', 'meinen\nharbour');
+  await startWords(page);
+  await page.locator('#screen-train.active').waitFor();
+  let cards = (await library(page)).decks['en-ru'].cards;
+  const meinen = cards.find(c => c.original === 'meinen');
+  assert.equal(meinen.translation, 'думать, иметь в виду; мой', 'all meanings form the answer key');
+  assert.equal(meinen.meanings.length, 2); assert(!meinen.noAI, 'the retry recovered: no free-translator fallback');
+  assert.equal(cards.find(c => c.original === 'harbour').translation, 'ИИ:harbour');
+  await page.click('#btnExit'); await page.click('#btnNewSet');
+  // "Translate again with AI" from the deck menu fixes the marked card.
+  llm.mode = 'ok';
+  await page.click('#navLibrary');
+  const enDeck = page.locator('.deck-item', { hasText: 'EN → RU' }).first();
+  await deckMenu(enDeck, 'Перевести заново через ИИ');
+  await page.waitForFunction(k => JSON.parse(localStorage.getItem(k)).decks['en-ru'].cards.find(c => c.original === 'compass').translation === 'ИИ:compass', LIB);
+  assert(!(await library(page)).decks['en-ru'].cards.find(c => c.original === 'compass').noAI, 'the mark is gone after the AI translated it');
+  await page.click('#navStudy');
+  llm.mode = 'ok'; delete process.env.OPENAI_API_KEY;
   await reload();
 
   step('swap languages, undoable clear / remove / delete / import, answer undo, hint → "hard", reverse deck, matching game');
@@ -1125,7 +1151,11 @@ run.server(server);
     assert.equal(await pg.getAttribute('.plate.on', 'data-code'), 'en');
     await pg.locator('.stop').first().waitFor();
     assert.equal(await pg.locator('.stop:not(.checkpoint)').count(), lessons.topics.length, 'the English path lists every topic');
-    assert.equal(await pg.locator('.stop.checkpoint').count(), 3, 'and a checkpoint at the end of each level');
+    assert.equal(await pg.locator('.stop.checkpoint').count(), 4, 'and a checkpoint at the end of each level (A1–B2)');
+    await pg.click('.plate[data-code="de"]');
+    const deTopics = JSON.parse(fs.readFileSync(path.join(root, 'course/de.json'), 'utf8')).topics.length;
+    await pg.waitForFunction(n => document.querySelectorAll('.stop:not(.checkpoint):not(.soon)').length === n && document.querySelector('.plate.on').dataset.code === 'de', deTopics);
+    assert.equal(await pg.locator('.stop.checkpoint').count(), 4, 'German has its own ready course with four levels');
     await pg.click('.plate[data-code="ja"]');
     assert(await pg.locator('.course-soon-note').isVisible(), 'a language without lessons says they are coming');
     assert(await pg.locator('div.stop.soon').count() > 0, 'and shows its future topics');
@@ -1192,7 +1222,7 @@ run.server(server);
     assert.match(await pg.locator('#practiceCount').innerText(), /1 \/ 5/, 'a review is 5 questions');
     await pg.click('#btnPracticeQuit');
     await pg.locator('#courseHome:not([hidden])').waitFor();
-    assert.match(await pg.locator('.plate.on .plate-meta').innerText(), /^1\/18/, 'the plate shows progress');
+    assert.match(await pg.locator('.plate.on .plate-meta').innerText(), new RegExp('^1/' + lessons.topics.length), 'the plate shows progress');
     assert.equal(await pg.locator('.stop.done').count(), 1);
     // The level checkpoint: grammar + listening + reading + writing (writing skipped here: no AI in the test).
     await pg.click('.stop.checkpoint >> nth=0');

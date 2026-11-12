@@ -876,7 +876,8 @@
     var target = langByCode(state.cfg.target);
 
     $('cardWord').textContent = fwd ? c.original : c.translation;
-    $('cardTrans').textContent = fwd ? c.translation : c.original;
+    // Several meanings: the main one is shown big, the numbered list under it has them all with grammar notes.
+    $('cardTrans').textContent = fwd ? (Array.isArray(c.meanings) && c.meanings.length > 1 ? c.meanings[0].translation : c.translation) : c.original;
     // Pinyin (or another reading) sits under the word in the learning language, only when the card has one.
     setReading('cardReading', fwd && !isListen() ? c.reading : '');
     setReading('cardReadingBack', !fwd || isListen() ? c.reading : '');
