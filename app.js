@@ -535,6 +535,41 @@
     throw aiError('no-key');
   }
 
+  // Grammar course: the learner's own sentences checked by the AI (mode "check", writing.js).
+  // Same route and key handling as callAI; resolves to { verdict, corrected, notes, praise }.
+  async function callCheck(payload) {
+    var AI = window.VMAICore;
+    var request = AI.validateRequest(Object.assign({ mode: 'check' }, payload));
+    if (state.serverAvailable) {
+      try {
+        var headers = { 'Content-Type': 'application/json' };
+        if (state.cfg.apiKey) headers['Authorization'] = 'Bearer ' + state.cfg.apiKey;
+        var r = await fetch('/api/ai', { method: 'POST', headers: headers, signal: AbortSignal.timeout(45000),
+          body: JSON.stringify({ mode: 'check', lang: request.lang, ui: request.ui, topic: request.topic, task: request.task, text: request.text, model: state.cfg.model, baseUrl: state.cfg.baseUrl }) });
+        var j = {};
+        try { j = await r.json(); } catch (e) {}
+        if (r.ok && j.items && typeof j.items === 'object' && j.items.verdict) return j.items;
+        if (r.status === 404 || r.status === 405 || r.status === 501 || j.code === 'no-key') state.serverAvailable = false;
+        else throw aiError(j.code || 'provider-unavailable', j.error);
+      } catch (e) {
+        if (e instanceof TypeError) state.serverAvailable = false;
+        else throw e;
+      }
+    }
+    var cfg = state.cfg;
+    if (cfg.apiKey) {
+      var url = String(cfg.baseUrl || 'https://api.openai.com/v1').replace(/\/+$/, '') + '/chat/completions', res;
+      try {
+        res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + cfg.apiKey }, body: JSON.stringify(AI.buildPayload(request, cfg.model || 'gpt-4o-mini', url)), signal: AbortSignal.timeout(45000) });
+      } catch (e) { throw aiError(e && e.name === 'TimeoutError' ? 'provider-timeout' : 'provider-unavailable'); }
+      if (!res.ok) throw aiError(res.status === 401 || res.status === 403 ? 'provider-auth' : res.status === 429 ? 'provider-rate-limit' : 'provider-unavailable');
+      var data = {};
+      try { data = await res.json(); } catch (e) {}
+      return AI.parseResponse(data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content, request);
+    }
+    throw aiError('no-key');
+  }
+
   // Chunks that respect the /api/ai limits; over-long phrases go to the free translator.
   function aiChunks(items) {
     var LIM = window.VMAICore.LIMITS, out = [], cur = [], chars = 0;
@@ -2011,6 +2046,14 @@
       if (due) { var badge = h('span', { className: 'side-deck-due', text: String(due) }); badge.setAttribute('title', tr('decks.due', { n: due })); b.appendChild(badge); }
       if (on) b.setAttribute('aria-current', 'true');
       b.title = deckLabel(d) + ' — ' + pairLabel(d);
+      var more = h('button', { className: 'side-deck-more', type: 'button', 'aria-haspopup': 'menu', 'aria-expanded': 'false', 'aria-label': tr('deck.menu', { n: deckLabel(d) }), title: tr('deck.menu', { n: deckLabel(d) }), text: '⋯' });
+      more.onclick = function (e) {
+        e.stopPropagation();
+        openDeckMenu(this, [
+          { label: tr('deck.edit'), icon: '✎', run: function () { setSidebar(false); openDeckEditor(k); } },
+          { label: tr('deck.delete'), icon: '✕', danger: true, run: function () { setSidebar(false); confirmDeleteDeck(k); } }
+        ]);
+      };
       b.onclick = function () {
         setSidebar(false);
         if (k !== state.cfg.deck) {
@@ -2018,7 +2061,7 @@
           setActiveDeck(k);
         }
       };
-      list.appendChild(h('li', {}, [b]));
+      list.appendChild(h('li', { className: 'side-deck-row' }, [b, more]));
     });
     $('sideDecksEmpty').hidden = n > 0;
     var count = $('sideDeckCount');
@@ -2440,7 +2483,10 @@
       speak: function (text, lang, btn) { speakText(text, lang, btn); },
       answer: function (ok) { recordAnswer(ok); renderDaily(); },
       sound: function (ok) { if (ok) playSuccessSound(); else playForgotSound(); },
-      complete: function () { L.complete(library.streak, L.day()); persistLibrary(); renderDaily(); }
+      complete: function () { L.complete(library.streak, L.day()); persistLibrary(); renderDaily(); },
+      check: function (payload) { return callCheck(payload); },
+      canSpeak: function () { return 'speechSynthesis' in window; },
+      celebrate: function () { burstConfetti(40); }
     });
     try { grammarTab = localStorage.getItem('vm.grammar-tab') === 'words' ? 'words' : 'course'; } catch (e) {}
     $('tabCourse').onclick = function () { setGrammarTab('course'); };
@@ -2584,23 +2630,25 @@
           { label: tr('deck.delete'), icon: '✕', danger: true, run: deleteThisDeck }
         ]);
       };
-      function deleteThisDeck() {
-        var name = deckLabel(d);
-        askDialog({ title: tr('deck.delete'), text: tr('confirm.deleteDeckDetail', { name: name, w: d.cards.length }), ok: tr('ask.delete'), danger: true }, function () {
-        var previous = snapshotLibrary();
-        var wasWorking = key === state.cfg.deck;
-        try { localStorage.removeItem(draftKey(key)); } catch (e) {}
-        delete library.decks[key]; persistLibrary();
-        if (wasWorking) { ensureActiveDeck(); loadDraft(); }
-        renderLibrary(); onActiveDeckChange();
-        offerUndo(tr('undo.deckDeleted', { name: name }), restoreLibrary(previous));
-        // The working deck is gone: the next one takes over (no dialog over the undo toast); the sidebar shows which.
-        });
-      }
+      function deleteThisDeck() { confirmDeleteDeck(key); }
       host.appendChild(panel);
     });
     if (!$('vaultPanel').hidden) renderVault();
     if (window.VMMotion) window.VMMotion.library();
+  }
+  // Deleting a deck (from the library card or the sidebar): confirm in the page, undo from the toast.
+  function confirmDeleteDeck(key) {
+    var d = library.decks[key]; if (!d) return;
+    var name = deckLabel(d);
+    askDialog({ title: tr('deck.delete'), text: tr('confirm.deleteDeckDetail', { name: name, w: d.cards.length }), ok: tr('ask.delete'), danger: true }, function () {
+      var previous = snapshotLibrary();
+      var wasWorking = key === state.cfg.deck;
+      try { localStorage.removeItem(draftKey(key)); } catch (e) {}
+      delete library.decks[key]; persistLibrary();
+      if (wasWorking) { ensureActiveDeck(); loadDraft(); }
+      renderLibrary(); onActiveDeckChange();
+      offerUndo(tr('undo.deckDeleted', { name: name }), restoreLibrary(previous));
+    });
   }
   /* Deck "⋯" menu: Edit / Delete. */
   var deckMenuEl = null;
@@ -2609,7 +2657,19 @@
     var btn = deckMenuEl._opener;
     deckMenuEl.remove(); deckMenuEl = null;
     document.removeEventListener('click', onMenuOutside, true);
+    window.removeEventListener('resize', placeDeckMenu);
+    document.removeEventListener('scroll', placeDeckMenu, true);
     if (btn) { btn.setAttribute('aria-expanded', 'false'); if (refocus) btn.focus(); }
+  }
+  // Keeps the floating menu next to its button while the page or a list scrolls; closes it if the button is gone.
+  function placeDeckMenu() {
+    var menu = deckMenuEl; if (!menu) return;
+    var btn = menu._opener;
+    if (!btn || !document.contains(btn)) { closeDeckMenu(false); return; }
+    var r = btn.getBoundingClientRect(), mh = menu.offsetHeight, mw = menu.offsetWidth;
+    var top = r.bottom + 6 + mh > window.innerHeight - 8 ? Math.max(8, r.top - 6 - mh) : r.bottom + 6;
+    menu.style.top = top + 'px';
+    menu.style.left = Math.max(8, Math.min(window.innerWidth - mw - 8, r.right - mw)) + 'px';
   }
   function onMenuOutside(e) { if (deckMenuEl && !deckMenuEl.contains(e.target) && e.target !== deckMenuEl._opener) closeDeckMenu(false); }
   function openDeckMenu(btn, items) {
@@ -2629,10 +2689,14 @@
       else if (e.key === 'Tab') closeDeckMenu(false);
     });
     menu._opener = btn;
-    (btn.closest('.deck-item') || btn.parentNode).appendChild(menu);
+    // Fixed to the viewport next to its button, so a scrolling list or a rounded card never clips it.
+    document.body.appendChild(menu);
     btn.setAttribute('aria-expanded', 'true');
     deckMenuEl = menu;
+    placeDeckMenu();
     setTimeout(function () { document.addEventListener('click', onMenuOutside, true); }, 0);
+    window.addEventListener('resize', placeDeckMenu);
+    document.addEventListener('scroll', placeDeckMenu, true);
     menu.querySelector('.deck-menu-item').focus();
   }
 

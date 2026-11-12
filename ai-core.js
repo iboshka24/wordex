@@ -2,9 +2,9 @@
    request validation, the prompt (words travel as data, never as instructions)
    and strict parsing of the model's answer. */
 (function (root, factory) {
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./languages.js'), require('./grammar.js'));
-  else root.VMAICore = factory(root.VMLanguages, root.VMGrammar);
-})(typeof window !== 'undefined' ? window : this, function (Langs, Grammar) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./languages.js'), require('./grammar.js'), require('./writing.js'));
+  else root.VMAICore = factory(root.VMLanguages, root.VMGrammar, root.VMWriting);
+})(typeof window !== 'undefined' ? window : this, function (Langs, Grammar, Writing) {
   'use strict';
   // Every known code (legacy ones too, so existing decks can still be translated); English names for the prompt.
   var LANGS = {};
@@ -24,6 +24,8 @@
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw fail('bad-request', 'Body must be a JSON object.');
     // mode "grammar": the Grammar Lab contract (grammar.js) — same endpoint, validation, rate limit and key handling.
     if (body.mode === 'grammar') return Grammar.validateRequest(body);
+    // mode "check": a learner's own sentences checked for a grammar lesson (writing.js).
+    if (body.mode === 'check') { if (!Writing) throw fail('bad-request', 'Unknown mode.'); return Writing.validateRequest(body); }
     if (body.mode !== undefined && body.mode !== 'translate') throw fail('bad-request', 'Unknown mode.');
     if (!Object.prototype.hasOwnProperty.call(LANGS, body.source) || !Object.prototype.hasOwnProperty.call(LANGS, body.target))
       throw fail('bad-request', 'Unsupported language. Allowed: ' + Object.keys(LANGS).join(', ') + '.');
@@ -63,6 +65,7 @@
 
   function buildMessages(req) {
     if (req.mode === 'grammar') return Grammar.buildMessages(req);
+    if (req.mode === 'check') return Writing.buildMessages(req);
     var src = LANGS[req.source], tgt = LANGS[req.target];
     var system = [
       'You are the translation engine of a vocabulary trainer, working like a careful bilingual lexicographer.',
@@ -110,6 +113,7 @@
   // Throws .code = 'bad-model-response' when nothing usable is left.
   function parseResponse(text, req) {
     if (req.mode === 'grammar') return Grammar.parseResponse(text, req);
+    if (req.mode === 'check') return Writing.parseResponse(text, req);
     var data = extractJSON(text);
     var list = data && (Array.isArray(data) ? data : data.items);
     if (!Array.isArray(list)) throw fail('bad-model-response', 'The model did not return the expected JSON.');
