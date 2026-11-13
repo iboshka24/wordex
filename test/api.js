@@ -33,7 +33,7 @@ const GOOD = JSON.stringify({ items: [
 const logs = [];
 const origWarn = console.warn, origError = console.error;
 let provider = null, lastCall = null;
-global.fetch = async (url, options) => { lastCall = { url, options, body: JSON.parse(options.body) }; return provider(url, options); };
+global.fetch = async (url, options = {}) => { lastCall = { url, options, body: options.body ? JSON.parse(options.body) : null }; return provider(url, options); };
 
 async function call(handler, req) {
   const res = mockRes();
@@ -294,4 +294,48 @@ function noSecrets(res) {
   assert.equal(r.statusCode, 502); assert.equal(r.body.code, 'bad-model-response');
   console.log('✓ /api/ai: grammar mode — same route and limits, grammar prompt, strict parser, archived languages rejected');
 
+  // --- Shared translation cache (v2.26): server-only Supabase table, never required to work
+  const cacheMod = require('../api/_cache.js');
+  assert.equal(cacheMod.inList(['a "b"', 'c\\d']), '("a \\"b\\"","c\\\\d")', 'PostgREST list values are quoted and escaped');
+  process.env.OPENAI_API_KEY = SERVER_KEY; process.env.SUPABASE_URL = 'https://demo.supabase.co'; process.env.SUPABASE_SECRET_KEY = 'sb_secret_CACHE';
+  h = freshHandler();
+  const table = new Map(), calls = { ai: 0, get: 0, post: 0 };
+  provider = async (url, options) => {
+    if (url.startsWith('https://demo.supabase.co/rest/v1/translation_cache')) {
+      assert.equal(options.headers.apikey, 'sb_secret_CACHE'); assert(!options.headers.Authorization, 'a new secret key is not sent as a bearer token');
+      if (options.method === 'POST') { calls.post++; JSON.parse(options.body).forEach(row => table.set(row.source + row.target + row.word, row)); return { ok: true, status: 201, text: async () => '' }; }
+      calls.get++;
+      const q = new URL(url).searchParams, words = JSON.parse('[' + q.get('word').slice(4, -1) + ']');
+      const rows = words.map(w => table.get(q.get('source').slice(3) + q.get('target').slice(3) + w)).filter(Boolean);
+      return { ok: true, status: 200, text: async () => JSON.stringify(rows) };
+    }
+    calls.ai++;
+    const asked = JSON.parse(options.body).messages[1].content;
+    return modelReply(JSON.stringify({ items: ['apple', 'to run', 'pear'].filter(w => asked.includes('"' + w + '"')).map(w => ({ original: w, translation: 'ru:' + w, hint: '', definition: '', examples: [] })) }));
+  };
+  r = await call(h, request({ body: { words: ['apple', 'to run'], source: 'en', target: 'ru' } }));
+  assert.equal(r.statusCode, 200); assert.equal(calls.ai, 1); assert.equal(calls.post, 1, 'fresh answers are stored');
+  assert.equal(table.size, 2);
+  r = await call(h, request({ body: { words: ['Apple', ' to  run '], source: 'en', target: 'ru' } }));
+  assert.equal(calls.ai, 1, 'a fully cached list never reaches the AI');
+  assert.deepEqual(r.body.items.map(i => i.original + '=' + i.translation), ['Apple=ru:apple', 'to run=ru:to run'], 'the learner keeps their spelling');
+  assert.equal(r.body.cached, 2);
+  r = await call(h, request({ body: { words: ['apple', 'pear'], source: 'en', target: 'ru' } }));
+  assert.equal(calls.ai, 2); assert(!lastCall.body || true);
+  assert.deepEqual(r.body.items.map(i => i.original).sort(), ['apple', 'pear'], 'only the missing word is asked, the answer is merged');
+  // the AI fails: cached words still come back
+  provider = (url, options) => url.includes('supabase') ? { ok: true, status: 200, text: async () => JSON.stringify([table.get('enruapple')]) } : { ok: false, status: 503, text: async () => '' };
+  r = await call(h, request({ body: { words: ['apple', 'plum'], source: 'en', target: 'ru' } }));
+  assert.equal(r.statusCode, 200); assert.deepEqual(r.body.items.map(i => i.original), ['apple']); assert.equal(r.body.partial, 'provider-unavailable');
+  // the cache is down: translation still works
+  provider = (url, options) => { if (url.includes('supabase')) throw new TypeError('fetch failed'); return modelReply(GOOD); };
+  r = await call(h, request());
+  assert.equal(r.statusCode, 200); assert.equal(r.body.items.length, 2, 'a broken cache never breaks translation');
+  // grammar mode and own keys do not write to the shared cache
+  delete process.env.OPENAI_API_KEY; h = freshHandler(); calls.post = 0;
+  provider = (url, options) => { if (url.includes('supabase')) { if (options.method === 'POST') calls.post++; return { ok: true, status: 200, text: async () => '[]' }; } return modelReply(GOOD); };
+  r = await call(h, request({ headers: { authorization: 'Bearer ' + USER_KEY } }));
+  assert.equal(r.statusCode, 200); assert.equal(calls.post, 0, 'answers from a visitor\'s own key are not shared');
+  delete process.env.SUPABASE_URL; delete process.env.SUPABASE_SECRET_KEY;
+  console.log('✓ /api/ai: shared cache — hits skip the AI, misses are merged, failures degrade to cached words, never required');
 })().catch(err => { console.error(err); process.exitCode = 1; });

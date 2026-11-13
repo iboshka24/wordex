@@ -29,3 +29,18 @@ end $$;
 drop trigger if exists progress_touch on public.progress;
 create trigger progress_touch before insert or update on public.progress
   for each row execute function public.progress_touch();
+
+-- v2.26: shared translation cache. A word translated once for a language pair is reused by everyone,
+-- so it costs no AI request. Only the server (/api/ai with SUPABASE_SECRET_KEY) reads and writes it:
+-- row-level security is on and there are no policies, so the public key gets nothing.
+create table if not exists public.translation_cache (
+  source     text        not null,
+  target     text        not null,
+  v          smallint    not null,
+  word       text        not null check (char_length(word) between 1 and 120),
+  item       jsonb       not null,
+  created_at timestamptz not null default now(),
+  primary key (source, target, v, word)
+);
+alter table public.translation_cache enable row level security;
+revoke all on public.translation_cache from anon, authenticated;
