@@ -14,6 +14,7 @@
  *   GEMINI_API_KEY        alternative server key for Google Gemini (free tier at aistudio.google.com); used when
  *                         OPENAI_API_KEY is not set. GEMINI_MODEL picks the model (default gemini-3.5-flash-lite)
  *   SUPABASE_URL / SUPABASE_ANON_KEY   accounts and cloud progress (public values; access is limited by RLS, see supabase/schema.sql)
+ *   SUPABASE_SECRET_KEY                server-only key for the shared translation cache (api/_cache.js); optional, never sent to the browser
  *   ALLOWED_ORIGINS       extra comma-separated origins allowed to call (the deployment's own host always is)
  *   AI_ALLOWED_HOSTS      extra provider hosts for "bring your own key" requests
  *   AI_RATE_LIMIT / AI_RATE_LIMIT_BYOK / AI_RATE_WINDOW_MS   per-IP limits (default 30 / 120 per 10 min)
@@ -24,6 +25,7 @@
  * these headers — the rate limit and the fixed prompt are what bound the damage.
  */
 const core = require('../ai-core.js');
+const cache = require('./_cache.js');
 
 const DEFAULT_BASE = 'https://api.openai.com/v1';
 const PROVIDER_HOSTS = ['api.openai.com', 'api.groq.com', 'openrouter.ai', 'api.deepseek.com', 'api.mistral.ai', 'api.together.xyz', 'generativelanguage.googleapis.com'];
@@ -138,20 +140,35 @@ module.exports = async (req, res) => {
   const serverKey = process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY || '';
 
   if (body.action === 'status') {
-    return send(res, 200, { status: 'ok', serverKeyConfigured: Boolean(serverKey), provider: geminiServer ? 'gemini' : serverKey ? 'openai-compatible' : null, account: accountConfig(), limits: { words: core.LIMITS.words, wordLength: core.LIMITS.wordLength } });
+    return send(res, 200, { status: 'ok', serverKeyConfigured: Boolean(serverKey), provider: geminiServer ? 'gemini' : serverKey ? 'openai-compatible' : null, account: accountConfig(), cache: cache.enabled(), limits: { words: core.LIMITS.words, wordLength: core.LIMITS.wordLength } });
   }
-
-  const bearer = header(req, 'authorization').replace(/^Bearer\s+/i, '').trim();
-  const clientKey = bearer || (typeof body.apiKey === 'string' ? body.apiKey.trim() : '');
-  if (!serverKey && !clientKey) return error(res, 501, 'no-key', 'No API key: the server has none configured and the request did not include one.');
-  if (!serverKey && (clientKey.length > 400 || !/^[\x21-\x7e]+$/.test(clientKey))) return error(res, 400, 'bad-request', 'Malformed API key.');
-
-  const retryAfter = rateLimit(clientIp(req), serverKey ? num(process.env.AI_RATE_LIMIT, 30) : num(process.env.AI_RATE_LIMIT_BYOK, 120));
-  if (retryAfter) return error(res, 429, 'rate-limited', 'Too many requests. Try again in ' + retryAfter + ' s.', { 'Retry-After': String(retryAfter) });
 
   let request;
   try { request = core.validateRequest(body); }
   catch (e) { return error(res, 400, 'bad-request', e.message); }
+
+  // Shared cache (translate mode only): words someone already translated cost no AI request and no rate limit.
+  const translate = !request.mode;
+  let hits = [];
+  if (translate && cache.enabled()) {
+    const found = await cache.lookup(request);
+    hits = request.words.filter(w => found[cache.norm(w)]).map(w => Object.assign({}, found[cache.norm(w)], { original: w }));
+    if (hits.length === request.words.length) return send(res, 200, { items: hits, cached: hits.length });
+    if (hits.length) {
+      const have = new Set(hits.map(h => cache.norm(h.original)));
+      request = Object.assign({}, request, { words: request.words.filter(w => !have.has(cache.norm(w))) });
+    }
+  }
+  // When the AI fails but part of the list came from the cache, the client still gets that part.
+  const fail = (status, code, message, extra) => hits.length ? send(res, 200, { items: hits, cached: hits.length, partial: code }) : error(res, status, code, message, extra);
+
+  const bearer = header(req, 'authorization').replace(/^Bearer\s+/i, '').trim();
+  const clientKey = bearer || (typeof body.apiKey === 'string' ? body.apiKey.trim() : '');
+  if (!serverKey && !clientKey) return fail(501, 'no-key', 'No API key: the server has none configured and the request did not include one.');
+  if (!serverKey && (clientKey.length > 400 || !/^[\x21-\x7e]+$/.test(clientKey))) return error(res, 400, 'bad-request', 'Malformed API key.');
+
+  const retryAfter = rateLimit(clientIp(req), serverKey ? num(process.env.AI_RATE_LIMIT, 30) : num(process.env.AI_RATE_LIMIT_BYOK, 120));
+  if (retryAfter) return fail(429, 'rate-limited', 'Too many requests. Try again in ' + retryAfter + ' s.', { 'Retry-After': String(retryAfter) });
 
   // A server key is pinned to the operator's endpoint and model; a caller's own key may pick a known provider.
   let base, model;
@@ -188,13 +205,13 @@ module.exports = async (req, res) => {
   } catch (err) {
     const timeout = err && (err.name === 'TimeoutError' || err.name === 'AbortError');
     console.warn('[api/ai] provider request failed:', timeout ? 'timeout' : (err && err.name) || 'error');
-    return timeout ? error(res, 504, 'provider-timeout', 'The AI provider did not answer in time.') : error(res, 502, 'provider-unavailable', 'The AI provider is unavailable.');
+    return timeout ? fail(504, 'provider-timeout', 'The AI provider did not answer in time.') : fail(502, 'provider-unavailable', 'The AI provider is unavailable.');
   }
 
   if (!upstream.ok) {
     console.warn('[api/ai] provider responded with HTTP', upstream.status);
     const [status, code, message] = providerError(upstream.status);
-    return error(res, status, code, message);
+    return fail(status, code, message);
   }
 
   let content = '';
@@ -202,11 +219,16 @@ module.exports = async (req, res) => {
     const data = JSON.parse(await upstream.text());
     content = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
   } catch (e) { content = ''; }
-  try {
-    return send(res, 200, { items: core.parseResponse(content, request) });
-  } catch (e) {
-    return error(res, 502, 'bad-model-response', 'The AI returned an answer that could not be used.');
+  let items;
+  try { items = core.parseResponse(content, request); }
+  catch (e) {
+    // A short, key-free sample of what the model said, so the cause shows up in the Vercel logs.
+    console.warn('[api/ai] unusable model answer for', request.source + '→' + request.target + ':', String(content || '(empty)').replace(/\s+/g, ' ').slice(0, 300));
+    return fail(502, 'bad-model-response', 'The AI returned an answer that could not be used.');
   }
+  // Only answers from the operator's own key are shared with everyone.
+  if (translate && serverKey) await cache.store(request, items);
+  return send(res, 200, hits.length ? { items: hits.concat(items), cached: hits.length } : { items });
 };
 
 module.exports._resetRateLimit = () => hits.clear();

@@ -1818,6 +1818,785 @@
    }
   },
   {
+   "id": "imperativ",
+   "level": "A1",
+   "title": {
+    "ru": "Повелительное наклонение: Komm! Kommen Sie!",
+    "en": "The imperative: Komm! Kommen Sie!",
+    "uz": "Buyruq mayli: Komm! Kommen Sie!"
+   },
+   "sum": {
+    "ru": "Как просить и советовать: для du, ihr и Sie.",
+    "en": "Telling or asking someone to do something: du, ihr, Sie.",
+    "uz": "Iltimos va maslahat: du, ihr va Sie uchun."
+   },
+   "explain": {
+    "ru": [
+     "du: форма от du без -st и без du: du kommst → Komm! du machst → Mach! Глаголы с e→i сохраняют i: Lies! Nimm! (но fahren → Fahr!, без умлаута).",
+     "ihr: обычная форма ihr без местоимения: Kommt! Macht! Seid leise!",
+     "Sie: глагол + Sie: Kommen Sie bitte! Отделяемая приставка — в конец: Mach die Tür auf! sein: Sei! Seid! Seien Sie!"
+    ],
+    "en": [
+     "du: the du form without -st and without du: Komm! Mach! e→i verbs keep i: Lies! Nimm! (but Fahr!, no umlaut).",
+     "ihr: the normal ihr form without the pronoun: Kommt! Macht! Seid leise!",
+     "Sie: verb + Sie: Kommen Sie bitte! A separable prefix goes last: Mach die Tür auf! sein: Sei! Seid! Seien Sie!"
+    ],
+    "uz": [
+     "du: du shakli -st siz va du siz: Komm! Mach! e→i fe'llar i ni saqlaydi: Lies! Nimm! (lekin Fahr!, umlautsiz).",
+     "ihr: oddiy ihr shakli olmoshsiz: Kommt! Macht! Seid leise!",
+     "Sie: fe'l + Sie: Kommen Sie bitte! Ajraladigan old qo'shimcha oxirida: Mach die Tür auf! sein: Sei! Seid! Seien Sie!"
+    ]
+   },
+   "formula": [
+    "du: Komm! · Lies!",
+    "ihr: Kommt!",
+    "Sie: Kommen Sie!",
+    "sein: Sei! Seid! Seien Sie!"
+   ],
+   "examples": [
+    {
+     "s": "Hilf mir bitte!",
+     "t": {
+      "ru": "Помоги мне, пожалуйста!",
+      "uz": "Iltimos, menga yordam ber!"
+     }
+    },
+    {
+     "s": "Setzen Sie sich bitte.",
+     "t": {
+      "ru": "Садитесь, пожалуйста.",
+      "uz": "Iltimos, o'tiring."
+     }
+    },
+    {
+     "s": "Seid nicht so laut!",
+     "t": {
+      "ru": "Не шумите так!",
+      "uz": "Bunchalik shovqin qilmanglar!"
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Kommst bitte!",
+    "right": "Komm bitte!",
+    "note": {
+     "ru": "Для du — без -st: Komm!",
+     "en": "For du, drop -st: Komm!",
+     "uz": "du uchun -st siz: Komm!"
+    }
+   },
+   "tip": {
+    "ru": "du: без -st; ihr: -t; Sie: глагол + Sie.",
+    "en": "du: no -st; ihr: -t; Sie: verb + Sie.",
+    "uz": "du: -st siz; ihr: -t; Sie: fe'l + Sie."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Peter, ___ das Fenster zu!",
+     "o": [
+      "mach",
+      "machst",
+      "macht"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "du → Mach!",
+      "en": "du → Mach!",
+      "uz": "du → Mach!"
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Kinder, ___ eure Hausaufgaben!",
+     "o": [
+      "mach",
+      "macht",
+      "machen"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "ihr → Macht!",
+      "en": "ihr → Macht!",
+      "uz": "ihr → Macht!"
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Herr Weber, ___ Sie bitte Platz!",
+     "o": [
+      "nehmen",
+      "nimm",
+      "nehmt"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Sie → Nehmen Sie!",
+      "en": "Sie → Nehmen Sie!",
+      "uz": "Sie → Nehmen Sie!"
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Lies den Text!",
+      "Les den Text!"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "lesen: du liest → Lies!",
+      "en": "lesen: du liest → Lies!",
+      "uz": "lesen: du liest → Lies!"
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ruf mich an!",
+      "Anruf mich!"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Приставка в конец.",
+      "en": "The prefix goes last.",
+      "uz": "Old qo'shimcha oxiriga."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Sprechen",
+      "Sie",
+      "bitte",
+      "langsamer!"
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Sei",
+      "bitte",
+      "pünktlich!"
+     ]
+    },
+    {
+     "k": "type",
+     "q": "___ mir das Salz, bitte! (geben, du)",
+     "a": [
+      "Gib"
+     ],
+     "e": {
+      "ru": "geben: du gibst → Gib!",
+      "en": "geben: du gibst → Gib!",
+      "uz": "geben: du gibst → Gib!"
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "Du kommst. → *Komm*!",
+     "Ihr kommt. → *Kommt*!",
+     "Sie kommen. → *Kommen* Sie!"
+    ],
+    "q": {
+     "ru": "Что происходит с du в просьбе?",
+     "en": "What happens to du in a command?",
+     "uz": "Buyruqda du bilan nima bo'ladi?"
+    },
+    "o": [
+     {
+      "ru": "Исчезает вместе с окончанием -st",
+      "en": "It disappears along with the -st ending",
+      "uz": "-st qo'shimchasi bilan birga yo'qoladi"
+     },
+     {
+      "ru": "Встаёт в конец",
+      "en": "It moves to the end",
+      "uz": "Oxiriga o'tadi"
+     },
+     {
+      "ru": "Остаётся",
+      "en": "It stays",
+      "uz": "Qoladi"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Anna, ___ bitte leise!",
+     "o": [
+      "sei",
+      "bist",
+      "seid"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "sein, du → Sei!",
+      "en": "sein, du → Sei!",
+      "uz": "sein, du → Sei!"
+     }
+    },
+    {
+     "k": "choose",
+     "q": "___ Sie mir bitte Ihren Namen!",
+     "o": [
+      "Sagen",
+      "Sag",
+      "Sagt"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Sie → Sagen Sie!",
+      "en": "Sie → Sagen Sie!",
+      "uz": "Sie → Sagen Sie!"
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Leute, ___ mit!",
+     "o": [
+      "kommt",
+      "komm",
+      "kommen"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "ihr → Kommt mit!",
+      "en": "ihr → Kommt mit!",
+      "uz": "ihr → Kommt mit!"
+     }
+    }
+   ],
+   "write": {
+    "ru": "Напиши 3 совета другу (du), классу (ihr) и учителю (Sie).",
+    "en": "Write 3 pieces of advice: to a friend (du), a class (ihr) and a teacher (Sie).",
+    "uz": "Do'stga (du), sinfga (ihr) va o'qituvchiga (Sie) 3 ta maslahat yozing."
+   }
+  },
+  {
+   "id": "plural",
+   "level": "A1",
+   "title": {
+    "ru": "Множественное число существительных",
+    "en": "Noun plurals",
+    "uz": "Otlarning ko'plik shakli"
+   },
+   "sum": {
+    "ru": "Почему у немецких слов пять способов образовать множественное.",
+    "en": "Why German nouns have several plural patterns.",
+    "uz": "Nega nemis otlarining ko'plik shakli bir necha xil."
+   },
+   "explain": {
+    "ru": [
+     "Типичные окончания: -e (Tag → Tage), -er с умлаутом (Kind → Kinder, Buch → Bücher), -(e)n (Frau → Frauen), -s (Auto → Autos), без окончания (Lehrer → Lehrer).",
+     "Подсказки: женский род почти всегда -(e)n (Lampe → Lampen, Zeitung → Zeitungen); слова на -er/-el/-chen часто без окончания; иностранные слова — -s.",
+     "Артикль во множественном числе всегда die, а kein → keine: die Bücher, keine Autos."
+    ],
+    "en": [
+     "Common patterns: -e (Tage), -er with umlaut (Kinder, Bücher), -(e)n (Frauen), -s (Autos), no ending (Lehrer).",
+     "Clues: feminine nouns almost always take -(e)n; words in -er/-el/-chen often add nothing; foreign words take -s.",
+     "The plural article is always die, and kein → keine: die Bücher, keine Autos."
+    ],
+    "uz": [
+     "Asosiy qo'shimchalar: -e (Tage), umlaut bilan -er (Kinder, Bücher), -(e)n (Frauen), -s (Autos), qo'shimchasiz (Lehrer).",
+     "Belgilar: ayol rodi deyarli doim -(e)n; -er/-el/-chen bilan tugaganlar ko'pincha qo'shimchasiz; chet so'zlar -s.",
+     "Ko'plikda artikl doim die, kein → keine: die Bücher, keine Autos."
+    ]
+   },
+   "formula": [
+    "die Frau → die Frauen",
+    "das Kind → die Kinder",
+    "das Auto → die Autos",
+    "der Lehrer → die Lehrer"
+   ],
+   "examples": [
+    {
+     "s": "Ich habe zwei Brüder.",
+     "t": {
+      "ru": "У меня два брата.",
+      "uz": "Mening ikki akam bor."
+     }
+    },
+    {
+     "s": "Die Zeitungen liegen auf dem Tisch.",
+     "t": {
+      "ru": "Газеты лежат на столе.",
+      "uz": "Gazetalar stol ustida."
+     }
+    },
+    {
+     "s": "Wir brauchen drei Stühle.",
+     "t": {
+      "ru": "Нам нужно три стула.",
+      "uz": "Bizga uchta stul kerak."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Ich habe zwei Kind.",
+    "right": "Ich habe zwei Kinder.",
+    "note": {
+     "ru": "Kind → Kinder.",
+     "en": "Kind → Kinder.",
+     "uz": "Kind → Kinder."
+    }
+   },
+   "tip": {
+    "ru": "Учи слово сразу с множественным: das Buch, die Bücher.",
+    "en": "Learn each noun with its plural: das Buch, die Bücher.",
+    "uz": "Otni ko'pligi bilan o'rgan: das Buch, die Bücher."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Eine Lampe, zwei ___.",
+     "o": [
+      "Lampe",
+      "Lampen",
+      "Lampes"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Женский род → -n.",
+      "en": "Feminine → -n.",
+      "uz": "Ayol rodi → -n."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Ein Auto, drei ___.",
+     "o": [
+      "Auto",
+      "Autos",
+      "Auten"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Иностранное слово → -s.",
+      "en": "A foreign word → -s.",
+      "uz": "Chet so'z → -s."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Ein Lehrer, viele ___.",
+     "o": [
+      "Lehrer",
+      "Lehrern",
+      "Lehrers"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "-er → без окончания.",
+      "en": "-er → no ending.",
+      "uz": "-er → qo'shimchasiz."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Die Bücher sind neu.",
+      "Die Buchs sind neu."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Buch → Bücher.",
+      "en": "Buch → Bücher.",
+      "uz": "Buch → Bücher."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich habe keine Geschwister.",
+      "Ich habe kein Geschwister."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Мн. ч. → keine.",
+      "en": "Plural → keine.",
+      "uz": "Ko'plik → keine."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Die",
+      "Kinder",
+      "spielen",
+      "im",
+      "Garten."
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Wir",
+      "haben",
+      "zwei",
+      "Katzen."
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Ein Tag, sieben ___.",
+     "a": [
+      "Tage"
+     ],
+     "e": {
+      "ru": "Tag → Tage.",
+      "en": "Tag → Tage.",
+      "uz": "Tag → Tage."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "die Frau → die Frau*en*",
+     "die Zeitung → die Zeitung*en*",
+     "die Lampe → die Lampe*n*"
+    ],
+    "q": {
+     "ru": "Что общего у этих слов?",
+     "en": "What do these words have in common?",
+     "uz": "Bu so'zlarning umumiy jihati nima?"
+    },
+    "o": [
+     {
+      "ru": "Женский род → множественное на -(e)n",
+      "en": "Feminine → plural in -(e)n",
+      "uz": "Ayol rodi → ko'plik -(e)n bilan"
+     },
+     {
+      "ru": "Все короткие",
+      "en": "They are all short",
+      "uz": "Hammasi qisqa"
+     },
+     {
+      "ru": "Все на -e",
+      "en": "They all end in -e",
+      "uz": "Hammasi -e bilan tugaydi"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Ein Hund, zwei ___.",
+     "o": [
+      "Hunde",
+      "Hunden",
+      "Hunds"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Hund → Hunde.",
+      "en": "Hund → Hunde.",
+      "uz": "Hund → Hunde."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Eine Wohnung, viele ___.",
+     "o": [
+      "Wohnungs",
+      "Wohnungen",
+      "Wohnunge"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "-ung → -ungen.",
+      "en": "-ung → -ungen.",
+      "uz": "-ung → -ungen."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "___ Kinder spielen draußen.",
+     "o": [
+      "Der",
+      "Die",
+      "Das"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Мн. ч. → die.",
+      "en": "Plural → die.",
+      "uz": "Ko'plik → die."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Посчитай вещи в комнате: напиши 3 предложения с множественным (Ich habe zwei …).",
+    "en": "Count things in your room: write 3 sentences with plurals (Ich habe zwei …).",
+    "uz": "Xonangizdagi narsalarni sanang: ko'plik bilan 3 ta gap yozing (Ich habe zwei …)."
+   }
+  },
+  {
+   "id": "time-prepositions",
+   "level": "A1",
+   "title": {
+    "ru": "Время: am, um, im",
+    "en": "Time prepositions: am, um, im",
+    "uz": "Vaqt predloglari: am, um, im"
+   },
+   "sum": {
+    "ru": "В понедельник, в 8 часов, в мае — по-немецки.",
+    "en": "On Monday, at 8, in May — in German.",
+    "uz": "Dushanba kuni, soat 8 da, mayda — nemischa."
+   },
+   "explain": {
+    "ru": [
+     "um — точное время: um 8 Uhr, um halb neun.",
+     "am — дни и части дня: am Montag, am Wochenende, am Abend, am 3. Mai (но in der Nacht).",
+     "im — месяцы и времена года: im Mai, im Sommer. Год — без предлога: 2025 или im Jahr 2025."
+    ],
+    "en": [
+     "um — clock time: um 8 Uhr, um halb neun.",
+     "am — days and parts of the day: am Montag, am Abend, am 3. Mai (but in der Nacht).",
+     "im — months and seasons: im Mai, im Sommer. Years need nothing: 2025 or im Jahr 2025."
+    ],
+    "uz": [
+     "um — aniq vaqt: um 8 Uhr, um halb neun.",
+     "am — kunlar va kun qismlari: am Montag, am Abend, am 3. Mai (lekin in der Nacht).",
+     "im — oylar va fasllar: im Mai, im Sommer. Yil — predlogsiz: 2025 yoki im Jahr 2025."
+    ]
+   },
+   "formula": [
+    "um + clock time",
+    "am + day / part of day",
+    "im + month / season"
+   ],
+   "examples": [
+    {
+     "s": "Der Kurs beginnt um 9 Uhr.",
+     "t": {
+      "ru": "Курс начинается в 9 часов.",
+      "uz": "Kurs soat 9 da boshlanadi."
+     }
+    },
+    {
+     "s": "Am Samstag gehen wir ins Kino.",
+     "t": {
+      "ru": "В субботу мы идём в кино.",
+      "uz": "Shanba kuni kinoga boramiz."
+     }
+    },
+    {
+     "s": "Im Winter ist es kalt.",
+     "t": {
+      "ru": "Зимой холодно.",
+      "uz": "Qishda sovuq."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Ich komme im Montag.",
+    "right": "Ich komme am Montag.",
+    "note": {
+     "ru": "Дни недели → am.",
+     "en": "Days → am.",
+     "uz": "Hafta kunlari → am."
+    }
+   },
+   "tip": {
+    "ru": "Часы — um, дни — am, месяцы — im.",
+    "en": "Hours — um, days — am, months — im.",
+    "uz": "Soat — um, kun — am, oy — im."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Wir essen ___ 19 Uhr.",
+     "o": [
+      "am",
+      "um",
+      "im"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Точное время → um.",
+      "en": "Clock time → um.",
+      "uz": "Aniq vaqt → um."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Mein Geburtstag ist ___ Juli.",
+     "o": [
+      "am",
+      "um",
+      "im"
+     ],
+     "a": 2,
+     "e": {
+      "ru": "Месяц → im.",
+      "en": "Month → im.",
+      "uz": "Oy → im."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "___ Abend lese ich.",
+     "o": [
+      "Am",
+      "Um",
+      "Im"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Часть дня → am.",
+      "en": "Part of the day → am.",
+      "uz": "Kun qismi → am."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Im Sommer fahren wir ans Meer.",
+      "Am Sommer fahren wir ans Meer."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Время года → im.",
+      "en": "Season → im.",
+      "uz": "Fasl → im."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "In der Nacht schlafe ich.",
+      "Am Nacht schlafe ich."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Исключение: in der Nacht.",
+      "en": "Exception: in der Nacht.",
+      "uz": "Istisno: in der Nacht."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Am",
+      "Wochenende",
+      "spiele",
+      "ich",
+      "Fußball."
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Der",
+      "Zug",
+      "fährt",
+      "um",
+      "halb",
+      "acht."
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Ich habe ___ Freitag frei.",
+     "a": [
+      "am"
+     ],
+     "e": {
+      "ru": "День → am.",
+      "en": "Day → am.",
+      "uz": "Kun → am."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "*um* 8 Uhr",
+     "*am* Montag",
+     "*im* Mai"
+    ],
+    "q": {
+     "ru": "Что определяет предлог?",
+     "en": "What decides the preposition?",
+     "uz": "Predlogni nima belgilaydi?"
+    },
+    "o": [
+     {
+      "ru": "Единица времени: час, день, месяц",
+      "en": "The unit of time: hour, day, month",
+      "uz": "Vaqt birligi: soat, kun, oy"
+     },
+     {
+      "ru": "Погода",
+      "en": "The weather",
+      "uz": "Ob-havo"
+     },
+     {
+      "ru": "Глагол",
+      "en": "The verb",
+      "uz": "Fe'l"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Das Konzert ist ___ 20 Uhr.",
+     "o": [
+      "um",
+      "am",
+      "im"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "um + время.",
+      "en": "um + clock time.",
+      "uz": "um + vaqt."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "___ Herbst fallen die Blätter.",
+     "o": [
+      "Am",
+      "Im",
+      "Um"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Время года → im.",
+      "en": "Season → im.",
+      "uz": "Fasl → im."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Wir treffen uns ___ Sonntag.",
+     "o": [
+      "im",
+      "um",
+      "am"
+     ],
+     "a": 2,
+     "e": {
+      "ru": "День → am.",
+      "en": "Day → am.",
+      "uz": "Kun → am."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Опиши свою неделю: что ты делаешь am …, um … и что любишь im …",
+    "en": "Describe your week: what you do am …, um … and what you like im …",
+    "uz": "Haftangizni tasvirlang: am …, um … nima qilasiz va im … nimani yoqtirasiz."
+   }
+  },
+  {
    "id": "modal",
    "level": "A2",
    "title": {
@@ -3642,6 +4421,787 @@
    }
   },
   {
+   "id": "komparativ",
+   "level": "A2",
+   "title": {
+    "ru": "Сравнение: größer, am größten",
+    "en": "Comparison: größer, am größten",
+    "uz": "Qiyoslash: größer, am größten"
+   },
+   "sum": {
+    "ru": "Больше, лучше, самый — по-немецки.",
+    "en": "Bigger, better, the best — in German.",
+    "uz": "Kattaroq, yaxshiroq, eng — nemischa."
+   },
+   "explain": {
+    "ru": [
+     "Сравнительная степень: -er: klein → kleiner. Короткие слова часто с умлаутом: alt → älter, groß → größer, jung → jünger.",
+     "«чем» = als: Berlin ist größer als Hamburg. «такой же, как» = so … wie: Ich bin so alt wie du.",
+     "Превосходная: am + -sten: am schnellsten, am größten. Неправильные: gut → besser → am besten, viel → mehr → am meisten, gern → lieber → am liebsten."
+    ],
+    "en": [
+     "Comparative: -er: kleiner. Short words often add an umlaut: älter, größer, jünger.",
+     "“than” is als: größer als Hamburg. “as … as” is so … wie: so alt wie du.",
+     "Superlative: am + -sten: am schnellsten. Irregular: gut → besser → am besten, viel → mehr → am meisten, gern → lieber → am liebsten."
+    ],
+    "uz": [
+     "Qiyosiy daraja: -er: kleiner. Qisqa so'zlarda ko'pincha umlaut: älter, größer, jünger.",
+     "«-dan» = als: größer als Hamburg. «-dek» = so … wie: so alt wie du.",
+     "Orttirma: am + -sten: am schnellsten. Noto'g'ri: gut → besser → am besten, viel → mehr → am meisten, gern → lieber → am liebsten."
+    ]
+   },
+   "formula": [
+    "… -er als …",
+    "so … wie",
+    "am … -sten",
+    "gut · besser · am besten"
+   ],
+   "examples": [
+    {
+     "s": "Mein Bruder ist älter als ich.",
+     "t": {
+      "ru": "Мой брат старше меня.",
+      "uz": "Akam mendan katta."
+     }
+    },
+    {
+     "s": "Ich trinke lieber Tee als Kaffee.",
+     "t": {
+      "ru": "Я больше люблю чай, чем кофе.",
+      "uz": "Qahvadan ko'ra choyni afzal ko'raman."
+     }
+    },
+    {
+     "s": "Im Juli ist es am heißesten.",
+     "t": {
+      "ru": "В июле жарче всего.",
+      "uz": "Iyulda eng issiq bo'ladi."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Er ist größer wie ich.",
+    "right": "Er ist größer als ich.",
+    "note": {
+     "ru": "После сравнительной степени — als.",
+     "en": "After a comparative use als.",
+     "uz": "Qiyosiy darajadan keyin — als."
+    }
+   },
+   "tip": {
+    "ru": "-er + als; so … wie; am …-sten.",
+    "en": "-er + als; so … wie; am …-sten.",
+    "uz": "-er + als; so … wie; am …-sten."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Ein Auto ist schneller ___ ein Fahrrad.",
+     "o": [
+      "als",
+      "wie",
+      "dann"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Сравнение → als.",
+      "en": "Comparative → als.",
+      "uz": "Qiyos → als."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Pizza schmeckt mir gut, aber Plov schmeckt mir ___.",
+     "o": [
+      "guter",
+      "besser",
+      "mehr gut"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "gut → besser.",
+      "en": "gut → besser.",
+      "uz": "gut → besser."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Der Mount Everest ist ___.",
+     "o": [
+      "am höchsten",
+      "am hochsten",
+      "der hoch"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "hoch → am höchsten.",
+      "en": "hoch → am höchsten.",
+      "uz": "hoch → am höchsten."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Anna ist so groß wie Maria.",
+      "Anna ist so groß als Maria."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "so … wie.",
+      "en": "so … wie.",
+      "uz": "so … wie."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich spiele am liebsten Tennis.",
+      "Ich spiele am gernsten Tennis."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "gern → am liebsten.",
+      "en": "gern → am liebsten.",
+      "uz": "gern → am liebsten."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Heute",
+      "ist",
+      "es",
+      "kälter",
+      "als",
+      "gestern."
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Wer",
+      "läuft",
+      "am",
+      "schnellsten?"
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Meine Schwester ist zwei Jahre ___ als ich. (jung)",
+     "a": [
+      "jünger"
+     ],
+     "e": {
+      "ru": "jung → jünger.",
+      "en": "jung → jünger.",
+      "uz": "jung → jünger."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "Tom ist *groß*.",
+     "Ben ist *größer als* Tom.",
+     "Max ist *am größten*."
+    ],
+    "q": {
+     "ru": "Как растёт степень?",
+     "en": "How does the degree grow?",
+     "uz": "Daraja qanday ortadi?"
+    },
+    "o": [
+     {
+      "ru": "groß → größer als → am größten",
+      "en": "groß → größer als → am größten",
+      "uz": "groß → größer als → am größten"
+     },
+     {
+      "ru": "Только меняется артикль",
+      "en": "Only the article changes",
+      "uz": "Faqat artikl o'zgaradi"
+     },
+     {
+      "ru": "Добавляется sehr",
+      "en": "sehr is added",
+      "uz": "sehr qo'shiladi"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Berlin ist ___ als München.",
+     "o": [
+      "größer",
+      "großer",
+      "mehr groß"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "groß → größer.",
+      "en": "groß → größer.",
+      "uz": "groß → größer."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Ich esse ___ Obst als früher.",
+     "o": [
+      "viel",
+      "mehr",
+      "meister"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "viel → mehr.",
+      "en": "viel → mehr.",
+      "uz": "viel → mehr."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Dieser Film ist ___ von allen.",
+     "o": [
+      "am besten",
+      "am gutesten",
+      "besser"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "gut → am besten.",
+      "en": "gut → am besten.",
+      "uz": "gut → am besten."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Сравни двух людей или два города в 3 предложениях (als, so … wie, am …sten).",
+    "en": "Compare two people or two cities in 3 sentences (als, so … wie, am …sten).",
+    "uz": "Ikki odam yoki ikki shaharni 3 ta gapda qiyoslang (als, so … wie, am …sten)."
+   }
+  },
+  {
+   "id": "pronouns",
+   "level": "A2",
+   "title": {
+    "ru": "Местоимения: mich/mir, dich/dir",
+    "en": "Personal pronouns: mich/mir, dich/dir",
+    "uz": "Kishilik olmoshlari: mich/mir, dich/dir"
+   },
+   "sum": {
+    "ru": "«Меня» и «мне» по-немецки: аккузатив и датив.",
+    "en": "“Me” as an object: accusative and dative forms.",
+    "uz": "«Meni» va «menga» nemischa: akkuzativ va dativ."
+   },
+   "explain": {
+    "ru": [
+     "Аккузатив (кого?): mich, dich, ihn, sie, es, uns, euch, sie/Sie: Ich sehe dich. Ich liebe ihn.",
+     "Датив (кому?): mir, dir, ihm, ihr, ihm, uns, euch, ihnen/Ihnen: Ich helfe dir. Das gefällt mir.",
+     "Падеж зависит от глагола или предлога: für mich (акк.), mit mir (дат.). Если два дополнения: Ich gebe dir das Buch → Ich gebe es dir (местоимение-аккузатив первым)."
+    ],
+    "en": [
+     "Accusative (whom?): mich, dich, ihn, sie, es, uns, euch, sie/Sie: Ich sehe dich.",
+     "Dative (to whom?): mir, dir, ihm, ihr, ihm, uns, euch, ihnen/Ihnen: Ich helfe dir.",
+     "The case depends on the verb or preposition: für mich, mit mir. With two pronouns the accusative comes first: Ich gebe es dir."
+    ],
+    "uz": [
+     "Akkuzativ (kimni?): mich, dich, ihn, sie, es, uns, euch, sie/Sie: Ich sehe dich.",
+     "Dativ (kimga?): mir, dir, ihm, ihr, ihm, uns, euch, ihnen/Ihnen: Ich helfe dir.",
+     "Kelishik fe'l yoki predlogga bog'liq: für mich, mit mir. Ikki olmosh bo'lsa akkuzativ birinchi: Ich gebe es dir."
+    ]
+   },
+   "formula": [
+    "Akk.: mich · dich · ihn · sie · es",
+    "Dat.: mir · dir · ihm · ihr · ihm",
+    "uns · euch · sie (Akk.) / ihnen (Dat.)"
+   ],
+   "examples": [
+    {
+     "s": "Kannst du mich morgen anrufen?",
+     "t": {
+      "ru": "Можешь позвонить мне завтра?",
+      "uz": "Ertaga menga qo'ng'iroq qila olasanmi?"
+     }
+    },
+    {
+     "s": "Wie geht es dir?",
+     "t": {
+      "ru": "Как у тебя дела?",
+      "uz": "Ishlaring qalay?"
+     }
+    },
+    {
+     "s": "Ich kaufe ihm ein Geschenk.",
+     "t": {
+      "ru": "Я покупаю ему подарок.",
+      "uz": "Unga sovg'a sotib olaman."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Kannst du mich helfen?",
+    "right": "Kannst du mir helfen?",
+    "note": {
+     "ru": "helfen требует датив → mir.",
+     "en": "helfen takes the dative → mir.",
+     "uz": "helfen dativ talab qiladi → mir."
+    }
+   },
+   "tip": {
+    "ru": "Кого? → mich/dich/ihn. Кому? → mir/dir/ihm.",
+    "en": "Whom? → mich/dich/ihn. To whom? → mir/dir/ihm.",
+    "uz": "Kimni? → mich/dich/ihn. Kimga? → mir/dir/ihm."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Ich liebe ___. (du)",
+     "o": [
+      "dich",
+      "dir",
+      "du"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "lieben + акк. → dich.",
+      "en": "lieben + accusative → dich.",
+      "uz": "lieben + akkuzativ → dich."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Das Buch gehört ___. (ich)",
+     "o": [
+      "mich",
+      "mir",
+      "mein"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "gehören + датив → mir.",
+      "en": "gehören + dative → mir.",
+      "uz": "gehören + dativ → mir."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Kommst du mit ___? (wir)",
+     "o": [
+      "uns",
+      "wir",
+      "unser"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "mit + датив → uns.",
+      "en": "mit + dative → uns.",
+      "uz": "mit + dativ → uns."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich habe ihn gestern gesehen.",
+      "Ich habe ihm gestern gesehen."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "sehen + акк. → ihn.",
+      "en": "sehen + accusative → ihn.",
+      "uz": "sehen + akkuzativ → ihn."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Das ist für dich.",
+      "Das ist für dir."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "für + акк. → dich.",
+      "en": "für + accusative → dich.",
+      "uz": "für + akkuzativ → dich."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Kannst",
+      "du",
+      "es",
+      "mir",
+      "erklären?"
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Wir",
+      "besuchen",
+      "euch",
+      "am",
+      "Sonntag."
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Wie gefällt ___ die Stadt? (du)",
+     "a": [
+      "dir"
+     ],
+     "e": {
+      "ru": "gefallen + датив → dir.",
+      "en": "gefallen + dative → dir.",
+      "uz": "gefallen + dativ → dir."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "Ich sehe *dich*.",
+     "Ich helfe *dir*."
+    ],
+    "q": {
+     "ru": "Почему dich в одном и dir в другом?",
+     "en": "Why dich in one and dir in the other?",
+     "uz": "Nega birida dich, boshqasida dir?"
+    },
+    "o": [
+     {
+      "ru": "sehen требует аккузатив, helfen — датив",
+      "en": "sehen takes the accusative, helfen the dative",
+      "uz": "sehen akkuzativ, helfen dativ talab qiladi"
+     },
+     {
+      "ru": "Это одно и то же",
+      "en": "They mean the same",
+      "uz": "Bular bir xil"
+     },
+     {
+      "ru": "dir — вежливая форма",
+      "en": "dir is the polite form",
+      "uz": "dir — xushmuomala shakl"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Ich rufe ___ später an. (sie, she)",
+     "o": [
+      "ihr",
+      "sie",
+      "ihn"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "anrufen + акк. → sie.",
+      "en": "anrufen + accusative → sie.",
+      "uz": "anrufen + akkuzativ → sie."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Kannst du ___ das Salz geben? (ich)",
+     "o": [
+      "mich",
+      "mir",
+      "ich"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Кому? → mir.",
+      "en": "To whom? → mir.",
+      "uz": "Kimga? → mir."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Ich danke ___ für die Hilfe. (Sie)",
+     "o": [
+      "Sie",
+      "Ihnen",
+      "Ihr"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "danken + датив → Ihnen.",
+      "en": "danken + dative → Ihnen.",
+      "uz": "danken + dativ → Ihnen."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Напиши 3 предложения о друге с ihn/ihm или sie/ihr (Ich rufe ihn an, ich helfe ihm…).",
+    "en": "Write 3 sentences about a friend with ihn/ihm or sie/ihr.",
+    "uz": "Do'stingiz haqida ihn/ihm yoki sie/ihr bilan 3 ta gap yozing."
+   }
+  },
+  {
+   "id": "dative-verbs",
+   "level": "A2",
+   "title": {
+    "ru": "Глаголы с дативом: helfen, gefallen, gehören",
+    "en": "Dative verbs: helfen, gefallen, gehören",
+    "uz": "Dativ talab qiluvchi fe'llar: helfen, gefallen, gehören"
+   },
+   "sum": {
+    "ru": "Глаголы, после которых «кому», а не «кого».",
+    "en": "Verbs that take a dative object.",
+    "uz": "«Kimni» emas, «kimga» talab qiluvchi fe'llar."
+   },
+   "explain": {
+    "ru": [
+     "Некоторые глаголы требуют датив: helfen, danken, gefallen, gehören, antworten, gratulieren, schmecken, passen: Ich helfe meinem Bruder.",
+     "gefallen и schmecken «переворачивают» фразу: Der Film gefällt mir (мне нравится фильм). Подлежащее — то, что нравится.",
+     "Глаголы «давать что-то кому-то» (geben, schenken, zeigen, erklären) — датив + аккузатив: Ich schenke meiner Mutter Blumen."
+    ],
+    "en": [
+     "Some verbs take the dative: helfen, danken, gefallen, gehören, antworten, gratulieren, schmecken, passen.",
+     "gefallen and schmecken flip the sentence: Der Film gefällt mir. The thing you like is the subject.",
+     "Giving verbs (geben, schenken, zeigen, erklären) take dative + accusative: Ich schenke meiner Mutter Blumen."
+    ],
+    "uz": [
+     "Ba'zi fe'llar dativ talab qiladi: helfen, danken, gefallen, gehören, antworten, gratulieren, schmecken, passen.",
+     "gefallen va schmecken gapni «ag'daradi»: Der Film gefällt mir (film menga yoqadi). Ega — yoqqan narsa.",
+     "Berish fe'llari (geben, schenken, zeigen, erklären) dativ + akkuzativ: Ich schenke meiner Mutter Blumen."
+    ]
+   },
+   "formula": [
+    "helfen / danken / gefallen + Dat.",
+    "X gefällt mir.",
+    "geben jemandem (Dat.) etwas (Akk.)"
+   ],
+   "examples": [
+    {
+     "s": "Die Jacke gefällt mir sehr.",
+     "t": {
+      "ru": "Мне очень нравится куртка.",
+      "uz": "Kurtka menga juda yoqadi."
+     }
+    },
+    {
+     "s": "Wem gehört das Handy?",
+     "t": {
+      "ru": "Чей это телефон?",
+      "uz": "Bu telefon kimniki?"
+     }
+    },
+    {
+     "s": "Ich gratuliere dir zum Geburtstag!",
+     "t": {
+      "ru": "Поздравляю тебя с днём рождения!",
+      "uz": "Tug'ilgan kuning bilan tabriklayman!"
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Ich gefalle den Film.",
+    "right": "Der Film gefällt mir.",
+    "note": {
+     "ru": "С gefallen подлежащее — то, что нравится.",
+     "en": "With gefallen the subject is the thing you like.",
+     "uz": "gefallen bilan ega — yoqqan narsa."
+    }
+   },
+   "tip": {
+    "ru": "helfen, danken, gefallen, gehören → кому? (mir, dem, der).",
+    "en": "helfen, danken, gefallen, gehören → to whom? (mir, dem, der).",
+    "uz": "helfen, danken, gefallen, gehören → kimga? (mir, dem, der)."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Ich helfe ___ Freundin. (meine)",
+     "o": [
+      "meine",
+      "meiner",
+      "meinen"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "helfen + датив, die → meiner.",
+      "en": "helfen + dative, feminine → meiner.",
+      "uz": "helfen + dativ, ayol rodi → meiner."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Die Schuhe ___ mir nicht.",
+     "o": [
+      "passen",
+      "passt",
+      "passe"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Подлежащее — die Schuhe (они) → passen.",
+      "en": "The subject is die Schuhe (they) → passen.",
+      "uz": "Ega — die Schuhe (ular) → passen."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Das Auto gehört ___ Vater.",
+     "o": [
+      "meinen",
+      "meinem",
+      "mein"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "gehören + датив, der → meinem.",
+      "en": "gehören + dative, masculine → meinem.",
+      "uz": "gehören + dativ, erkak rodi → meinem."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Die Suppe schmeckt mir.",
+      "Ich schmecke die Suppe."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Еда «вкусна мне» → schmeckt mir.",
+      "en": "Food tastes good to me → schmeckt mir.",
+      "uz": "Ovqat menga yoqadi → schmeckt mir."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich danke dir.",
+      "Ich danke dich."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "danken + датив → dir.",
+      "en": "danken + dative → dir.",
+      "uz": "danken + dativ → dir."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Kannst",
+      "du",
+      "mir",
+      "den",
+      "Weg",
+      "zeigen?"
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Wie",
+      "gefällt",
+      "dir",
+      "die",
+      "neue",
+      "Wohnung?"
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Er antwortet ___ Lehrer nicht. (der)",
+     "a": [
+      "dem"
+     ],
+     "e": {
+      "ru": "antworten + датив → dem.",
+      "en": "antworten + dative → dem.",
+      "uz": "antworten + dativ → dem."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "*Mir* gefällt der Film.",
+     "Der Film gefällt *mir*."
+    ],
+    "q": {
+     "ru": "Кто подлежащее в этих фразах?",
+     "en": "What is the subject in these sentences?",
+     "uz": "Bu gaplarda ega nima?"
+    },
+    "o": [
+     {
+      "ru": "der Film — он «нравится», а mir — кому",
+      "en": "der Film — it does the pleasing; mir is to whom",
+      "uz": "der Film — yoqadi, mir — kimga"
+     },
+     {
+      "ru": "mir — подлежащее",
+      "en": "mir is the subject",
+      "uz": "mir — ega"
+     },
+     {
+      "ru": "Подлежащего нет",
+      "en": "There is no subject",
+      "uz": "Ega yo'q"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Ich schenke ___ Bruder ein Buch.",
+     "o": [
+      "meinen",
+      "meinem",
+      "mein"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Кому? → meinem.",
+      "en": "To whom? → meinem.",
+      "uz": "Kimga? → meinem."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Die Blumen ___ meiner Oma sehr.",
+     "o": [
+      "gefällt",
+      "gefallen",
+      "gefalle"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "die Blumen — они → gefallen.",
+      "en": "die Blumen (they) → gefallen.",
+      "uz": "die Blumen (ular) → gefallen."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Hilfst du ___ bitte? (ich)",
+     "o": [
+      "mich",
+      "mir",
+      "mein"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "helfen + датив → mir.",
+      "en": "helfen + dative → mir.",
+      "uz": "helfen + dativ → mir."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Напиши, что тебе нравится (gefällt mir), чей у тебя телефон (gehört mir) и кому ты помогаешь.",
+    "en": "Write what you like (gefällt mir), whose phone you have and whom you help.",
+    "uz": "Sizga nima yoqishi (gefällt mir), telefon kimniki va kimga yordam berishingizni yozing."
+   }
+  },
+  {
    "id": "subordinate",
    "level": "B1",
    "title": {
@@ -5225,6 +6785,1054 @@
    }
   },
   {
+   "id": "futur",
+   "level": "B1",
+   "title": {
+    "ru": "Будущее время: werden + инфинитив",
+    "en": "Future: werden + infinitive",
+    "uz": "Kelasi zamon: werden + infinitiv"
+   },
+   "sum": {
+    "ru": "Futur I — и почему немцы часто обходятся настоящим.",
+    "en": "Futur I — and why Germans often use the present instead.",
+    "uz": "Futur I — va nega nemislar ko'pincha hozirgi zamonni ishlatadi."
+   },
+   "explain": {
+    "ru": [
+     "werden на 2-м месте + инфинитив в конце: Ich werde morgen arbeiten. Формы: werde, wirst, wird, werden, werdet, werden.",
+     "Если ясно, когда (morgen, nächste Woche), обычно хватает настоящего: Morgen fahre ich nach Berlin.",
+     "Futur нужен для обещаний и предположений: Ich werde dir helfen. Er wird wohl krank sein (он, наверное, болен)."
+    ],
+    "en": [
+     "werden in position 2 + infinitive at the end: Ich werde morgen arbeiten. werde, wirst, wird, werden, werdet, werden.",
+     "If the time is clear (morgen), the present is usually enough: Morgen fahre ich nach Berlin.",
+     "The Futur is for promises and guesses: Ich werde dir helfen. Er wird wohl krank sein."
+    ],
+    "uz": [
+     "werden 2-o'rinda + oxirida infinitiv: Ich werde morgen arbeiten. werde, wirst, wird, werden, werdet, werden.",
+     "Vaqt aniq bo'lsa (morgen), odatda hozirgi zamon yetarli: Morgen fahre ich nach Berlin.",
+     "Futur va'da va taxmin uchun: Ich werde dir helfen. Er wird wohl krank sein (u kasal bo'lsa kerak)."
+    ]
+   },
+   "formula": [
+    "werde / wirst / wird + … + infinitive",
+    "Morgen fahre ich … (present)",
+    "wird wohl … sein = probably"
+   ],
+   "examples": [
+    {
+     "s": "Ich werde dich nie vergessen.",
+     "t": {
+      "ru": "Я тебя никогда не забуду.",
+      "uz": "Seni hech qachon unutmayman."
+     }
+    },
+    {
+     "s": "Es wird morgen regnen.",
+     "t": {
+      "ru": "Завтра будет дождь.",
+      "uz": "Ertaga yomg'ir yog'adi."
+     }
+    },
+    {
+     "s": "Sie wird wohl schon zu Hause sein.",
+     "t": {
+      "ru": "Она, наверное, уже дома.",
+      "uz": "U allaqachon uyda bo'lsa kerak."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Ich werde arbeiten morgen.",
+    "right": "Ich werde morgen arbeiten.",
+    "note": {
+     "ru": "Инфинитив в самом конце.",
+     "en": "The infinitive goes at the very end.",
+     "uz": "Infinitiv eng oxirida."
+    }
+   },
+   "tip": {
+    "ru": "werden второй, инфинитив в конце.",
+    "en": "werden second, infinitive last.",
+    "uz": "werden ikkinchi, infinitiv oxirida."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Du ___ das schaffen!",
+     "o": [
+      "wirst",
+      "wird",
+      "werdest"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "du → wirst.",
+      "en": "du → wirst.",
+      "uz": "du → wirst."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Nächstes Jahr werden wir nach Spanien ___.",
+     "o": [
+      "fliegen",
+      "fliegt",
+      "geflogen"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Инфинитив: fliegen.",
+      "en": "Infinitive: fliegen.",
+      "uz": "Infinitiv: fliegen."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Er antwortet nicht. Er ___ wohl schlafen.",
+     "o": [
+      "wird",
+      "werdet",
+      "ist"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Предположение: wird wohl …",
+      "en": "A guess: wird wohl …",
+      "uz": "Taxmin: wird wohl …"
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ihr werdet sehen!",
+      "Ihr wirst sehen!"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "ihr → werdet.",
+      "en": "ihr → werdet.",
+      "uz": "ihr → werdet."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich werde dir morgen helfen.",
+      "Ich werde dir morgen geholfen."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Futur: инфинитив, не причастие.",
+      "en": "Futur takes the infinitive, not the participle.",
+      "uz": "Futur: infinitiv, sifatdosh emas."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Wir",
+      "werden",
+      "uns",
+      "bald",
+      "wiedersehen."
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Was",
+      "wirst",
+      "du",
+      "nach",
+      "dem",
+      "Studium",
+      "machen?"
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Ich ___ dich anrufen, versprochen! (werden)",
+     "a": [
+      "werde"
+     ],
+     "e": {
+      "ru": "ich → werde.",
+      "en": "ich → werde.",
+      "uz": "ich → werde."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "Morgen *fahre* ich nach Berlin.",
+     "Ich *werde* dir immer *helfen*."
+    ],
+    "q": {
+     "ru": "Почему во второй фразе werden?",
+     "en": "Why werden in the second sentence?",
+     "uz": "Nega ikkinchi gapda werden?"
+    },
+    "o": [
+     {
+      "ru": "Это обещание; для простого плана хватает настоящего",
+      "en": "It is a promise; a simple plan only needs the present",
+      "uz": "Bu va'da; oddiy reja uchun hozirgi zamon yetarli"
+     },
+     {
+      "ru": "Без werden нельзя говорить о будущем",
+      "en": "You can’t talk about the future without werden",
+      "uz": "werden siz kelajak haqida gapirib bo'lmaydi"
+     },
+     {
+      "ru": "Это прошедшее время",
+      "en": "It is the past",
+      "uz": "Bu o'tgan zamon"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Es ___ bald dunkel.",
+     "o": [
+      "wird",
+      "werden",
+      "wirst"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "es → wird.",
+      "en": "es → wird.",
+      "uz": "es → wird."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Wir werden dich ___.",
+     "o": [
+      "besuchen",
+      "besucht",
+      "besuchten"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Инфинитив.",
+      "en": "Infinitive.",
+      "uz": "Infinitiv."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Wo ist Paul? — Er ___ wohl im Büro sein.",
+     "o": [
+      "wird",
+      "ist",
+      "war"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Предположение → wird wohl.",
+      "en": "A guess → wird wohl.",
+      "uz": "Taxmin → wird wohl."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Напиши 3 обещания или прогноза на будущий год с werden.",
+    "en": "Write 3 promises or predictions for next year with werden.",
+    "uz": "Kelgusi yil uchun werden bilan 3 ta va'da yoki bashorat yozing."
+   }
+  },
+  {
+   "id": "als-wenn",
+   "level": "B1",
+   "title": {
+    "ru": "Als или wenn: «когда» в прошлом",
+    "en": "Als or wenn: “when” in the past",
+    "uz": "Als yoki wenn: o'tmishdagi «qachonki»"
+   },
+   "sum": {
+    "ru": "Два немецких «когда» и как их не путать.",
+    "en": "Two German words for “when” and how not to mix them up.",
+    "uz": "Ikki nemischa «qachonki» va ularni chalkashtirmaslik."
+   },
+   "explain": {
+    "ru": [
+     "als — одно событие или период в прошлом: Als ich klein war, wohnten wir in Taschkent. Als er kam, regnete es.",
+     "wenn — повторялось в прошлом (immer wenn — каждый раз, когда) или любое время в настоящем/будущем: Wenn ich Zeit habe, lese ich.",
+     "Оба открывают придаточное: глагол в конце, а главное начинается с глагола: Als ich ankam, war es schon dunkel."
+    ],
+    "en": [
+     "als — one event or period in the past: Als ich klein war, … Als er kam, …",
+     "wenn — repeated in the past (immer wenn) or any present/future time: Wenn ich Zeit habe, lese ich.",
+     "Both open a clause: verb at the end, and the main clause starts with the verb: Als ich ankam, war es schon dunkel."
+    ],
+    "uz": [
+     "als — o'tmishdagi bitta voqea yoki davr: Als ich klein war, … Als er kam, …",
+     "wenn — o'tmishda takrorlangan (immer wenn) yoki hozir/kelajak: Wenn ich Zeit habe, lese ich.",
+     "Ikkalasi ergash gap ochadi: fe'l oxirida, bosh gap fe'l bilan boshlanadi: Als ich ankam, war es schon dunkel."
+    ]
+   },
+   "formula": [
+    "past, once → als",
+    "past, every time → (immer) wenn",
+    "present / future → wenn"
+   ],
+   "examples": [
+    {
+     "s": "Als ich 18 war, habe ich meinen Führerschein gemacht.",
+     "t": {
+      "ru": "Когда мне было 18, я получил права.",
+      "uz": "18 yoshimda haydovchilik guvohnomasini oldim."
+     }
+    },
+    {
+     "s": "Immer wenn es regnete, blieben wir zu Hause.",
+     "t": {
+      "ru": "Каждый раз, когда шёл дождь, мы сидели дома.",
+      "uz": "Har safar yomg'ir yoqqanda uyda qolardik."
+     }
+    },
+    {
+     "s": "Wenn du kommst, kochen wir zusammen.",
+     "t": {
+      "ru": "Когда ты придёшь, приготовим вместе.",
+      "uz": "Kelganingda birga ovqat qilamiz."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Wenn ich ein Kind war, spielte ich viel.",
+    "right": "Als ich ein Kind war, spielte ich viel.",
+    "note": {
+     "ru": "Один период в прошлом → als.",
+     "en": "One period in the past → als.",
+     "uz": "O'tmishdagi bitta davr → als."
+    }
+   },
+   "tip": {
+    "ru": "Однажды в прошлом → als; каждый раз или сейчас → wenn.",
+    "en": "Once in the past → als; every time or now → wenn.",
+    "uz": "O'tmishda bir marta → als; har safar yoki hozir → wenn."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "___ ich gestern nach Hause kam, war niemand da.",
+     "o": [
+      "Als",
+      "Wenn",
+      "Wann"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Одно событие вчера → als.",
+      "en": "One event yesterday → als.",
+      "uz": "Kecha bitta voqea → als."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Immer ___ Oma kam, brachte sie Kuchen mit.",
+     "o": [
+      "als",
+      "wenn",
+      "wann"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Каждый раз → wenn.",
+      "en": "Every time → wenn.",
+      "uz": "Har safar → wenn."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "___ ich mit der Arbeit fertig bin, rufe ich dich an.",
+     "o": [
+      "Als",
+      "Wenn",
+      "Ob"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Будущее → wenn.",
+      "en": "Future → wenn.",
+      "uz": "Kelajak → wenn."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Als wir in Rom waren, haben wir viel gesehen.",
+      "Wenn wir in Rom waren, haben wir viel gesehen."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Одна поездка → als.",
+      "en": "One trip → als.",
+      "uz": "Bitta safar → als."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Wann ich Zeit habe, lese ich.",
+      "Wenn ich Zeit habe, lese ich."
+     ],
+     "a": 1,
+     "e": {
+      "ru": "wann — только вопрос «когда?».",
+      "en": "wann is only the question “when?”.",
+      "uz": "wann — faqat «qachon?» so'rog'i."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Als",
+      "ich",
+      "klein",
+      "war,",
+      "hatte",
+      "ich",
+      "Angst",
+      "vor",
+      "Hunden."
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Wenn",
+      "es",
+      "warm",
+      "ist,",
+      "gehen",
+      "wir",
+      "schwimmen."
+     ]
+    },
+    {
+     "k": "type",
+     "q": "___ ich das hörte, war ich sehr froh. (als/wenn)",
+     "a": [
+      "Als"
+     ],
+     "e": {
+      "ru": "Один раз в прошлом → als.",
+      "en": "Once in the past → als.",
+      "uz": "O'tmishda bir marta → als."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "*Als* ich 10 war, bekam ich einen Hund.",
+     "*Wenn* ich krank war, kochte Mama Suppe."
+    ],
+    "q": {
+     "ru": "Чем отличаются эти «когда»?",
+     "en": "How are these “whens” different?",
+     "uz": "Bu «qachonki»lar nimasi bilan farq qiladi?"
+    },
+    "o": [
+     {
+      "ru": "als — один раз, wenn — каждый раз",
+      "en": "als — once, wenn — every time",
+      "uz": "als — bir marta, wenn — har safar"
+     },
+     {
+      "ru": "als — будущее, wenn — прошлое",
+      "en": "als — future, wenn — past",
+      "uz": "als — kelajak, wenn — o'tmish"
+     },
+     {
+      "ru": "Ничем",
+      "en": "They are the same",
+      "uz": "Hech narsa"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "___ wir uns kennenlernten, war ich 20.",
+     "o": [
+      "Als",
+      "Wenn",
+      "Wann"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Один раз → als.",
+      "en": "Once → als.",
+      "uz": "Bir marta → als."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Jedes Mal, ___ ich ihn sehe, lacht er.",
+     "o": [
+      "als",
+      "wenn",
+      "ob"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "Каждый раз → wenn.",
+      "en": "Every time → wenn.",
+      "uz": "Har safar → wenn."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "___ kommt der Zug? — Um acht.",
+     "o": [
+      "Als",
+      "Wenn",
+      "Wann"
+     ],
+     "a": 2,
+     "e": {
+      "ru": "Вопрос → wann.",
+      "en": "A question → wann.",
+      "uz": "So'roq → wann."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Напиши о детстве: одно событие (Als ich …) и одну привычку (Immer wenn …).",
+    "en": "Write about your childhood: one event (Als ich …) and one habit (Immer wenn …).",
+    "uz": "Bolaligingiz haqida yozing: bitta voqea (Als ich …) va bitta odat (Immer wenn …)."
+   }
+  },
+  {
+   "id": "indirect-questions",
+   "level": "B1",
+   "title": {
+    "ru": "Косвенные вопросы: ob, wo, wann",
+    "en": "Indirect questions: ob, wo, wann",
+    "uz": "Bilvosita so'roqlar: ob, wo, wann"
+   },
+   "sum": {
+    "ru": "«Ты не знаешь, где…?» — вежливо и с глаголом в конце.",
+    "en": "“Do you know where…?” — polite, with the verb at the end.",
+    "uz": "«Bilmaysanmi, qayerda…?» — xushmuomala va fe'l oxirida."
+   },
+   "explain": {
+    "ru": [
+     "После Weißt du, Können Sie mir sagen, Ich frage mich вопрос становится придаточным: глагол в конце: Wo ist der Bahnhof? → Können Sie mir sagen, wo der Bahnhof ist?",
+     "Вопросы «да/нет» превращаются в ob (ли): Kommt er? → Ich weiß nicht, ob er kommt.",
+     "Не путай ob и wenn: ob = «ли», wenn = «если/когда»."
+    ],
+    "en": [
+     "After Weißt du / Können Sie mir sagen the question becomes a clause with the verb last: …, wo der Bahnhof ist?",
+     "Yes/no questions turn into ob (whether): Ich weiß nicht, ob er kommt.",
+     "Don’t mix up ob (whether) and wenn (if/when)."
+    ],
+    "uz": [
+     "Weißt du, Können Sie mir sagen dan keyin savol ergash gapga aylanadi, fe'l oxirida: …, wo der Bahnhof ist?",
+     "Ha/yo'q so'roqlari ob (-mi) ga aylanadi: Ich weiß nicht, ob er kommt.",
+     "ob (-mi) va wenn (agar/qachon) ni chalkashtirma."
+    ]
+   },
+   "formula": [
+    "Weißt du, wo … VERB?",
+    "Ich weiß nicht, ob … VERB.",
+    "ob = whether · wenn = if/when"
+   ],
+   "examples": [
+    {
+     "s": "Wissen Sie, wann der Zug fährt?",
+     "t": {
+      "ru": "Вы не знаете, когда идёт поезд?",
+      "uz": "Poyezd qachon jo'nashini bilasizmi?"
+     }
+    },
+    {
+     "s": "Ich frage mich, ob das stimmt.",
+     "t": {
+      "ru": "Интересно, правда ли это.",
+      "uz": "Bu rostmikan, deb o'ylayman."
+     }
+    },
+    {
+     "s": "Kannst du mir sagen, wie spät es ist?",
+     "t": {
+      "ru": "Скажешь, который час?",
+      "uz": "Soat necha bo'lganini ayta olasanmi?"
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Weißt du, wo ist mein Handy?",
+    "right": "Weißt du, wo mein Handy ist?",
+    "note": {
+     "ru": "В косвенном вопросе глагол в конце.",
+     "en": "In an indirect question the verb goes last.",
+     "uz": "Bilvosita so'roqda fe'l oxirida."
+    }
+   },
+   "tip": {
+    "ru": "W-слово или ob → глагол в конец.",
+    "en": "W-word or ob → verb to the end.",
+    "uz": "W-so'z yoki ob → fe'l oxiriga."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Ich weiß nicht, ___ sie morgen Zeit hat.",
+     "o": [
+      "ob",
+      "wenn",
+      "dass"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "«Есть ли» → ob.",
+      "en": "“Whether” → ob.",
+      "uz": "«-mi» → ob."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Können Sie mir sagen, wo die Post ___?",
+     "o": [
+      "ist",
+      "ist sie",
+      "sein"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Глагол в конце.",
+      "en": "The verb goes last.",
+      "uz": "Fe'l oxirida."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Weißt du, wie viel das ___?",
+     "o": [
+      "kostet",
+      "kostet es",
+      "kosten"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "das → kostet, в конце.",
+      "en": "das → kostet, at the end.",
+      "uz": "das → kostet, oxirida."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Er fragt, ob wir mitkommen.",
+      "Er fragt, ob kommen wir mit."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Глагол в конце: mitkommen.",
+      "en": "Verb last: mitkommen.",
+      "uz": "Fe'l oxirida: mitkommen."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich weiß nicht, wenn er kommt.",
+      "Ich weiß nicht, ob er kommt."
+     ],
+     "a": 1,
+     "e": {
+      "ru": "«ли» → ob.",
+      "en": "“whether” → ob.",
+      "uz": "«-mi» → ob."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Weißt",
+      "du,",
+      "wann",
+      "der",
+      "Film",
+      "anfängt?"
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Ich",
+      "frage",
+      "mich,",
+      "ob",
+      "sie",
+      "recht",
+      "hat."
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Kannst du mir sagen, wo du ___? (wohnen)",
+     "a": [
+      "wohnst"
+     ],
+     "e": {
+      "ru": "du → wohnst, в конце.",
+      "en": "du → wohnst, at the end.",
+      "uz": "du → wohnst, oxirida."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "Wo *ist* der Bahnhof?",
+     "Wissen Sie, wo der Bahnhof *ist*?"
+    ],
+    "q": {
+     "ru": "Что случилось с ist?",
+     "en": "What happened to ist?",
+     "uz": "ist bilan nima bo'ldi?"
+    },
+    "o": [
+     {
+      "ru": "Ушёл в конец, потому что это придаточное",
+      "en": "It moved to the end because it is now a clause",
+      "uz": "Oxiriga ketdi, chunki endi ergash gap"
+     },
+     {
+      "ru": "Пропал",
+      "en": "It disappeared",
+      "uz": "Yo'qoldi"
+     },
+     {
+      "ru": "Ничего",
+      "en": "Nothing",
+      "uz": "Hech narsa"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Ich weiß nicht, ___ ich das schaffe.",
+     "o": [
+      "ob",
+      "wenn",
+      "wann"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "«ли» → ob.",
+      "en": "“whether” → ob.",
+      "uz": "«-mi» → ob."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Sag mir bitte, warum du so traurig ___.",
+     "o": [
+      "bist",
+      "bist du",
+      "sein"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Глагол в конце.",
+      "en": "Verb last.",
+      "uz": "Fe'l oxirida."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Weißt du, wer das Fenster ___ hat?",
+     "o": [
+      "geöffnet",
+      "öffnet",
+      "öffnen"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Perfekt: geöffnet hat.",
+      "en": "Perfekt: geöffnet hat.",
+      "uz": "Perfekt: geöffnet hat."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Задай 3 вежливых вопроса незнакомцу на улице (Können Sie mir sagen, …? Wissen Sie, ob …?).",
+    "en": "Write 3 polite questions for a stranger in the street (Können Sie mir sagen, …?).",
+    "uz": "Ko'chadagi notanish odamga 3 ta xushmuomala savol yozing (Können Sie mir sagen, …?)."
+   }
+  },
+  {
+   "id": "verb-prepositions",
+   "level": "B1",
+   "title": {
+    "ru": "Глаголы с предлогами: warten auf, denken an",
+    "en": "Verbs with prepositions: warten auf, denken an",
+    "uz": "Predlogli fe'llar: warten auf, denken an"
+   },
+   "sum": {
+    "ru": "Устойчивые пары и вопросы worauf? / darauf.",
+    "en": "Fixed verb + preposition pairs and worauf? / darauf.",
+    "uz": "Turg'un juftliklar va worauf? / darauf."
+   },
+   "explain": {
+    "ru": [
+     "Многие глаголы идут с определённым предлогом и падежом: warten auf + Akk., denken an + Akk., sich interessieren für + Akk., träumen von + Dat., Angst haben vor + Dat.",
+     "Вопрос о предмете — wo(r) + предлог: Worauf wartest du? Wovon träumst du? О человеке — предлог + wen/wem: Auf wen wartest du?",
+     "Ответ про предмет — da(r) + предлог: Ich warte darauf. Ich denke oft daran."
+    ],
+    "en": [
+     "Many verbs take a fixed preposition and case: warten auf + Akk., denken an + Akk., träumen von + Dat., Angst haben vor + Dat.",
+     "Ask about a thing with wo(r)+preposition: Worauf wartest du? About a person: Auf wen wartest du?",
+     "Refer back to a thing with da(r)+preposition: Ich warte darauf. Ich denke oft daran."
+    ],
+    "uz": [
+     "Ko'p fe'llar ma'lum predlog va kelishik bilan keladi: warten auf + Akk., denken an + Akk., träumen von + Dat., Angst haben vor + Dat.",
+     "Narsa haqida — wo(r) + predlog: Worauf wartest du? Odam haqida — predlog + wen/wem: Auf wen wartest du?",
+     "Narsaga qaytish — da(r) + predlog: Ich warte darauf. Ich denke oft daran."
+    ]
+   },
+   "formula": [
+    "warten auf · denken an · träumen von",
+    "Worauf? / Woran? / Wovon?",
+    "darauf / daran / davon"
+   ],
+   "examples": [
+    {
+     "s": "Ich warte seit einer Stunde auf den Bus.",
+     "t": {
+      "ru": "Я уже час жду автобус.",
+      "uz": "Bir soatdan beri avtobus kutyapman."
+     }
+    },
+    {
+     "s": "Woran denkst du gerade?",
+     "t": {
+      "ru": "О чём ты сейчас думаешь?",
+      "uz": "Hozir nima haqida o'ylayapsan?"
+     }
+    },
+    {
+     "s": "Sie träumt von einer Reise nach Japan.",
+     "t": {
+      "ru": "Она мечтает о поездке в Японию.",
+      "uz": "U Yaponiyaga sayohat haqida orzu qiladi."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Ich warte für dich.",
+    "right": "Ich warte auf dich.",
+    "note": {
+     "ru": "warten auf, не für.",
+     "en": "warten auf, not für.",
+     "uz": "warten auf, für emas."
+    }
+   },
+   "tip": {
+    "ru": "Учи глагол вместе с предлогом: warten auf, denken an.",
+    "en": "Learn the verb with its preposition: warten auf, denken an.",
+    "uz": "Fe'lni predlogi bilan o'rgan: warten auf, denken an."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Ich interessiere mich ___ Geschichte.",
+     "o": [
+      "für",
+      "auf",
+      "an"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "sich interessieren für.",
+      "en": "sich interessieren für.",
+      "uz": "sich interessieren für."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "___ hast du Angst? — Vor Spinnen.",
+     "o": [
+      "Wovor",
+      "Worauf",
+      "Woran"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Angst vor → wovor.",
+      "en": "Angst vor → wovor.",
+      "uz": "Angst vor → wovor."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Denkst du an den Termin? — Ja, ich denke ___.",
+     "o": [
+      "daran",
+      "darauf",
+      "davon"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "denken an → daran.",
+      "en": "denken an → daran.",
+      "uz": "denken an → daran."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Wir freuen uns auf die Ferien.",
+      "Wir freuen uns an die Ferien."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "sich freuen auf (будущее).",
+      "en": "sich freuen auf (future).",
+      "uz": "sich freuen auf (kelajak)."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich habe Angst vor Hunden.",
+      "Ich habe Angst für Hunden."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Angst haben vor + датив.",
+      "en": "Angst haben vor + dative.",
+      "uz": "Angst haben vor + dativ."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Ich",
+      "träume",
+      "oft",
+      "von",
+      "meiner",
+      "Heimat."
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Worüber",
+      "sprecht",
+      "ihr",
+      "gerade?"
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Er wartet ___ eine Antwort. (preposition)",
+     "a": [
+      "auf"
+     ],
+     "e": {
+      "ru": "warten auf.",
+      "en": "warten auf.",
+      "uz": "warten auf."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "Ich warte *auf* den Bus.",
+     "*Worauf* wartest du?",
+     "Ich warte *darauf*."
+    ],
+    "q": {
+     "ru": "Что общего у трёх фраз?",
+     "en": "What do the three sentences share?",
+     "uz": "Uch gapning umumiy jihati nima?"
+    },
+    "o": [
+     {
+      "ru": "Предлог auf остаётся: auf, wor-auf, dar-auf",
+      "en": "The preposition auf stays: auf, wor-auf, dar-auf",
+      "uz": "auf predlogi qoladi: auf, wor-auf, dar-auf"
+     },
+     {
+      "ru": "Все в прошедшем времени",
+      "en": "All are in the past",
+      "uz": "Hammasi o'tgan zamonda"
+     },
+     {
+      "ru": "Ничего",
+      "en": "Nothing",
+      "uz": "Hech narsa"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Ich habe keine Lust ___ Sport.",
+     "o": [
+      "auf",
+      "für",
+      "an"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Lust auf.",
+      "en": "Lust auf.",
+      "uz": "Lust auf."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "___ sprichst du? — Über das Wetter.",
+     "o": [
+      "Worüber",
+      "Worauf",
+      "Wovon"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "sprechen über → worüber.",
+      "en": "sprechen über → worüber.",
+      "uz": "sprechen über → worüber."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Ich erinnere mich gut ___.",
+     "o": [
+      "daran",
+      "darauf",
+      "dafür"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "sich erinnern an → daran.",
+      "en": "sich erinnern an → daran.",
+      "uz": "sich erinnern an → daran."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Напиши, о чём ты мечтаешь (träumen von), чего ждёшь (warten auf) и чего боишься (Angst vor).",
+    "en": "Write what you dream of, what you are waiting for and what you are afraid of.",
+    "uz": "Nimani orzu qilishingiz (träumen von), nimani kutishingiz (warten auf) va nimadan qo'rqishingizni (Angst vor) yozing."
+   }
+  },
+  {
    "id": "genitive",
    "level": "B2",
    "title": {
@@ -6274,6 +8882,530 @@
     "ru": "Перескажи короткую новость (2–3 предложения) в Konjunktiv I: Laut …, Der Sprecher sagte, …",
     "en": "Report a short news item (2–3 sentences) in Konjunktiv I: Laut …, Der Sprecher sagte, …",
     "uz": "Qisqa yangilikni (2–3 gap) Konjunktiv I da yetkazing: Laut …, Der Sprecher sagte, …"
+   }
+  },
+  {
+   "id": "konjunktiv2-past",
+   "level": "B2",
+   "title": {
+    "ru": "Konjunktiv II прошедшего: hätte gemacht",
+    "en": "Past Konjunktiv II: hätte gemacht",
+    "uz": "O'tgan zamon Konjunktiv II: hätte gemacht"
+   },
+   "sum": {
+    "ru": "«Если бы тогда…» — сожаления и упущенные шансы.",
+    "en": "“If only I had…” — regrets and missed chances.",
+    "uz": "«Agar o'shanda…» — afsus va boy berilgan imkoniyatlar."
+   },
+   "explain": {
+    "ru": [
+     "hätte / wäre + Partizip II: Ich hätte mehr lernen sollen… Wenn ich das gewusst hätte, wäre ich gekommen.",
+     "hätte или wäre — как в Perfekt: движение → wäre (wäre gefahren), остальное → hätte (hätte gekauft).",
+     "С модальным — двойной инфинитив: Du hättest mich anrufen sollen. Ich hätte das nicht machen dürfen."
+    ],
+    "en": [
+     "hätte / wäre + participle: Wenn ich das gewusst hätte, wäre ich gekommen.",
+     "hätte or wäre follows the Perfekt: movement → wäre, everything else → hätte.",
+     "With a modal use a double infinitive: Du hättest mich anrufen sollen."
+    ],
+    "uz": [
+     "hätte / wäre + sifatdosh: Wenn ich das gewusst hätte, wäre ich gekommen.",
+     "hätte yoki wäre Perfekt dagidek: harakat → wäre, qolgani → hätte.",
+     "Modal bilan qo'sh infinitiv: Du hättest mich anrufen sollen."
+    ]
+   },
+   "formula": [
+    "Wenn … hätte/wäre + Partizip II,",
+    "… hätte/wäre + Partizip II",
+    "hätte … machen sollen"
+   ],
+   "examples": [
+    {
+     "s": "Wenn ich früher aufgestanden wäre, hätte ich den Bus erreicht.",
+     "t": {
+      "ru": "Если бы я встал раньше, я бы успел на автобус.",
+      "uz": "Ertaroq turganimda avtobusga ulgurgan bo'lardim."
+     }
+    },
+    {
+     "s": "Das hättest du mir sagen müssen!",
+     "t": {
+      "ru": "Ты должен был мне это сказать!",
+      "uz": "Buni menga aytishing kerak edi!"
+     }
+    },
+    {
+     "s": "Fast wäre ich zu spät gekommen.",
+     "t": {
+      "ru": "Я чуть не опоздал.",
+      "uz": "Oz qoldi kechikib qolay dedim."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Wenn ich Zeit gehabt hätte, würde ich gekommen.",
+    "right": "Wenn ich Zeit gehabt hätte, wäre ich gekommen.",
+    "note": {
+     "ru": "kommen → wäre gekommen.",
+     "en": "kommen → wäre gekommen.",
+     "uz": "kommen → wäre gekommen."
+    }
+   },
+   "tip": {
+    "ru": "Прошлое «бы» → hätte/wäre + Partizip II.",
+    "en": "Past “would have” → hätte/wäre + participle.",
+    "uz": "O'tmishdagi «-ardi» → hätte/wäre + sifatdosh."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Wenn du gefragt ___, hätte ich dir geholfen.",
+     "o": [
+      "hättest",
+      "wärst",
+      "hast"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "fragen → haben → hättest.",
+      "en": "fragen takes haben → hättest.",
+      "uz": "fragen → haben → hättest."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Wir ___ gern länger geblieben.",
+     "o": [
+      "hätten",
+      "wären",
+      "würden"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "bleiben → sein → wären.",
+      "en": "bleiben takes sein → wären.",
+      "uz": "bleiben → sein → wären."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Du hättest früher ___ sollen.",
+     "o": [
+      "kommen",
+      "gekommen",
+      "kamst"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Модальный: двойной инфинитив.",
+      "en": "Modal: double infinitive.",
+      "uz": "Modal: qo'sh infinitiv."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich hätte das Spiel fast gewonnen.",
+      "Ich wäre das Spiel fast gewonnen."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "gewinnen → haben.",
+      "en": "gewinnen takes haben.",
+      "uz": "gewinnen → haben."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Wenn sie den Zug genommen hätte, wäre sie pünktlich gewesen.",
+      "Wenn sie den Zug genommen wäre, hätte sie pünktlich gewesen."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "nehmen → hätte, sein → wäre gewesen.",
+      "en": "nehmen → hätte, sein → wäre gewesen.",
+      "uz": "nehmen → hätte, sein → wäre gewesen."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Ich",
+      "hätte",
+      "dich",
+      "gern",
+      "eingeladen."
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Wenn",
+      "wir",
+      "Zeit",
+      "gehabt",
+      "hätten,",
+      "wären",
+      "wir",
+      "ins",
+      "Museum",
+      "gegangen."
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Wenn ich das gewusst ___, hätte ich nichts gesagt. (haben)",
+     "a": [
+      "hätte"
+     ],
+     "e": {
+      "ru": "wissen → hätte.",
+      "en": "wissen → hätte.",
+      "uz": "wissen → hätte."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "Ich *hätte* mehr *lernen* sollen.",
+     "Wenn ich mehr gelernt *hätte*, *wäre* ich nicht *durchgefallen*."
+    ],
+    "q": {
+     "ru": "Что выражают эти фразы?",
+     "en": "What do these sentences express?",
+     "uz": "Bu gaplar nimani bildiradi?"
+    },
+    "o": [
+     {
+      "ru": "Сожаление о прошлом, которое уже не изменить",
+      "en": "Regret about a past that can’t be changed",
+      "uz": "O'zgartirib bo'lmaydigan o'tmish haqida afsus"
+     },
+     {
+      "ru": "План на будущее",
+      "en": "A plan for the future",
+      "uz": "Kelajak rejasi"
+     },
+     {
+      "ru": "Факт",
+      "en": "A fact",
+      "uz": "Fakt"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Wenn es nicht geregnet ___, wären wir gewandert.",
+     "o": [
+      "hätte",
+      "wäre",
+      "hat"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "regnen → hätte.",
+      "en": "regnen → hätte.",
+      "uz": "regnen → hätte."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Ich ___ fast den Flug verpasst.",
+     "o": [
+      "hätte",
+      "wäre",
+      "würde"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "verpassen → hätte.",
+      "en": "verpassen → hätte.",
+      "uz": "verpassen → hätte."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Er ___ besser zu Hause geblieben.",
+     "o": [
+      "hätte",
+      "wäre",
+      "hat"
+     ],
+     "a": 1,
+     "e": {
+      "ru": "bleiben → wäre.",
+      "en": "bleiben → wäre.",
+      "uz": "bleiben → wäre."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Напиши о 2 решениях из прошлого: что было бы, если бы ты поступил иначе.",
+    "en": "Write about 2 past decisions: what would have happened if you had acted differently.",
+    "uz": "O'tmishdagi 2 ta qaror haqida yozing: boshqacha qilganingizda nima bo'lardi."
+   }
+  },
+  {
+   "id": "passive-modal",
+   "level": "B2",
+   "title": {
+    "ru": "Пассив с модальными: muss gemacht werden",
+    "en": "Passive with modals: muss gemacht werden",
+    "uz": "Modal fe'llar bilan majhul nisbat: muss gemacht werden"
+   },
+   "sum": {
+    "ru": "«Нужно сделать», «можно купить» — в официальном немецком.",
+    "en": "“Must be done”, “can be bought” — in formal German.",
+    "uz": "«Qilinishi kerak», «sotib olinishi mumkin» — rasmiy nemis tilida."
+   },
+   "explain": {
+    "ru": [
+     "Модальный на 2-м месте + Partizip II + werden в конце: Das Formular muss ausgefüllt werden. Tickets können online gekauft werden.",
+     "В прошлом: musste / konnte + … + werden: Der Termin musste verschoben werden.",
+     "В придаточном werden + модальный в конце: …, weil die Arbeit heute erledigt werden muss."
+    ],
+    "en": [
+     "Modal in position 2 + participle + werden at the end: Das Formular muss ausgefüllt werden.",
+     "In the past: musste / konnte … werden: Der Termin musste verschoben werden.",
+     "In a clause the modal goes last: …, weil die Arbeit heute erledigt werden muss."
+    ],
+    "uz": [
+     "Modal 2-o'rinda + sifatdosh + oxirida werden: Das Formular muss ausgefüllt werden.",
+     "O'tmishda: musste / konnte … werden: Der Termin musste verschoben werden.",
+     "Ergash gapda modal eng oxirida: …, weil die Arbeit heute erledigt werden muss."
+    ]
+   },
+   "formula": [
+    "muss / kann / darf + … + Partizip II + werden",
+    "musste … werden (past)",
+    "…, weil … erledigt werden muss."
+   ],
+   "examples": [
+    {
+     "s": "Das Fenster darf nicht geöffnet werden.",
+     "t": {
+      "ru": "Окно нельзя открывать.",
+      "uz": "Derazani ochish mumkin emas."
+     }
+    },
+    {
+     "s": "Die Rechnung muss bis Freitag bezahlt werden.",
+     "t": {
+      "ru": "Счёт нужно оплатить до пятницы.",
+      "uz": "Hisob jumagacha to'lanishi kerak."
+     }
+    },
+    {
+     "s": "Das Problem konnte schnell gelöst werden.",
+     "t": {
+      "ru": "Проблему удалось быстро решить.",
+      "uz": "Muammo tez hal qilindi."
+     }
+    }
+   ],
+   "mistake": {
+    "wrong": "Der Text muss werden übersetzt.",
+    "right": "Der Text muss übersetzt werden.",
+    "note": {
+     "ru": "Порядок: Partizip II, потом werden.",
+     "en": "Order: participle, then werden.",
+     "uz": "Tartib: sifatdosh, keyin werden."
+    }
+   },
+   "tip": {
+    "ru": "Модальный + … + Partizip II + werden.",
+    "en": "Modal + … + participle + werden.",
+    "uz": "Modal + … + sifatdosh + werden."
+   },
+   "ex": [
+    {
+     "k": "choose",
+     "q": "Die Medikamente müssen kühl ___ werden.",
+     "o": [
+      "gelagert",
+      "lagern",
+      "lagert"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Partizip II: gelagert.",
+      "en": "Participle: gelagert.",
+      "uz": "Sifatdosh: gelagert."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Hier ___ nicht geraucht werden.",
+     "o": [
+      "darf",
+      "dürfen",
+      "wird"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Запрет, одно действие → darf.",
+      "en": "A ban → darf.",
+      "uz": "Taqiq → darf."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Das Konzert ___ wegen Regen abgesagt werden.",
+     "o": [
+      "musste",
+      "musst",
+      "muss werden"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Прошлое → musste.",
+      "en": "Past → musste.",
+      "uz": "O'tmish → musste."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Die Aufgabe kann leicht gelöst werden.",
+      "Die Aufgabe kann leicht gelöst wird."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "После модального — werden (инфинитив).",
+      "en": "After a modal use werden (infinitive).",
+      "uz": "Modaldan keyin — werden (infinitiv)."
+     }
+    },
+    {
+     "k": "error",
+     "o": [
+      "Ich weiß, dass das Auto repariert werden muss.",
+      "Ich weiß, dass das Auto muss repariert werden."
+     ],
+     "a": 0,
+     "e": {
+      "ru": "В придаточном модальный в конце.",
+      "en": "In a clause the modal goes last.",
+      "uz": "Ergash gapda modal oxirida."
+     }
+    },
+    {
+     "k": "order",
+     "w": [
+      "Die",
+      "Wohnung",
+      "muss",
+      "renoviert",
+      "werden."
+     ]
+    },
+    {
+     "k": "order",
+     "w": [
+      "Das",
+      "Paket",
+      "konnte",
+      "nicht",
+      "zugestellt",
+      "werden."
+     ]
+    },
+    {
+     "k": "type",
+     "q": "Der Brief muss heute noch ___ werden. (schicken)",
+     "a": [
+      "geschickt"
+     ],
+     "e": {
+      "ru": "schicken → geschickt.",
+      "en": "schicken → geschickt.",
+      "uz": "schicken → geschickt."
+     }
+    }
+   ],
+   "discover": {
+    "s": [
+     "Man *muss* das Formular *ausfüllen*.",
+     "Das Formular *muss ausgefüllt werden*."
+    ],
+    "q": {
+     "ru": "Чем отличается второе предложение?",
+     "en": "How is the second sentence different?",
+     "uz": "Ikkinchi gap nimasi bilan farq qiladi?"
+    },
+    "o": [
+     {
+      "ru": "Важна задача, а не тот, кто её делает",
+      "en": "The task matters, not who does it",
+      "uz": "Vazifa muhim, kim qilishi emas"
+     },
+     {
+      "ru": "Это прошедшее время",
+      "en": "It is the past",
+      "uz": "Bu o'tgan zamon"
+     },
+     {
+      "ru": "Это вопрос",
+      "en": "It is a question",
+      "uz": "Bu so'roq"
+     }
+    ],
+    "a": 0
+   },
+   "checks": [
+    {
+     "k": "choose",
+     "q": "Die Hausaufgaben ___ bis morgen gemacht werden.",
+     "o": [
+      "müssen",
+      "muss",
+      "werden"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "die Hausaufgaben — мн. ч. → müssen.",
+      "en": "Plural → müssen.",
+      "uz": "Ko'plik → müssen."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Das Geld kann am Automaten ___ werden.",
+     "o": [
+      "abgehoben",
+      "abheben",
+      "hebt ab"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Partizip II: abgehoben.",
+      "en": "Participle: abgehoben.",
+      "uz": "Sifatdosh: abgehoben."
+     }
+    },
+    {
+     "k": "choose",
+     "q": "Er sagt, dass der Termin verschoben werden ___.",
+     "o": [
+      "muss",
+      "muss werden",
+      "wird müssen"
+     ],
+     "a": 0,
+     "e": {
+      "ru": "Модальный в конце.",
+      "en": "The modal goes last.",
+      "uz": "Modal oxirida."
+     }
+    }
+   ],
+   "write": {
+    "ru": "Напиши 3 правила для своего класса или работы в пассиве (… darf nicht … werden, … muss … werden).",
+    "en": "Write 3 rules for your class or workplace in the passive (… darf nicht … werden, … muss … werden).",
+    "uz": "Sinfingiz yoki ishingiz uchun majhul nisbatda 3 ta qoida yozing (… darf nicht … werden, … muss … werden)."
    }
   }
  ],

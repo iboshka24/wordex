@@ -18,6 +18,8 @@
     return String(s).replace(CONTROL, ' ').replace(/\s+/g, ' ').trim();
   }
   function key(s) { return clean(s).toLocaleLowerCase().normalize('NFC'); }
+  // A word without readings or glosses in brackets and without surrounding quotes: "水 (みず)" → "水".
+  function bare(s) { return key(String(s).replace(/[(（\[【][^)）\]】]*[)）\]】]/g, ' ').replace(/^["'«“「『]+|["'»”」』]+$/g, '')); }
 
   // Throws an Error with .code = 'bad-request' on anything outside the contract.
   function validateRequest(body) {
@@ -88,7 +90,8 @@
       readingRule(req.source),
       STYLE[req.target] || '',
       'Before answering, double-check that each translation is correct and natural for a native ' + tgt + ' speaker.',
-      'Skip junk (numbers, urls, single letters). Answer with STRICT JSON only, no prose and no code fences:',
+      'Skip junk (numbers, urls, single Latin letters; a single Chinese character or kana word is a real word, keep it). Copy "original" exactly, without readings or brackets.',
+      'Answer with STRICT JSON only, no prose and no code fences:',
       '{"items":[{"original":"...","meanings":[{"translation":"...","note":"..."}],"translation":"...","hint":"...","definition":"...","examples":["..."]' + (wantsReading(req.source) ? ',"reading":"..."' : '') + '}]}'
     ].filter(Boolean).join('\n');
     return [{ role: 'system', content: system }, { role: 'user', content: JSON.stringify({ words: req.words }) }];
@@ -139,12 +142,18 @@
     var list = data && (Array.isArray(data) ? data : data.items);
     if (!Array.isArray(list)) throw fail('bad-model-response', 'The model did not return the expected JSON.');
     var asked = Object.create(null);
-    req.words.forEach(function (w) { asked[key(w)] = w; });
+    req.words.forEach(function (w) { asked[key(w)] = w; asked[bare(w)] = asked[bare(w)] || w; });
+    // Models sometimes decorate "original" for Japanese/Korean ("水 (みず)", "사랑 [sarang]").
+    // Match the plain form too; and when the answer has exactly one item per word, the order decides.
+    // Only for Japanese, Korean and Chinese, where models romanize or annotate the word; Latin-script answers must match.
+    var positional = list.length === req.words.length && /^(ja|ko|zh)$/.test(req.source);
     var out = [], used = Object.create(null);
-    list.forEach(function (it) {
-      if (!it || typeof it !== 'object' || typeof it.original !== 'string') return;
+    list.forEach(function (it, idx) {
+      if (!it || typeof it !== 'object') return;
       var meanings = cleanMeanings(it.meanings, req.target);
-      var k = key(it.original), original = asked[k];
+      var given = typeof it.original === 'string' ? it.original : '';
+      var original = asked[key(given)] || asked[bare(given)] || (positional ? req.words[idx] : undefined);
+      var k = original ? key(original) : '';
       // The joined meanings are the answer key (typed answers may match any of them, split on ";" and ",").
       var translation = meanings.length ? cut(meanings.map(function (m) { return m.translation; }).join('; '), LIMITS.translation)
         : typeof it.translation === 'string' ? cut(it.translation, LIMITS.translation) : '';

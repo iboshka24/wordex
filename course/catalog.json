@@ -35,16 +35,6 @@
       { "id": "imperfetto", "level": "B1", "title": { "ru": "Imperfetto или passato prossimo", "en": "Imperfetto or passato prossimo", "uz": "Imperfetto yoki passato prossimo" } },
       { "id": "condizionale", "level": "B1", "title": { "ru": "Condizionale: vorrei, potrei", "en": "The conditional: vorrei, potrei", "uz": "Shart mayli: vorrei, potrei" } }
     ] },
-    { "code": "ja", "glyph": "あ", "native": "日本語", "ready": false, "topics": [
-      { "id": "desu", "level": "A1", "title": { "ru": "です и は: «X — это Y»", "en": "です and は: “X is Y”", "uz": "です va は: «X — bu Y»" } },
-      { "id": "particles", "level": "A1", "title": { "ru": "Частицы を, に, で, へ", "en": "Particles を, に, で, へ", "uz": "Yuklamalar を, に, で, へ" } },
-      { "id": "masu", "level": "A1", "title": { "ru": "Вежливые глаголы: ます", "en": "Polite verbs: ます", "uz": "Hurmat fe'llari: ます" } },
-      { "id": "adjectives", "level": "A1", "title": { "ru": "Прилагательные на い и な", "en": "い- and な-adjectives", "uz": "い va な sifatlari" } },
-      { "id": "te-form", "level": "A2", "title": { "ru": "て-форма", "en": "The て-form", "uz": "て-shakli" } },
-      { "id": "past", "level": "A2", "title": { "ru": "Прошедшее: ました, でした", "en": "Past: ました, でした", "uz": "O'tgan zamon: ました, でした" } },
-      { "id": "plain", "level": "A2", "title": { "ru": "Простая (словарная) форма", "en": "Plain (dictionary) form", "uz": "Oddiy (lug'at) shakl" } },
-      { "id": "potential", "level": "B1", "title": { "ru": "Возможность: できる, られる", "en": "Potential: できる, られる", "uz": "Imkoniyat: できる, られる" } }
-    ] },
     { "code": "ko", "glyph": "한", "native": "한국어", "ready": false, "topics": [
       { "id": "hangul", "level": "A1", "title": { "ru": "Хангыль: как читать", "en": "Hangul: how to read", "uz": "Hangul: qanday o'qish" } },
       { "id": "imnida", "level": "A1", "title": { "ru": "입니다 и 이에요/예요", "en": "입니다 and 이에요/예요", "uz": "입니다 va 이에요/예요" } },
@@ -54,16 +44,6 @@
       { "id": "negation", "level": "A2", "title": { "ru": "Отрицание: 안 и 지 않다", "en": "Negation: 안 and 지 않다", "uz": "Inkor: 안 va 지 않다" } },
       { "id": "future", "level": "A2", "title": { "ru": "Будущее: (으)ㄹ 거예요", "en": "Future: (으)ㄹ 거예요", "uz": "Kelasi zamon: (으)ㄹ 거예요" } },
       { "id": "want", "level": "B1", "title": { "ru": "Хочу: 고 싶다", "en": "Wanting: 고 싶다", "uz": "Xohish: 고 싶다" } }
-    ] },
-    { "code": "zh", "glyph": "中", "native": "中文", "ready": false, "topics": [
-      { "id": "shi", "level": "A1", "title": { "ru": "是: «быть»", "en": "是: “to be”", "uz": "是: «bo'lmoq»" } },
-      { "id": "word-order", "level": "A1", "title": { "ru": "Порядок слов: кто — когда — где — что делает", "en": "Word order: who — when — where — action", "uz": "So'z tartibi: kim — qachon — qayerda — harakat" } },
-      { "id": "ma", "level": "A1", "title": { "ru": "Вопросы с 吗", "en": "Questions with 吗", "uz": "吗 bilan so'roq" } },
-      { "id": "measure", "level": "A1", "title": { "ru": "Счётные слова: 个, 本, 只", "en": "Measure words: 个, 本, 只", "uz": "Hisob so'zlari: 个, 本, 只" } },
-      { "id": "de", "level": "A2", "title": { "ru": "Частица 的", "en": "The particle 的", "uz": "的 yuklamasi" } },
-      { "id": "le", "level": "A2", "title": { "ru": "了: завершённое действие", "en": "了: completed actions", "uz": "了: tugagan harakat" } },
-      { "id": "bu-mei", "level": "A2", "title": { "ru": "Отрицание: 不 и 没", "en": "Negation: 不 and 没", "uz": "Inkor: 不 va 没" } },
-      { "id": "comparison", "level": "B1", "title": { "ru": "Сравнение с 比", "en": "Comparison with 比", "uz": "比 bilan qiyoslash" } }
     ] },
     { "code": "uz", "glyph": "Oʻ", "native": "Oʻzbekcha", "ready": false, "topics": [
       { "id": "suffix-order", "level": "A1", "title": { "ru": "Аффиксы: порядок окончаний", "en": "Suffixes: the order of endings", "uz": "Qo'shimchalar tartibi" } },

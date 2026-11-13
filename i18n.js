@@ -6,7 +6,7 @@
 })(typeof window !== 'undefined' ? window : this, function (win) {
   'use strict';
   var CODES = ['ru', 'en', 'uz'];
-  var VERSION = '2.25'; // the one place the shown version lives (footer)
+  var VERSION = '2.26'; // the one place the shown version lives (footer)
   var KEY = 'vm.ui-lang';
   var D = {
     'meta.title': ['Wordzone — слова становятся знаниями', 'Wordzone — words become knowledge', "Wordzone — so'zlar bilimga aylanadi"],
@@ -320,6 +320,7 @@
     'course.tabWords': ['Из моих слов', 'From my words', "So'zlarimdan"],
     'course.pickLang': ['Какой язык разбираем?', 'Which language today?', 'Bugun qaysi til?'],
     'course.soon': ['Скоро', 'Soon', 'Tez orada'],
+    'course.moreSoon': ['Скоро новые языки', 'More languages soon', 'Tez orada yangi tillar'],
     'course.soonText': ['уроки по этому языку готовятся. Вот темы, которые здесь будут:', 'lessons for this language are on the way. Here are the topics it will have:', "bu til bo'yicha darslar tayyorlanmoqda. Mana bu yerda bo'ladigan mavzular:"],
     'course.topicsN': ['{n} тем', '{n} topics', '{n} ta mavzu'],
     'course.progress': ['ПРОЙДЕНО {d} ИЗ {n}', '{d} OF {n} DONE', "{n} TADAN {d} TASI O'TILDI"],
