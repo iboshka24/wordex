@@ -242,7 +242,8 @@
     }
     function renderLangs() {
       var box = $('courseLangs'); box.textContent = '';
-      catalog.languages.forEach(function (l) {
+      // Only ready languages are plates; the rest share one quiet "coming soon" tile (v2.26).
+      catalog.languages.filter(function (l) { return l.ready; }).forEach(function (l) {
         var topics = l.ready && lessons[l.code] ? lessons[l.code].topics : (l.topics || []);
         var done = l.ready ? langDone(l.code, topics, progress()) : 0;
         var b = h('button', { className: 'plate' + (l.code === lang ? ' on' : '') + (l.ready ? '' : ' soon'), type: 'button', role: 'radio', 'aria-checked': String(l.code === lang), 'data-code': l.code }, [
@@ -255,6 +256,17 @@
         box.appendChild(b);
         if (l.code === lang && box.scrollWidth > box.clientWidth) b.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       });
+      var later = catalog.languages.filter(function (l) { return !l.ready; });
+      if (later.length) {
+        var more = h('div', { className: 'plate plate-more' }, [
+          h('span', { className: 'plate-glyph', text: '+', 'aria-hidden': 'true' }),
+          h('span', { className: 'plate-name', text: tr('course.moreSoon') })
+        ]);
+        var names = h('span', { className: 'plate-meta' });
+        later.forEach(function (l, i) { if (i) names.appendChild(document.createTextNode(' · ')); names.appendChild(h('span', { text: l.native, lang: l.code })); });
+        more.appendChild(names);
+        box.appendChild(more);
+      }
     }
     function pickLang(code) {
       lang = code;
@@ -835,7 +847,7 @@
       $('coursePath').setAttribute('aria-busy', 'true');
       loadCatalog().then(function () {
         var saved = null; try { saved = localStorage.getItem(LANG_KEY); } catch (e) {}
-        var pref = [saved, api.preferredLang()].find(function (c) { return c && langInfo(c); }) || 'en';
+        var pref = [saved, api.preferredLang()].find(function (c) { return c && langInfo(c) && langInfo(c).ready; }) || 'en';
         pickLang(pref);
       }, function () { started = false; renderError($('coursePath')); });
     }

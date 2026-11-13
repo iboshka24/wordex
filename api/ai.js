@@ -221,7 +221,11 @@ module.exports = async (req, res) => {
   } catch (e) { content = ''; }
   let items;
   try { items = core.parseResponse(content, request); }
-  catch (e) { return fail(502, 'bad-model-response', 'The AI returned an answer that could not be used.'); }
+  catch (e) {
+    // A short, key-free sample of what the model said, so the cause shows up in the Vercel logs.
+    console.warn('[api/ai] unusable model answer for', request.source + '→' + request.target + ':', String(content || '(empty)').replace(/\s+/g, ' ').slice(0, 300));
+    return fail(502, 'bad-model-response', 'The AI returned an answer that could not be used.');
+  }
   // Only answers from the operator's own key are shared with everyone.
   if (translate && serverKey) await cache.store(request, items);
   return send(res, 200, hits.length ? { items: hits.concat(items), cached: hits.length } : { items });

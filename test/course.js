@@ -10,8 +10,11 @@ const Langs = require('../languages.js');
 const root = path.resolve(__dirname, '..');
 const catalog = JSON.parse(fs.readFileSync(path.join(root, 'course/catalog.json'), 'utf8'));
 
-// Every learnable language has a plate; ready ones have a valid lesson file, the rest list their topics.
-assert.deepEqual(catalog.languages.map(l => l.code).sort(), Langs.LEARN_CODES.slice().sort(), 'one plate per learnable language');
+// Every course language is learnable; ready ones have a valid lesson file, the rest list their topics.
+// Japanese and Chinese are learnable for words but have no grammar course planned (v2.26).
+const codes = catalog.languages.map(l => l.code);
+assert(codes.every(c => Langs.LEARN_CODES.includes(c)), 'only learnable languages have a course');
+assert.deepEqual(Langs.LEARN_CODES.filter(c => !codes.includes(c)).sort(), ['ja', 'zh'], 'every other learnable language is planned');
 for (const l of catalog.languages) {
   assert(l.glyph && l.native, l.code + ': glyph and native name');
   if (l.ready) {

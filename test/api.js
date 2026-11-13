@@ -135,6 +135,11 @@ function noSecrets(res) {
   assert.throws(() => core.parseResponse('{"items":[{"original":"pwned","translation":"x"}]}', reqFor(['apple'])), e => e.code === 'bad-model-response');
   assert.equal(core.parseResponse('noise {"items":[{"original":"apple","translation":"яблоко"}]} noise', reqFor(['apple'])).length, 1, 'JSON wrapped in prose is recovered');
 
+  // v2.26: Japanese/Korean answers with a decorated or romanized "original" still match
+  const ja = core.validateRequest({ words: ['水', '사랑', 'ありがとう'], source: 'ja', target: 'ru' });
+  assert.deepEqual(core.parseResponse(JSON.stringify({ items: [{ original: '水 (みず)', translation: 'вода' }, { original: 'sarang', translation: 'любовь' }, { original: '「ありがとう」', translation: 'спасибо' }] }), ja).map(i => i.original), ['水', '사랑', 'ありがとう']);
+  assert(/single Latin letters/.test(core.buildMessages(ja)[0].content), 'a one-character word like 水 is not "junk"');
+
   // several senses of one word form (v2.25): "meinen" = to think / my
   const de = core.validateRequest({ words: ['meinen', 'Haus'], source: 'de', target: 'ru' });
   assert(/meinen/.test(core.buildMessages(de)[0].content) && /"meanings"/.test(core.buildMessages(de)[0].content), 'the prompt asks for every common meaning');
